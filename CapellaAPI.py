@@ -260,10 +260,14 @@ class CapellaAPI(CapellaAPIRequests):
         return resp
 
     def delete_db_user(self, tenant_id, project_id, cluster_id, user_id):
+        capella_header = self.get_authorization_internal()
         url = "{}/v2/organizations/{}/projects/{}/clusters/{}/users/{}" \
-              .format(self.internal_url, tenant_id, project_id, cluster_id,
-                      user_id)
-        print(url)
+            .format(self.internal_url, tenant_id, project_id, cluster_id,
+                    user_id)
+        resp = self._urllib_request(url, method="DELETE",
+                                    params='',
+                                    headers=capella_header)
+        return resp
 
     def create_db_user(self, tenant_id, project_id, cluster_id,
                        user, pwd):
