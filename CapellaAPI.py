@@ -321,12 +321,3 @@ class CapellaAPI(CapellaAPIRequests):
               .format(self.internal_url, tenant_id, project_id, cluster_id, private_network_id)
         resp = self._urllib_request(url, method="GET", headers=capella_header)
         return resp
-
-    def get_private_networks(self, tenant_id, project_id, cluster_id,
-                             page=1, limit=100):
-        capella_header = self.get_authorization_internal()
-        url = '{}/v2/organizations/{}/projects/{}/clusters/{}' \
-              .format(self.internal_url, tenant_id, project_id, cluster_id)
-        url = url + '/users?page=%s&perPage=%s' % (page, limit)
-        resp = self._urllib_request(url, method="GET", headers=capella_header)
-        return resp
