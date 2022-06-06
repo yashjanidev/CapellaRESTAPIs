@@ -303,3 +303,30 @@ class CapellaAPI(CapellaAPIRequests):
                                     params=json.dumps(param),
                                     headers=capella_header)
         return resp
+
+    def create_private_network(self, tenant_id, project_id, cluster_id, 
+                               private_network_params):
+        capella_header = self.get_authorization_internal()
+        url = "{}/v2/organizations/{}/projects/{}/clusters/{}/virtualnetworks"\
+              .format(self.internal_url, tenant_id, project_id, cluster_id)
+        resp = self._urllib_request(url, method="POST",
+                                    params=json.dumps(private_network_params),
+                                    headers=capella_header)
+        return resp
+
+    def get_private_network(self, tenant_id, project_id, cluster_id,
+                            private_network_id):
+        capella_header = self.get_authorization_internal()
+        url = "{}/v2/organizations/{}/projects/{}/clusters/{}/virtualnetworks/{}"\
+              .format(self.internal_url, tenant_id, project_id, cluster_id, private_network_id)
+        resp = self._urllib_request(url, method="GET", headers=capella_header)
+        return resp
+
+    def get_private_networks(self, tenant_id, project_id, cluster_id,
+                             page=1, limit=100):
+        capella_header = self.get_authorization_internal()
+        url = '{}/v2/organizations/{}/projects/{}/clusters/{}' \
+              .format(self.internal_url, tenant_id, project_id, cluster_id)
+        url = url + '/users?page=%s&perPage=%s' % (page, limit)
+        resp = self._urllib_request(url, method="GET", headers=capella_header)
+        return resp
