@@ -5,9 +5,13 @@ import logging
 import pprint
 
 
-from .CapellaAPIAuth import CapellaAPIAuth
-from .CapellaExceptions import MissingAccessKeyError, \
-    MissingSecretKeyError, GenericHTTPError, CbcAPIError
+from CapellaAPIAuth import CapellaAPIAuth
+from CapellaExceptions import (
+    MissingAccessKeyError,
+    MissingSecretKeyError,
+    GenericHTTPError,
+    CbcAPIError
+)
 
 
 class CapellaAPIRequests(object):
@@ -17,7 +21,7 @@ class CapellaAPIRequests(object):
         # to the Couchbase Cloud APIs
         # Read the values from the environmental variables
         self.API_BASE_URL = url
-        self.SCERET = secret
+        self.SECRET = secret
         self.ACCESS = access
 
         self._log = logging.getLogger(__name__)
@@ -38,7 +42,7 @@ class CapellaAPIRequests(object):
         try:
             cbc_api_response = self.network_session.get(
                 self.API_BASE_URL + api_endpoint,
-                auth=CapellaAPIAuth(self.SCERET, self.ACCESS),
+                auth=CapellaAPIAuth(self.SECRET, self.ACCESS),
                 verify=False)
             self._log.debug(cbc_api_response.content)
 
@@ -71,7 +75,7 @@ class CapellaAPIRequests(object):
             cbc_api_response = self.network_session.post(
                 self.API_BASE_URL + api_endpoint,
                 json=request_body,
-                auth=CapellaAPIAuth(self.SCERET, self.ACCESS),
+                auth=CapellaAPIAuth(self.SECRET, self.ACCESS),
                 verify=False)
             self._log.debug(cbc_api_response.content)
 
@@ -102,7 +106,7 @@ class CapellaAPIRequests(object):
             cbc_api_response = self.network_session.put(
                 self.API_BASE_URL + api_endpoint,
                 json=request_body,
-                auth=CapellaAPIAuth(self.SCERET, self.ACCESS),
+                auth=CapellaAPIAuth(self.SECRET, self.ACCESS),
                 verify=False)
             self._log.debug(cbc_api_response.content)
 
@@ -128,13 +132,13 @@ class CapellaAPIRequests(object):
             if request_body is None:
                 cbc_api_response = self.network_session.delete(
                     self.API_BASE_URL + api_endpoint,
-                    auth=CapellaAPIAuth(self.SCERET, self.ACCESS),
+                    auth=CapellaAPIAuth(self.SECRET, self.ACCESS),
                     verify=False)
             else:
                 cbc_api_response = self.network_session.delete(
                     self.API_BASE_URL + api_endpoint,
                     json=request_body,
-                    auth=CapellaAPIAuth(self.SCERET, self.ACCESS),
+                    auth=CapellaAPIAuth(self.SECRET, self.ACCESS),
                     verify=False)
 
             self._log.debug(cbc_api_response.content)

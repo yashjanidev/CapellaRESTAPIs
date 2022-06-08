@@ -2,15 +2,15 @@
 # Generic/Built-in
 import logging
 
-from .CapellaAPIRequests import CapellaAPIRequests
+from CapellaAPIRequests import CapellaAPIRequests
 import json
 import base64
 
 
 class CapellaAPI(CapellaAPIRequests):
 
-    def __init__(self, url, sceret, access, user, pwd):
-        super(CapellaAPI, self).__init__(url, sceret, access)
+    def __init__(self, url, secret, access, user, pwd):
+        super(CapellaAPI, self).__init__(url, secret, access)
         self.user = user
         self.pwd = pwd
         self.internal_url = url.replace("cloud", "", 1)
