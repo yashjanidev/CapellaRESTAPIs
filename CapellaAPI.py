@@ -308,3 +308,34 @@ class CapellaAPI(CapellaAPIRequests):
                                     params=json.dumps(param),
                                     headers=capella_header)
         return resp
+
+
+    def create_cluster_customAMI(self, tenant_id, config):
+        '''
+        #Sample Config
+        config = {"cidr": "10.0.64.0/20",
+          "name": "a_customAMI",
+          "description": "",
+          "overRide": {"token": "5cf99754-a42b-06ad-fc49-9aae8b837d47",
+                       "image": "couchbase-cloud-server-7.2.0-qe",
+                       "server": "7.1.0"},
+          "projectId": "e51ce483-d067-4d4e-9a66-d0583b9d543e",
+          "provider": "hostedAWS",
+          "region": "us-east-1",
+          "singleAZ": False, "server": None,
+          "specs": [
+              {"count": 3,
+               "services": [{"type": "fts"}, {"type": "index"}, {"type": "kv"}, {"type": "n1ql"}],
+               "compute": {"type": "r5.2xlarge", "cpu": 0, "memoryInGb": 0},
+               "disk": {"type": "gp3", "sizeInGb": 50, "iops": 3000}}],
+          "package": "enterprise"
+          }
+          '''
+        capella_header = self.get_authorization_internal()
+        url = '{}/v2/organizations/{}/clusters/deploy'.format(
+            self.internal_url, tenant_id)
+        resp = self._urllib_request(url, method="POST",
+                                    params=json.dumps(config),
+                                    headers=capella_header)
+        return resp
+
