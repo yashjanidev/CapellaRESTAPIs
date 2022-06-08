@@ -316,7 +316,7 @@ class CapellaAPI(CapellaAPIRequests):
         config = {"cidr": "10.0.64.0/20",
           "name": "a_customAMI",
           "description": "",
-          "overRide": {"token": "5cf99754-a42b-06ad-fc49-9aae8b837d47",
+          "overRide": {"token": "TOKEN_FOR_INTERNAL_SUPPORT",
                        "image": "couchbase-cloud-server-7.2.0-qe",
                        "server": "7.1.0"},
           "projectId": "e51ce483-d067-4d4e-9a66-d0583b9d543e",
