@@ -339,3 +339,20 @@ class CapellaAPI(CapellaAPIRequests):
                                     headers=capella_header)
         return resp
 
+    def get_deployment_options(self, tenant_id):
+        """
+        Get deployment options, including a suggested CIDR for deploying a
+        cluster.
+
+        Example use:
+
+        ```
+        resp = client.get_deployment_options(tenant_id)
+        suggestedCidr = resp.json().get('suggestedCidr')
+        ```
+        """
+        capella_header = self.get_authorization_internal()
+        url = '{}/v2/organizations/{}/clusters/deployment-options' \
+              .format(self.base_url, tenant_id)
+        resp = self._urllib_request(url, method="GET", headers=capella_header)
+        return resp
