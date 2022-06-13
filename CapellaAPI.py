@@ -6,6 +6,8 @@ from CapellaAPIRequests import CapellaAPIRequests
 import json
 import base64
 
+def base64_encode(string):
+    return base64.b64encode('{}:{}'.format(string).encode()).decode()
 
 class CapellaAPI(CapellaAPIRequests):
 
@@ -18,7 +20,7 @@ class CapellaAPI(CapellaAPIRequests):
         self.perPage = 100
 
     def get_authorization_internal(self):
-        basic = base64.b64encode('{}:{}'.format(self.user, self.pwd).encode()).decode()
+        basic = base64_encode('{}:{}'.format(self.user, self.pwd))
         #basic = base64.encodestring('{}:{}'.format(self.user, self.pwd).encode('utf-8')).decode('utf-8').strip("\n")
         #basic = base64.encodestring('{}:{}'.format(self.user, self.pwd)).strip("\n")
         header = {'Authorization': 'Basic %s' % basic}
@@ -370,4 +372,88 @@ class CapellaAPI(CapellaAPIRequests):
         url = '{}/v2/organizations/{}/clusters/deployment-options' \
               .format(self.base_url, tenant_id)
         resp = self._urllib_request(url, method="GET", headers=capella_header)
+        return resp
+
+    def create_eventing_function(self, cluster_id, name, body, function_scope=None):
+        capella_header = self.get_authorization_internal()
+        url = '{}/v2/databases/{}/proxy/_p/event/api/v1/functions/{}'.format(self.internal_url, cluster_id, name)
+
+        if function_scope is not None:
+            url += "?bucket={0}&scope={1}".format(function_scope["bucket"],
+                                                  function_scope["scope"])
+
+        resp = self._urllib_request(url, method="POST",
+                                    params=json.dumps(body),
+                                    headers=capella_header)
+        return resp
+
+    def __set_eventing_function_settings(self, cluster_id, name, body, function_scope=None):
+        capella_header = self.get_authorization_internal()
+        url = '{}/v2/databases/{}/proxy/_p/event/api/v1/functions/{}/settings'.format(self.internal_url, cluster_id, name)
+
+        if function_scope is not None:
+            url += "?bucket={0}&scope={1}".format(function_scope["bucket"],
+                                                  function_scope["scope"])
+
+        resp = self._urllib_request(url, method="POST",
+                                    params=json.dumps(body),
+                                    headers=capella_header)
+        return resp
+
+    def pause_eventing_function(self, cluster_id, name, function_scope=None):
+        body = {
+            "processing_status": False,
+            "deployment_status": True,
+        }
+        return self.__set_eventing_function_settings(cluster_id, name, body, function_scope)
+
+    def resume_eventing_function(self, cluster_id, name, function_scope=None):
+        body = {
+            "processing_status": True,
+            "deployment_status": True,
+        }
+        return self.__set_eventing_function_settings(cluster_id, name, body, function_scope)
+
+    def deploy_eventing_function(self, cluster_id, name, function_scope=None):
+        body = {
+            "deployment_status": True,
+            "processing_status": True,
+        }
+        return self.__set_eventing_function_settings(cluster_id, name, body, function_scope)
+
+    def undeploy_eventing_function(self, cluster_id, name, function_scope=None):
+        body = {
+            "deployment_status": False,
+            "processing_status": False
+        }
+        return self.__set_eventing_function_settings(cluster_id, name, body, function_scope)
+
+    def get_composite_eventing_status(self, cluster_id):
+        capella_header = self.get_authorization_internal()
+        url = '{}/v2/databases/{}/proxy/_p/event/api/v1/status'.format(self.internal_url, cluster_id)
+
+        resp = self._urllib_request(url, method="GET",
+                                    headers=capella_header)
+        return resp
+
+    def get_all_eventing_stats(self, cluster_id, seqs_processed=False):
+        capella_header = self.get_authorization_internal()
+        url = '{}/v2/databases/{}/proxy/_p/event/api/v1/stats'.format(self.internal_url, cluster_id)
+
+        if seqs_processed:
+            url += "?type=full"
+        
+        resp = self._urllib_request(url, method="GET",
+                                    headers=capella_header)
+        return resp
+
+    def delete_eventing_function(self, cluster_id, name, function_scope=None):
+        capella_header = self.get_authorization_internal()
+        url = '{}/v2/databases/{}/proxy/_p/event/deleteAppTempStore/?name={}'.format(self.internal_url, cluster_id, name)
+
+        if function_scope is not None:
+            url += "&bucket={0}&scope={1}".format(function_scope["bucket"],
+                                                  function_scope["scope"])
+        resp = self._urllib_request(url, method="GET",
+                                    headers=capella_header)
         return resp
