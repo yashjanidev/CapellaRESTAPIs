@@ -283,15 +283,30 @@ class CapellaAPI(CapellaAPIRequests):
                                     headers=capella_header)
         return resp
 
-    def add_allowed_ip(self, tenant_id, project_id, cluster_id):
+    def allow_my_ip(self, tenant_id, project_id, cluster_id):
         capella_header = self.get_authorization_internal()
         url = '{}/v2/organizations/{}/projects/{}/clusters/{}'\
             .format(self.internal_url, tenant_id, project_id, cluster_id)
         resp = self._urllib_request("https://ifconfig.me", method="GET")
         if resp.status_code != 200:
             raise Exception("Fetch public IP failed!")
-        body = {"create": [{"cidr": "{}/32".format(resp.content),
+        body = {"create": [{"cidr": "{}/32".format(resp.content.decode()),
                             "comment": ""}]}
+        url = '{}/allowlists-bulk'.format(url)
+        resp = self._urllib_request(url, method="POST",
+                                    params=json.dumps(body),
+                                    headers=capella_header)
+        return resp
+
+    def add_allowed_ips(self, tenant_id, project_id, cluster_id, ips):
+        capella_header = self.get_authorization_internal()
+        url = '{}/v2/organizations/{}/projects/{}/clusters/{}'\
+            .format(self.internal_url, tenant_id, project_id, cluster_id)
+        body = {
+            "create": [
+                {"cidr": "{}/32".format(ip), "comment": ""} for ip in ips
+            ]
+        }
         url = '{}/allowlists-bulk'.format(url)
         resp = self._urllib_request(url, method="POST",
                                     params=json.dumps(body),
