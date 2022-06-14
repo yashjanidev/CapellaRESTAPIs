@@ -367,7 +367,7 @@ class CapellaAPI(CapellaAPIRequests):
         """
         capella_header = self.get_authorization_internal()
         url = '{}/v2/organizations/{}/clusters/deployment-options' \
-              .format(self.base_url, tenant_id)
+              .format(self.internal_url, tenant_id)
         resp = self._urllib_request(url, method="GET", headers=capella_header)
         return resp
 
