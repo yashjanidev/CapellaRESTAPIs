@@ -6,9 +6,6 @@ from CapellaAPIRequests import CapellaAPIRequests
 import json
 import base64
 
-def base64_encode(string):
-    return base64.b64encode('{}:{}'.format(string).encode()).decode()
-
 class CapellaAPI(CapellaAPIRequests):
 
     def __init__(self, url, secret, access, user, pwd):
@@ -20,7 +17,7 @@ class CapellaAPI(CapellaAPIRequests):
         self.perPage = 100
 
     def get_authorization_internal(self):
-        basic = base64_encode('{}:{}'.format(self.user, self.pwd))
+        basic = base64.b64encode('{}:{}'.format(self.user, self.pwd).encode()).decode()
         #basic = base64.encodestring('{}:{}'.format(self.user, self.pwd).encode('utf-8')).decode('utf-8').strip("\n")
         #basic = base64.encodestring('{}:{}'.format(self.user, self.pwd)).strip("\n")
         header = {'Authorization': 'Basic %s' % basic}
