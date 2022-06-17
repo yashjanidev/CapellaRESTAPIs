@@ -42,8 +42,8 @@ class CapellaAPIAuth(AuthBase):
 
         # Calculate the hmac hash value with secret key and message
         cbc_api_signature = base64.b64encode(
-            hmac.new(bytes(self.SECRET_KEY),
-                     bytes(cbc_api_message),
+            hmac.new(self.SECRET_KEY.encode(),
+                     cbc_api_message.encode(),
                      digestmod=hashlib.sha256).digest())
 
         # Values for the header
