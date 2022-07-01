@@ -471,3 +471,12 @@ class CapellaAPI(CapellaAPIRequests):
               .format(self.internal_url, tenant_id, project_id, cluster_id, private_network_id)
         resp = self._urllib_request(url, method="GET", headers=capella_header)
         return resp
+
+    def update_specs(self, tenant_id, project_id, cluster_id, specs):
+        capella_header = self.get_authorization_internal()
+        url = "{}/v2/organizations/{}/projects/{}/clusters/{}/specs"\
+                .format(self.internal_url, tenant_id, project_id, cluster_id)
+        resp = self._urllib_request(url, method="POST",
+                                    params=json.dumps(specs),
+                                    headers=capella_header)
+        return resp
