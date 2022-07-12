@@ -479,6 +479,7 @@ class CapellaAPI(CapellaAPIRequests):
         resp = self._urllib_request(url, method="POST",
                                     params=json.dumps(specs),
                                     headers=capella_header)
+        return resp
                                     
     def restore_from_backup(self, cluster_name, project_name, bucket_name):
         """
