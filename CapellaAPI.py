@@ -2,7 +2,7 @@
 # Generic/Built-in
 import logging
 
-from CapellaAPIRequests import CapellaAPIRequests
+from .CapellaAPIRequests import CapellaAPIRequests
 import json
 import base64
 
