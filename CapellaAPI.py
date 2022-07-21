@@ -522,3 +522,56 @@ class CapellaAPI(CapellaAPIRequests):
         payload = {"bucket": bucket_name}
         resp = self.do_internal_request(url, method="POST", params=json.dumps(payload))
         return resp
+
+    def invite_new_user(self, tenant_id, email, bypass_token=None):
+        """
+        Invite a new user to the tenant
+
+        Example use:
+
+        ```
+        token = "secret-token"
+        resp = client.invite_user(tenant_id, user, token)
+        verify_token = resp.headers["Vnd-project-Avengers-com-e2e-token"]
+        user_id = resp.json()["userId"]
+        ```
+        """
+        capella_header = self.get_authorization_internal()
+        if bypass_token:
+            capella_header["Vnd-project-Avengers-com-e2e"] = bypass_token
+        url = "{}/invitations".format(self.internal_url)
+        body = {
+            "tenantId": tenant_id,
+            "email": email,
+            "name": email,
+            "actions": ["READ", "WRITE", "MANAGE"]
+        }
+        resp = self._urllib_request(url, method="POST",
+                                    params=json.dumps(body),
+                                    headers=capella_header)
+        return resp
+
+    def verify_email(self, token):
+        """
+        Verify an email invitation.
+
+        Example use:
+
+        ```
+        token = "email-verify-token"
+        resp = client.verify_email(token)
+        jwt = resp.json()["jwt"]
+        ```
+        """
+        capella_header = self.get_authorization_internal()
+        url = "{}/emails/verify/{}".format(self.internal_url, token)
+        resp = self._urllib_request(url, method="POST", headers=capella_header)
+        return resp
+
+    def remove_user(self, tenant_id, user_id):
+        """
+        Remove a user from the tenant
+        """
+        url = "{}/tenants/{}/users/{}".format(self.internal_url, tenant_id, user_id)
+        resp = self._urllib_request(url, method="DELETE")
+        return resp
