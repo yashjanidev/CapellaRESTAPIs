@@ -32,12 +32,12 @@ class CapellaAPI(CapellaAPIRequests):
         }
         return cbc_api_request_headers
 
-    def do_internal_request(self, url, method, params='', force_refresh_jwt=False):
-        capella_header = self.get_authorization_internal(force_refresh_jwt)
+    def do_internal_request(self, url, method, params=''):
+        capella_header = self.get_authorization_internal()
         resp = self._urllib_request(url, method, params=params, headers=capella_header)
         if resp.status_code == 401:
             self.jwt = None
-            return self.do_internal_request(url, method, params, force_refresh_jwt=True)
+            return self.do_internal_request(url, method, params)
         return resp
 
     def set_logging_level(self, level):
