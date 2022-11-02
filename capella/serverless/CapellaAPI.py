@@ -309,22 +309,3 @@ class CapellaAPI(CommonCapellaAPI):
             if node['services'][0]['type'] == 'fts':
                 fts_hostname.append(node['hostname'])
         return fts_hostname
-
-    def get_fts_autoscaling_stats(self, dp_id):
-        fts_nodes = self.get_fts_nodes_of_dataplane(dp_id)
-        creds = self.get_access_to_serverless_dataplane_nodes(dp_id).json()
-        for count, node in enumerate(fts_nodes):
-            CurlUrl = f"""curl -s -XGET https://{fts_nodes[count]}:18094/api/nsstats -u {creds['couchbaseCreds']['username']}:{creds['couchbaseCreds']['password']} --insecure | jq | grep -E "util|resource|limits" """
-            resp = subprocess.getstatusoutput(CurlUrl)
-            print(f"STATS for FTS Node{count + 1}. {fts_nodes[count]} : \n {resp[1]}")
-
-    def get_all_databases_id(self):
-        url = "{}//internal/support/serverless-databases".format(
-            self.internal_url)
-        cbc_api_request_headers = {
-            'Authorization': 'Bearer %s' % self.TOKEN_FOR_INTERNAL_SUPPORT,
-            'Content-Type': 'application/json'
-        }
-        resp = self._urllib_request(url, "GET",
-                                    headers=cbc_api_request_headers)
-        return resp
