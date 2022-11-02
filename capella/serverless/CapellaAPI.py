@@ -117,18 +117,6 @@ class CapellaAPI(CommonCapellaAPI):
                                     headers=cbc_api_request_headers)
         return resp
 
-        def get_all_databases_id(self):
-            url = "{}//internal/support/serverless-databases".format(
-                self.internal_url)
-
-        cbc_api_request_headers = {
-            'Authorization': 'Bearer %s' % self.TOKEN_FOR_INTERNAL_SUPPORT,
-            'Content-Type': 'application/json'
-        }
-        resp = self._urllib_request(url, "GET",
-                                    headers=cbc_api_request_headers)
-        return resp
-
     def update_database(self, database_id, override):
         """
         Update serverless database. Example override:
@@ -293,19 +281,3 @@ class CapellaAPI(CommonCapellaAPI):
         resp = self._urllib_request(url, "GET",
                                     headers=cbc_api_request_headers)
         return resp
-
-    def get_fts_nodes_of_dataplane(self, dataplane_id):
-        url = "{}/internal/support/serverless-dataplanes/{}/info" \
-            .format(self.internal_url, dataplane_id)
-        cbc_api_request_headers = {
-            'Authorization': 'Bearer %s' % self.TOKEN_FOR_INTERNAL_SUPPORT,
-            'Content-Type': 'application/json'
-        }
-        resp = self._urllib_request(url, "GET",
-                                    headers=cbc_api_request_headers)
-        info_nodes = resp.json()['couchbase']['nodes']
-        fts_hostname = []
-        for node in info_nodes:
-            if node['services'][0]['type'] == 'fts':
-                fts_hostname.append(node['hostname'])
-        return fts_hostname
