@@ -291,3 +291,60 @@ class CapellaAPI(CommonCapellaAPI):
         resp = self._urllib_request(url, "GET",
                                     headers=cbc_api_request_headers)
         return resp
+
+    def create_circuit_breaker(self, cluster_id, duration_seconds = -1):
+        """
+        Create a deployment circuit breaker for a cluster, which prevents
+        any auto-generated deployments such as auto-scaling up/down, control
+        plane initiated rebalances, etc.
+
+        Default circuit breaker duration is 24h.
+
+        See AV-46172 for more.
+        """
+        url = "{}/internal/support/clusters/{}/deployments-circuit-breaker" \
+              .format(self.internal_url, cluster_id)
+        cbc_api_request_headers = {
+            'Authorization': 'Bearer %s' % self.TOKEN_FOR_INTERNAL_SUPPORT,
+            'Content-Type': 'application/json'
+        }
+        params = {}
+        if duration_seconds > 0:
+            params['timeInSeconds'] = duration_seconds
+        resp = self._urllib_request(url, "POST", params=json.dumps(params),
+                                    headers=cbc_api_request_headers)
+        return resp
+
+    def get_circuit_breaker(self, cluster_id):
+        """
+        Retrieve a deployment circuit breaker for a cluster.
+
+        If circuit breaker is not set for a cluster, this returns a 404.
+
+        See AV-46172 for more.
+        """
+        url = "{}/internal/support/clusters/{}/deployments-circuit-breaker" \
+              .format(self.internal_url, cluster_id)
+        cbc_api_request_headers = {
+            'Authorization': 'Bearer %s' % self.TOKEN_FOR_INTERNAL_SUPPORT,
+            'Content-Type': 'application/json'
+        }
+        resp = self._urllib_request(url, "GET",
+                                    headers=cbc_api_request_headers)
+        return resp
+
+    def delete_circuit_breaker(self, cluster_id):
+        """
+        Delete circuit breaker for a cluster.
+
+        See AV-46172 for more.
+        """
+        url = "{}/internal/support/clusters/{}/deployments-circuit-breaker" \
+              .format(self.internal_url, cluster_id)
+        cbc_api_request_headers = {
+            'Authorization': 'Bearer %s' % self.TOKEN_FOR_INTERNAL_SUPPORT,
+            'Content-Type': 'application/json'
+        }
+        resp = self._urllib_request(url, "DELETE",
+                                    headers=cbc_api_request_headers)
+        return resp
