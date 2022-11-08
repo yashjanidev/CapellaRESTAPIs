@@ -635,3 +635,136 @@ class CapellaAPI(CommonCapellaAPI):
               .format(self.internal_url, tenant_id, project_id, cluster_id, replication_id)
         resp = self.do_internal_request(url, method="POST")
         return resp
+
+    def create_sgw_backend(self, tenant_id, config):
+        """
+        Create a SyncGateway backend (app services) for a cluster
+
+        Sample config:
+        {
+            "clusterId": "a2b3dfbb-6e88-4309-a4c1-ea3184d95321",
+            "name": "my-sync-gateway-backend",
+            "description": "sgw backend that drives my amazing app",
+            "SyncGatewaySpecs": {
+                "desired_capacity": 1,
+                "compute": {
+                    "type": "c5.large",
+                    "cpu": 2
+                    "memoryInGb": 4
+                }
+            }
+        }
+        """
+        url = '{}/v2/organizations/{}/backends'.format(self.internal_url, tenant_id)
+        resp = self.do_internal_request(url, method="POST",
+                                        params=json.dumps(config))
+        return resp
+
+    def get_sgw_backend(self, tenant_id, project_id, cluster_id, backend_id):
+        """
+        Get details about a SyncGateway backend for a cluster
+        """
+        url = '{}/v2/organizations/{}/projects/{}/clusters/{}/backends/{}' \
+              .format(self.internal_url, tenant_id, project_id, cluster_id, backend_id)
+        resp = self.do_internal_request(url, method="GET")
+        return resp
+
+    def delete_sgw_backend(self, tenant_id, project_id, cluster_id, backend_id):
+        """
+        Delete a SyncGateway backend
+        """
+        url = '{}/v2/organizations/{}/projects/{}/clusters/{}/backends/{}' \
+              .format(self.internal_url, tenant_id, project_id, cluster_id, backend_id)
+        resp = self.do_internal_request(url, method="DELETE")
+        return resp
+
+    def create_sgw_database(self, tenant_id, project_id, cluster_id, backend_id, config):
+        """
+        Create a SyncGateway database (app endpoint)
+
+        Sample config:
+        {
+            "name": "sgw-1",
+            "sync": "",
+            "bucket": "bucket-1",
+            "delta_sync": false,
+            "import_filter": ""
+        }
+        """
+        url = '{}/v2/organizations/{}/projects/{}/clusters/{}/backends/{}/databases' \
+              .format(self.internal_url, tenant_id, project_id, cluster_id, backend_id)
+        resp = self.do_internal_request(url, method="POST",
+                                        params=json.dumps(config))
+        return resp
+
+    def resume_sgw_database(self, tenant_id, project_id, cluster_id, backend_id, db_name):
+        "Resume the sgw database (app endpoint)"
+        url = '{}/v2/organizations/{}/projects/{}/clusters/{}/backends/{}/databases/{}/online' \
+              .format(self.internal_url, tenant_id, project_id, cluster_id, backend_id, db_name)
+        resp = self.do_internal_request(url, method="POST")
+        return resp
+
+    def pause_sgw_database(self, tenant_id, project_id, cluster_id, backend_id, db_name):
+        "Resume the sgw database (app endpoint)"
+        url = '{}/v2/organizations/{}/projects/{}/clusters/{}/backends/{}/databases/{}/offline' \
+              .format(self.internal_url, tenant_id, project_id, cluster_id, backend_id, db_name)
+        resp = self.do_internal_request(url, method="POST")
+        return resp
+
+    def allow_my_ip_sgw(self, tenant_id, project_id, cluster_id, backend_id):
+        url = '{}/v2/organizations/{}/projects/{}/clusters/{}/backends/{}/allowip'\
+            .format(self.internal_url, tenant_id, project_id, cluster_id, backend_id)
+        resp = self._urllib_request("https://ifconfig.me", method="GET")
+        if resp.status_code != 200:
+            raise Exception("Fetch public IP failed!")
+        body = {"create": [{"cidr": "{}/32".format(resp.content.decode()),
+                            "comment": ""}]}
+        resp = self.do_internal_request(url, method="POST",
+                                    params=json.dumps(body))
+        return resp
+
+    def add_allowed_ips_sgw(self, tenant_id, project_id, cluster_id, backend_id, ips):
+        url = '{}/v2/organizations/{}/projects/{}/clusters/{}/backends/{}/allowip'\
+            .format(self.internal_url, tenant_id, project_id, backend_id, cluster_id)
+        body = {
+            "create": [
+                {"cidr": "{}/32".format(ip), "comment": ""} for ip in ips
+            ]
+        }
+        resp = self.do_internal_request(url, method="POST",
+                                    params=json.dumps(body))
+        return resp
+
+    def update_sync_function_sgw(self, tenant_id, project_id, cluster_id, backend_id, db_name, config):
+        url = '{}/v2/organizations/{}/projects/{}/clusters/{}/backends/{}/databases/{}/sync' \
+              .format(self.internal_url, tenant_id, project_id, cluster_id, backend_id, db_name)
+        resp = self.do_internal_request(url, method="POST",
+                                        params=json.dumps(config))
+        return resp
+
+    def add_app_role_sgw(self, tenant_id, project_id, cluster_id, backend_id, db_name, config):
+        url = '{}/v2/organizations/{}/projects/{}/clusters/{}/backends/{}/databases/{}/roles' \
+              .format(self.internal_url, tenant_id, project_id, cluster_id, backend_id, db_name)
+        resp = self.do_internal_request(url, method="POST",
+                                        params=json.dumps(config))
+        return resp
+
+    def add_user_sgw(self, tenant_id, project_id, cluster_id, backend_id, db_name, config):
+        url = '{}/v2/organizations/{}/projects/{}/clusters/{}/backends/{}/databases/{}/users' \
+              .format(self.internal_url, tenant_id, project_id, cluster_id, backend_id, db_name)
+        resp = self.do_internal_request(url, method="POST",
+                                        params=json.dumps(config))
+        return resp
+
+    def add_admin_user_sgw(self, tenant_id, project_id, cluster_id, backend_id, db_name, config):
+        url = '{}/v2/organizations/{}/projects/{}/clusters/{}/backends/{}/databases/{}/adminusers' \
+              .format(self.internal_url, tenant_id, project_id, cluster_id, backend_id, db_name)
+        resp = self.do_internal_request(url, method="POST",
+                                        params=json.dumps(config))
+        return resp
+
+    def get_sgw_links(self, tenant_id, project_id, cluster_id, backend_id, db_name):
+        url = '{}/v2/organizations/{}/projects/{}/clusters/{}/backends/{}/databases/{}/connect' \
+              .format(self.internal_url, tenant_id, project_id, cluster_id, backend_id, db_name)
+        resp = self.do_internal_request(url, method="GET", params='')
+        return resp
