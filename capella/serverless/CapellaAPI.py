@@ -292,6 +292,31 @@ class CapellaAPI(CommonCapellaAPI):
                                     headers=cbc_api_request_headers)
         return resp
 
+    def modify_cluster_specs(self, dataplane_id, specs):
+        url = "{}/internal/support/serverless-dataplanes/{}/cluster-specs" \
+            .format(self.internal_url, database_id)
+        cbc_api_request_headers = {
+            'Authorization': 'Bearer %s' % self.TOKEN_FOR_INTERNAL_SUPPORT,
+            'Content-Type': 'application/json'
+        }
+        resp = self._urllib_request(url, "POST",
+                                    headers=cbc_api_request_headers,
+                                    params=json.dumps(specs))
+        return resp
+
+    def get_all_scaling_records(self, dataplane_id):
+        url = "{}/internal/support/serverless-dataplanes/{}/scaling-records" \
+            .format(self.internal_url, database_id)
+        cbc_api_request_headers = {
+            'Authorization': 'Bearer %s' % self.TOKEN_FOR_INTERNAL_SUPPORT,
+            'Content-Type': 'application/json'
+        }
+        resp = self._urllib_request(url, "GET",
+                                    headers=cbc_api_request_headers,
+                                    params=json.dumps(specs))
+        return resp
+
+
     def create_circuit_breaker(self, cluster_id, duration_seconds = -1):
         """
         Create a deployment circuit breaker for a cluster, which prevents
