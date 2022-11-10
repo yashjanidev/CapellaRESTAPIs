@@ -294,7 +294,7 @@ class CapellaAPI(CommonCapellaAPI):
 
     def modify_cluster_specs(self, dataplane_id, specs):
         url = "{}/internal/support/serverless-dataplanes/{}/cluster-specs" \
-            .format(self.internal_url, database_id)
+              .format(self.internal_url, dataplane_id)
         cbc_api_request_headers = {
             'Authorization': 'Bearer %s' % self.TOKEN_FOR_INTERNAL_SUPPORT,
             'Content-Type': 'application/json'
@@ -306,14 +306,13 @@ class CapellaAPI(CommonCapellaAPI):
 
     def get_all_scaling_records(self, dataplane_id):
         url = "{}/internal/support/serverless-dataplanes/{}/scaling-records" \
-            .format(self.internal_url, database_id)
+              .format(self.internal_url, dataplane_id)
         cbc_api_request_headers = {
             'Authorization': 'Bearer %s' % self.TOKEN_FOR_INTERNAL_SUPPORT,
             'Content-Type': 'application/json'
         }
         resp = self._urllib_request(url, "GET",
-                                    headers=cbc_api_request_headers,
-                                    params=json.dumps(specs))
+                                    headers=cbc_api_request_headers)
         return resp
 
 
