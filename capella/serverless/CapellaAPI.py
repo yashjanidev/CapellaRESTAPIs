@@ -304,9 +304,9 @@ class CapellaAPI(CommonCapellaAPI):
                                     params=json.dumps(specs))
         return resp
 
-    def get_all_scaling_records(self, dataplane_id):
-        url = "{}/internal/support/serverless-dataplanes/{}/scaling-records" \
-              .format(self.internal_url, dataplane_id)
+    def get_all_scaling_records(self, dataplane_id, page=1, perPage=100):
+        url = "{}/internal/support/serverless-dataplanes/{}/scaling-records?page={}&perPage={}" \
+              .format(self.internal_url, dataplane_id, page, perPage)
         cbc_api_request_headers = {
             'Authorization': 'Bearer %s' % self.TOKEN_FOR_INTERNAL_SUPPORT,
             'Content-Type': 'application/json'
