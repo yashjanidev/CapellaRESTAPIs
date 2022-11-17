@@ -79,3 +79,8 @@ class CommonCapellaAPI(CapellaAPIRequests):
                                         params=json.dumps(body),
                                         headers=headers)
         return resp
+
+    def revoke_access_secret_key(self, tenant_id, key_id):
+        url = "{}/tokens/{}?tenantId={}".format(self.internal_url, key_id, tenant_id)
+        resp = self.do_internal_request(url, method="DELETE")
+        return resp
