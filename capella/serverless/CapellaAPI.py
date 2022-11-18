@@ -25,10 +25,10 @@ class CapellaAPI(CommonCapellaAPI):
 
     def request(self, url, method, params=''):
         if "stage" in url or "cloud.couchbase.com" in url:
-            resp = self._urllib_request(url, "POST", params=params,
-                                    headers=self.cbc_api_request_headers)
+            resp = self._urllib_request(url, method, params=params,
+                                   headers=self.cbc_api_request_headers)
             return resp
-        return self.do_internal_request(url, "POST", params=params)
+        return self.do_internal_request(url, method, params=params)
 
     def create_serverless_dataplane(self, config):
         url = "{}/internal/support/serverless-dataplanes".format(self.internal_url)
