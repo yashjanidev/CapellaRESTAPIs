@@ -539,3 +539,85 @@ class CapellaAPI(CommonCapellaAPI):
         url = "{}/tenants/{}/users/{}".format(self.internal_url, tenant_id, user_id)
         resp = self.do_internal_request(url, method="DELETE")
         return resp
+
+    def create_xdcr_replication(self, tenant_id, project_id, cluster_id, payload):
+        """
+        Create a new XDCR replication
+
+        Sample payload:
+        {
+            "direction": "one-way",
+            "sourceBucket": "YnVja2V0LTE=",
+            "target": {
+                "cluster": "21a51ea3-4fc6-42ee-90f3-d26334fc3ace",
+                "bucket":"YnVja2V0LTE=",
+                "scopes": [
+                    {
+                        "source": "scope-1",
+                        "target": "target-scope-1",
+                        "collections": [
+                            {
+                                "source": "coll-1",
+                                "target": "target-coll-1"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "settings": {
+                "filterExpression": "REGEXP_CONTAINS(country, \"France\")",
+                "priority": "medium",
+                "networkUsageLimit": 500
+            }
+        }
+        """
+        url = "{}/v2/organizations/{}/projects/{}/clusters/{}/xdcr"\
+              .format(self.internal_url, tenant_id, project_id, cluster_id)
+        resp = self.do_internal_request(url, method="POST",
+                                        params=json.dumps(payload))
+        return resp
+
+    def list_cluster_replications(self, tenant_id, project_id, cluster_id):
+        """
+        Get all XDCR replications for a cluster
+        """
+        url = "{}/v2/organizations/{}/projects/{}/clusters/{}/xdcr"\
+              .format(self.internal_url, tenant_id, project_id, cluster_id)
+        resp = self.do_internal_request(url, method="GET")
+        return resp
+
+    def get_replication(self, tenant_id, project_id, cluster_id, replication_id):
+        """
+        Get a specific XDCR replication for a cluster
+        """
+        url = "{}/v2/organizations/{}/projects/{}/clusters/{}/xdcr/{}"\
+              .format(self.internal_url, tenant_id, project_id, cluster_id, replication_id)
+        resp = self.do_internal_request(url, method="GET")
+        return resp
+
+    def delete_replication(self, tenant_id, project_id, cluster_id, replication_id):
+        """
+        Delete an XDCR replication
+        """
+        url = "{}/v2/organizations/{}/projects/{}/clusters/{}/xdcr/{}"\
+              .format(self.internal_url, tenant_id, project_id, cluster_id, replication_id)
+        resp = self.do_internal_request(url, method="DELETE")
+        return resp
+
+    def pause_replication(self, tenant_id, project_id, cluster_id, replication_id):
+        """
+        Pause an XDCR replication
+        """
+        url = "{}/v2/organizations/{}/projects/{}/clusters/{}/xdcr/{}/pause"\
+              .format(self.internal_url, tenant_id, project_id, cluster_id, replication_id)
+        resp = self.do_internal_request(url, method="POST")
+        return resp
+
+    def start_replication(self, tenant_id, project_id, cluster_id, replication_id):
+        """
+        Start an XDCR replication
+        """
+        url = "{}/v2/organizations/{}/projects/{}/clusters/{}/xdcr/{}/start"\
+              .format(self.internal_url, tenant_id, project_id, cluster_id, replication_id)
+        resp = self.do_internal_request(url, method="POST")
+        return resp
