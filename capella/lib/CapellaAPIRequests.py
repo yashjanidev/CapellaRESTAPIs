@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 # Generic/Built-in
+from threading import Lock
+
 import requests
 import logging
 import pprint
@@ -32,19 +34,23 @@ class CapellaAPIRequests(object):
         # the overhead of creating new sessions for each request
         self.network_session = requests.Session()
         self.jwt = None
+        self.lock = Lock()
 
     def set_logging_level(self, level):
         self._log.setLevel(level)
 
     def get_authorization_internal(self):
         if self.jwt is None:
-            self._log.debug("refreshing token")
-            basic = base64.b64encode('{}:{}'.format(self.user, self.pwd).encode()).decode()
-            header = {'Authorization': 'Basic %s' % basic}
-            resp = self._urllib_request(
-                "{}/sessions".format(self.internal_url), method="POST",
-                headers=header)
-            self.jwt = json.loads(resp.content).get("jwt")
+            self.lock.acquire()
+            if self.jwt is None:
+                self._log.debug("refreshing token")
+                basic = base64.b64encode('{}:{}'.format(self.user, self.pwd).encode()).decode()
+                header = {'Authorization': 'Basic %s' % basic}
+                resp = self._urllib_request(
+                    "{}/sessions".format(self.internal_url), method="POST",
+                    headers=header)
+                self.jwt = json.loads(resp.content).get("jwt")
+            self.lock.release()
         cbc_api_request_headers = {
            'Authorization': 'Bearer %s' % self.jwt,
            'Content-Type': 'application/json'
