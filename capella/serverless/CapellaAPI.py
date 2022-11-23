@@ -165,15 +165,22 @@ class CapellaAPI(CommonCapellaAPI):
         resp = self.request(url, "POST")
         return resp
 
-    def get_access_to_serverless_dataplane_nodes(self, dataplane_id):
+    def get_access_to_serverless_dataplane_nodes(self, dataplane_id, ip = None):
+        """
+        Bypass Nebula and directly access serverless dataplane nodes.
+
+        If no IP address provided, your own IP address will be given access.
+        """
         url = "{}/internal/support/serverless-dataplanes/{}/bypass" \
             .format(self.internal_url, dataplane_id)
-        resp = self._urllib_request("https://ifconfig.me", method="GET")
-        if resp.status_code != 200:
-            raise Exception("Fetch public IP failed!")
-        body = {"allowCIDR": "{}/32".format(resp.content.decode())}
-        resp = self.request(url, "POST",
-                                    params=json.dumps(body))
+
+        if not ip:
+            resp = self._urllib_request("https://ifconfig.me", method="GET")
+            if resp.status_code != 200:
+                raise Exception("Fetch public IP failed!")
+            ip = resp.content.decode()
+        body = {"allowCIDR": "{}/32".format(ip)}
+        resp = self.request(url, "POST", params=json.dumps(body))
         return resp
 
     def get_serverless_database_debugInfo(self, database_id):
