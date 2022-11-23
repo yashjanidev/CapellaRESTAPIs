@@ -9,15 +9,7 @@ from ..common.CapellaAPI import CommonCapellaAPI
 
 class CapellaAPI(CommonCapellaAPI):
     def __init__(self, url, username, password, TOKEN_FOR_INTERNAL_SUPPORT=None):
-        super(CapellaAPI, self).__init__(url, None, None, username, password)
-        self.url = url
-        self.internal_url = url.replace("cloud", "", 1)
-
-        self.user = username
-        self.pwd = password
-        self.TOKEN_FOR_INTERNAL_SUPPORT = TOKEN_FOR_INTERNAL_SUPPORT
-
-        self.perPage = 100
+        super(CapellaAPI, self).__init__(url, None, None, username, password, TOKEN_FOR_INTERNAL_SUPPORT)
         self.cbc_api_request_headers = {
             'Authorization': 'Bearer %s' % self.TOKEN_FOR_INTERNAL_SUPPORT,
             'Content-Type': 'application/json'
@@ -219,47 +211,4 @@ class CapellaAPI(CommonCapellaAPI):
         url = "{}/internal/support/serverless-dataplanes/{}/scaling-records?page={}&perPage={}" \
               .format(self.internal_url, dataplane_id, page, perPage)
         resp = self.request(url, "GET")
-        return resp
-
-
-    def create_circuit_breaker(self, cluster_id, duration_seconds = -1):
-        """
-        Create a deployment circuit breaker for a cluster, which prevents
-        any auto-generated deployments such as auto-scaling up/down, control
-        plane initiated rebalances, etc.
-
-        Default circuit breaker duration is 24h.
-
-        See AV-46172 for more.
-        """
-        url = "{}/internal/support/clusters/{}/deployments-circuit-breaker" \
-              .format(self.internal_url, cluster_id)
-        params = {}
-        if duration_seconds > 0:
-            params['timeInSeconds'] = duration_seconds
-        resp = self.request(url, "POST", params=json.dumps(params))
-        return resp
-
-    def get_circuit_breaker(self, cluster_id):
-        """
-        Retrieve a deployment circuit breaker for a cluster.
-
-        If circuit breaker is not set for a cluster, this returns a 404.
-
-        See AV-46172 for more.
-        """
-        url = "{}/internal/support/clusters/{}/deployments-circuit-breaker" \
-              .format(self.internal_url, cluster_id)
-        resp = self.request(url, "GET")
-        return resp
-
-    def delete_circuit_breaker(self, cluster_id):
-        """
-        Delete circuit breaker for a cluster.
-
-        See AV-46172 for more.
-        """
-        url = "{}/internal/support/clusters/{}/deployments-circuit-breaker" \
-              .format(self.internal_url, cluster_id)
-        resp = self.request(url, "DELETE")
         return resp

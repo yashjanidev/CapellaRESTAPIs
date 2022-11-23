@@ -8,13 +8,14 @@ from ..lib.CapellaAPIRequests import CapellaAPIRequests
 
 class CommonCapellaAPI(CapellaAPIRequests):
 
-    def __init__(self, url, secret, access, user, pwd):
+    def __init__(self, url, secret, access, user, pwd, TOKEN_FOR_INTERNAL_SUPPORT=None):
         super(CommonCapellaAPI, self).__init__(url, secret, access)
         self.user = user
         self.pwd = pwd
         self.internal_url = url.replace("cloud", "", 1)
         self._log = logging.getLogger(__name__)
         self.perPage = 100
+        self.TOKEN_FOR_INTERNAL_SUPPORT = TOKEN_FOR_INTERNAL_SUPPORT
 
     def signup_user(self, full_name, email, password, tenant_name, token=None):
         """
@@ -83,4 +84,61 @@ class CommonCapellaAPI(CapellaAPIRequests):
     def revoke_access_secret_key(self, tenant_id, key_id):
         url = "{}/tokens/{}?tenantId={}".format(self.internal_url, key_id, tenant_id)
         resp = self.do_internal_request(url, method="DELETE")
+        return resp
+
+    def create_circuit_breaker(self, cluster_id, duration_seconds = -1):
+        """
+        Create a deployment circuit breaker for a cluster, which prevents
+        any auto-generated deployments such as auto-scaling up/down, control
+        plane initiated rebalances, etc.
+
+        Default circuit breaker duration is 24h.
+
+        See AV-46172 for more.
+        """
+        url = "{}/internal/support/clusters/{}/deployments-circuit-breaker" \
+              .format(self.internal_url, cluster_id)
+        headers = {
+            'Authorization': 'Bearer %s' % self.TOKEN_FOR_INTERNAL_SUPPORT,
+            'Content-Type': 'application/json'
+        }
+        params = {}
+        if duration_seconds > 0:
+            params['timeInSeconds'] = duration_seconds
+        resp = self._urllib_request(url, "POST", params=json.dumps(params),
+                                    headers=headers)
+        return resp
+
+    def get_circuit_breaker(self, cluster_id):
+        """
+        Retrieve a deployment circuit breaker for a cluster.
+
+        If circuit breaker is not set for a cluster, this returns a 404.
+
+        See AV-46172 for more.
+        """
+        url = "{}/internal/support/clusters/{}/deployments-circuit-breaker" \
+              .format(self.internal_url, cluster_id)
+        headers = {
+            'Authorization': 'Bearer %s' % self.TOKEN_FOR_INTERNAL_SUPPORT,
+            'Content-Type': 'application/json'
+        }
+        resp = self._urllib_request(url, "GET",
+                                    headers=headers)
+        return resp
+
+    def delete_circuit_breaker(self, cluster_id):
+        """
+        Delete circuit breaker for a cluster.
+
+        See AV-46172 for more.
+        """
+        url = "{}/internal/support/clusters/{}/deployments-circuit-breaker" \
+              .format(self.internal_url, cluster_id)
+        headers = {
+            'Authorization': 'Bearer %s' % self.TOKEN_FOR_INTERNAL_SUPPORT,
+            'Content-Type': 'application/json'
+        }
+        resp = self._urllib_request(url, "DELETE",
+                                    headers=headers)
         return resp
