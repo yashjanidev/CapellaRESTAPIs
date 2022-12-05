@@ -424,7 +424,7 @@ class CapellaAPI(CommonCapellaAPI):
                    "options": {"services": ["data", "query", "index", "search"], "filterKeys": "", "filterValues": "",
                                "mapData": "", "includeData": "", "excludeData": "", "autoCreateBuckets": True,
                                "autoRemoveCollections": True, "forceUpdates": True}}
-        bucket_id = self.get_backups(tenant_id=tenant_id, project_id=project_id, cluster_id=cluster_id,
+        bucket_id = self.get_backups_bucket_id(tenant_id=tenant_id, project_id=project_id, cluster_id=cluster_id,
                                      bucket_name=bucket_name)
         url = r"{}/v2/organizations/{}/projects/{}/clusters/{}/buckets/{}/restore" \
             .format(self.internal_url, tenant_id, project_id, cluster_id, bucket_id)
@@ -457,7 +457,21 @@ class CapellaAPI(CommonCapellaAPI):
             if cluster['name'] == cluster_name:
                 return cluster
 
-    def get_backups(self, tenant_id, project_id, cluster_id, bucket_name):
+    def get_backups(self, tenant_id, project_id, cluster_id):
+        """
+        method to obtain a list of the current backups from backups tab
+        :param tenant_id:
+        :param project_id:
+        :param cluster_id:
+        :param bucket_name:
+        :return: response object
+        """
+        url = "{}/v2/organizations/{}/projects/{}/clusters/{}/backups".format(self.internal_url, tenant_id,
+                                                                              project_id, cluster_id)
+        resp = self.do_internal_request(url, method="GET")
+        return resp
+
+    def get_backups_bucket_id(self, tenant_id, project_id, cluster_id, bucket_name):
         """
         method to obtain a list of the current backups from backups tab
         :param tenant_id:
