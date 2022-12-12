@@ -219,3 +219,9 @@ class CapellaAPI(CommonCapellaAPI):
               .format(self.internal_url, dataplane_id, page, perPage)
         resp = self.request(url, "GET")
         return resp
+
+    def get_dataplane_job_info(self, dataplane_id):
+        url = "{}/internal/support/serverless-dataplanes/{}/jobs" \
+            .format(self.internal_url, dataplane_id)
+        resp = self.request(url, "GET")
+        return resp
