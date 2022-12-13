@@ -166,7 +166,7 @@ class CapellaAPI(CommonCapellaAPI):
     def flush_bucket(self, tenant_id, project_id, cluster_id, bucket_id):
         url = '{}/v2/organizations/{}/projects/{}/clusters/{}'\
             .format(self.internal_url, tenant_id, project_id, cluster_id)
-        url = url + "/" + bucket_id + "/flush"
+        url = url + "/buckets/" + bucket_id + "/flush"
         resp = self.do_internal_request(url, method="POST")
         return resp
 
