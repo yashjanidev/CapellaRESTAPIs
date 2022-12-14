@@ -768,3 +768,9 @@ class CapellaAPI(CommonCapellaAPI):
               .format(self.internal_url, tenant_id, project_id, cluster_id, backend_id, db_name)
         resp = self.do_internal_request(url, method="GET", params='')
         return resp
+
+    def get_sgw_info(self, tenant_id, project_id, cluster_id, backend_id):
+        url = '{}/v2/organizations/{}/projects/{}/clusters/{}/backends/{}' \
+              .format(self.internal_url, tenant_id, project_id, cluster_id, backend_id)
+        resp = self.do_internal_request(url, method="GET", params='')
+        return resp
