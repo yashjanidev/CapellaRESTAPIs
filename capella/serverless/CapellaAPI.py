@@ -18,7 +18,7 @@ class CapellaAPI(CommonCapellaAPI):
     def request(self, url, method, params=''):
         if "stage" in url or "cloud.couchbase.com" in url:
             resp = self._urllib_request(url, method, params=params,
-                                   headers=self.cbc_api_request_headers)
+                                        headers=self.cbc_api_request_headers)
             return resp
         return self.do_internal_request(url, method, params=params)
 

@@ -16,6 +16,16 @@ class CommonCapellaAPI(CapellaAPIRequests):
         self._log = logging.getLogger(__name__)
         self.perPage = 100
         self.TOKEN_FOR_INTERNAL_SUPPORT = TOKEN_FOR_INTERNAL_SUPPORT
+        self.cbc_api_request_headers = {
+            'Authorization': 'Bearer %s' % self.TOKEN_FOR_INTERNAL_SUPPORT,
+            'Content-Type': 'application/json'
+        }
+
+    def trigger_logs_collection(self, cluster_id):
+        url = self.internal_url + "internal/support/logcollections/clusters/{}".format(cluster_id)
+        resp = self._urllib_request(url, "POST", params=json.dumps({}),
+                                    headers=self.cbc_api_request_headers)
+        return resp
 
     def signup_user(self, full_name, email, password, tenant_name, token=None):
         """
@@ -98,15 +108,11 @@ class CommonCapellaAPI(CapellaAPIRequests):
         """
         url = "{}/internal/support/clusters/{}/deployments-circuit-breaker" \
               .format(self.internal_url, cluster_id)
-        headers = {
-            'Authorization': 'Bearer %s' % self.TOKEN_FOR_INTERNAL_SUPPORT,
-            'Content-Type': 'application/json'
-        }
         params = {}
         if duration_seconds > 0:
             params['timeInSeconds'] = duration_seconds
         resp = self._urllib_request(url, "POST", params=json.dumps(params),
-                                    headers=headers)
+                                    headers=self.cbc_api_request_headers)
         return resp
 
     def get_circuit_breaker(self, cluster_id):
@@ -119,12 +125,8 @@ class CommonCapellaAPI(CapellaAPIRequests):
         """
         url = "{}/internal/support/clusters/{}/deployments-circuit-breaker" \
               .format(self.internal_url, cluster_id)
-        headers = {
-            'Authorization': 'Bearer %s' % self.TOKEN_FOR_INTERNAL_SUPPORT,
-            'Content-Type': 'application/json'
-        }
         resp = self._urllib_request(url, "GET",
-                                    headers=headers)
+                                    headers=self.cbc_api_request_headers)
         return resp
 
     def delete_circuit_breaker(self, cluster_id):
@@ -135,10 +137,6 @@ class CommonCapellaAPI(CapellaAPIRequests):
         """
         url = "{}/internal/support/clusters/{}/deployments-circuit-breaker" \
               .format(self.internal_url, cluster_id)
-        headers = {
-            'Authorization': 'Bearer %s' % self.TOKEN_FOR_INTERNAL_SUPPORT,
-            'Content-Type': 'application/json'
-        }
         resp = self._urllib_request(url, "DELETE",
-                                    headers=headers)
+                                    headers=self.cbc_api_request_headers)
         return resp
