@@ -717,20 +717,15 @@ class CapellaAPI(CommonCapellaAPI):
         resp = self._urllib_request("https://ifconfig.me", method="GET")
         if resp.status_code != 200:
             raise Exception("Fetch public IP failed!")
-        body = {"create": [{"cidr": "{}/32".format(resp.content.decode()),
-                            "comment": ""}]}
+        body = {"cidr": "{}/32".format(resp.content.decode()), "comment": ""}
         resp = self.do_internal_request(url, method="POST",
                                     params=json.dumps(body))
         return resp
 
-    def add_allowed_ips_sgw(self, tenant_id, project_id, cluster_id, backend_id, ips):
+    def add_allowed_ip_sgw(self, tenant_id, project_id, cluster_id, backend_id, ip):
         url = '{}/v2/organizations/{}/projects/{}/clusters/{}/backends/{}/allowip'\
             .format(self.internal_url, tenant_id, project_id, backend_id, cluster_id)
-        body = {
-            "create": [
-                {"cidr": "{}/32".format(ip), "comment": ""} for ip in ips
-            ]
-        }
+        body = {"cidr": "{}/32".format(ip), "comment": ""}
         resp = self.do_internal_request(url, method="POST",
                                     params=json.dumps(body))
         return resp
