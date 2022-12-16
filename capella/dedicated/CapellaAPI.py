@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 # Generic/Built-in
+import base64
 import logging
 
 import json
@@ -456,14 +457,31 @@ class CapellaAPI(CommonCapellaAPI):
         for cluster in all_clusters['items']:
             if cluster['name'] == cluster_name:
                 return cluster
+    
+    def get_restores(self, tenant_id, project_id, cluster_id, bucket_name):
+        """
+        method used to obtain list of restores of a given bucket.
+        :param tenant_id:
+        :param project_id:
+        :param cluster_id:
+        :param bucket_name:
+        :return: response object
+        """
 
+        bucket_id = base64.urlsafe_b64encode(bucket_name.encode()).decode()
+
+        url = "{}/v2/organizations/{}/projects/{}/clusters/{}/buckets/{}/restore".format(self.internal_url, 
+        tenant_id, project_id, cluster_id, bucket_id)
+
+        resp = self.do_internal_request(url, method="GET")
+        return resp
+        
     def get_backups(self, tenant_id, project_id, cluster_id):
         """
         method to obtain a list of the current backups from backups tab
         :param tenant_id:
         :param project_id:
         :param cluster_id:
-        :param bucket_name:
         :return: response object
         """
         url = "{}/v2/organizations/{}/projects/{}/clusters/{}/backups".format(self.internal_url, tenant_id,
