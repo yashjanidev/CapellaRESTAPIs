@@ -12,7 +12,7 @@ class CommonCapellaAPI(CapellaAPIRequests):
         super(CommonCapellaAPI, self).__init__(url, secret, access)
         self.user = user
         self.pwd = pwd
-        self.internal_url = url.replace("cloud", "", 1)
+        self.internal_url = url.replace("https://cloud", "https://", 1)
         self._log = logging.getLogger(__name__)
         self.perPage = 100
         self.TOKEN_FOR_INTERNAL_SUPPORT = TOKEN_FOR_INTERNAL_SUPPORT
