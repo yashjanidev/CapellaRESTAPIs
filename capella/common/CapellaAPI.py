@@ -21,9 +21,9 @@ class CommonCapellaAPI(CapellaAPIRequests):
             'Content-Type': 'application/json'
         }
 
-    def trigger_log_collection(self, cluster_id):
+    def trigger_log_collection(self, cluster_id, log_id={}):
         url = self.internal_url + "/internal/support/logcollections/clusters/{}".format(cluster_id)
-        resp = self._urllib_request(url, "POST", params=json.dumps({}),
+        resp = self._urllib_request(url, "POST", params=json.dumps(log_id),
                                     headers=self.cbc_api_request_headers)
         return resp
 
