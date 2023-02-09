@@ -141,6 +141,12 @@ class CapellaAPI(CommonCapellaAPI):
         resp = self.do_internal_request(url, method="DELETE")
         return resp
 
+    def purge_database(self, database_id):
+        url = "{}/internal/support/serverless-databases/{}/purge" \
+            .format(self.internal_url, database_id)
+        resp = self.request(url, "POST")
+        return resp
+
     def delete_dataplane(self, dataplane_id):
         url = "{}/internal/support/serverless-dataplanes/{}" \
             .format(self.internal_url, dataplane_id)
