@@ -520,6 +520,62 @@ class CapellaAPI(CommonCapellaAPI):
         resp = self.do_internal_request(url, method="POST", params=json.dumps(payload))
         return resp
 
+    def list_all_bucket_backups(self, tenant_id, project_id, cluster_id, bucket_id):
+        """
+        method to obtain the list of backups of a bucket
+        :param tenant_id:
+        :param project_id:
+        :param cluster_id:
+        :param bucket_id:
+        :return: response object
+        """
+        url = "{}/v2/organizations/{}/projects/{}/clusters/{}/buckets/{}/backups" \
+            .format(self.internal_url, tenant_id, project_id, cluster_id, bucket_id)
+        resp = self.do_internal_request(url, method="GET")
+        return resp
+
+    def begin_export(self, tenant_id, project_id, cluster_id, backup_id):
+        """
+        method to begin an export
+        :param tenant_id:
+        :param project_id:
+        :param cluster_id:
+        :param backup_id:
+        :return: response object
+        """
+        url = "{}/v2/organizations/{}/projects/{}/clusters/{}/backups/{}/export" \
+            .format(self.internal_url, tenant_id, project_id, cluster_id, backup_id)
+        resp = self.do_internal_request(url, method="POST")
+        return resp
+
+    def export_status(self, tenant_id, project_id, cluster_id, bucket_id):
+        """
+        method to query what exports are queued, executing and finished
+        :param tenant_id:
+        :param project_id:
+        :param cluster_id:
+        :param bucket_id:
+        :return: response object
+        """
+        url = "{}/v2/organizations/{}/projects/{}/clusters/{}/buckets/{}/exports?page=1&perPage=25" \
+            .format(self.internal_url, tenant_id, project_id, cluster_id, bucket_id)
+        resp = self.do_internal_request(url, method="GET")
+        return resp
+
+    def generate_export_link(self, tenant_id, project_id, cluster_id, export_id):
+        """
+        method to generate a pre-signed link for the given export
+        :param tenant_id:
+        :param project_id:
+        :param cluster_id:
+        :param export_id:
+        :return: response object
+        """
+        url = "{}/v2/organizations/{}/projects/{}/clusters/{}/exports/{}/link" \
+            .format(self.internal_url, tenant_id, project_id, cluster_id, export_id)
+        resp = self.do_internal_request(url, method="POST")
+        return resp
+
     def invite_new_user(self, tenant_id, email, bypass_token=None):
         """
         Invite a new user to the tenant
