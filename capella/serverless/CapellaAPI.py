@@ -40,7 +40,7 @@ class CapellaAPI(CommonCapellaAPI):
 
     def create_serverless_database(self, tenant_id, config):
         url = "{}/v2/organizations/{}/databases".format(self.internal_url, tenant_id)
-        resp = self.request(url, method="POST", params=json.dumps(config))
+        resp = self.do_internal_request(url, method="POST", params=json.dumps(config))
         return resp
 
     def create_serverless_database_overRide(self, config):
