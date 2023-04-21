@@ -64,7 +64,7 @@ class CapellaAPI(CommonCapellaAPI):
     def get_serverless_db_info(self, tenant_id, project_id, database_id):
         url = "{}/v2/organizations/{}/projects/{}/clusters/{}".format(
             self.internal_url, tenant_id, project_id, database_id)
-        resp = self.request(url, method="GET")
+        resp = self.do_internal_request(url, method="GET")
         return resp
 
     def get_database_debug_info(self, database_id):
@@ -105,14 +105,14 @@ class CapellaAPI(CommonCapellaAPI):
     def list_all_databases(self, tenant_id, project_id):
         url = "{}/v2/organizations/{}/projects/{}/clusters?page=1&perPage={}" \
             .format(self.internal_url, tenant_id, project_id, self.perPage)
-        resp = self.request(url, method="GET")
+        resp = self.do_internal_request(url, method="GET")
         return resp
 
     def add_ip_allowlists(self, tenant_id, database_id, project_id, config):
         # This to to add the list of IPs provided in config for whitelisting
         url = "{}/v2/organizations/{}/projects/{}/clusters/{}/allowlists-bulk" \
             .format(self.internal_url, tenant_id, project_id, database_id)
-        resp = self.request(url, method="POST", params=json.dumps(config))
+        resp = self.do_internal_request(url, method="POST", params=json.dumps(config))
         return resp
 
     def allow_my_ip(self, tenant_id, project_id, cluster_id):
@@ -124,7 +124,7 @@ class CapellaAPI(CommonCapellaAPI):
             raise Exception("Fetch public IP failed!")
         body = {"cidr": "{}/32".format(resp.content.decode())}
         url = '{}/allowlists'.format(url)
-        resp = self.request(url, method="POST",
+        resp = self.do_internal_request(url, method="POST",
                                         params=json.dumps(body))
         return resp
 
@@ -132,13 +132,13 @@ class CapellaAPI(CommonCapellaAPI):
         url = "{}/v2/organizations/{}/projects/{}/databases/{}/keys" \
             .format(self.internal_url, tenant_id, project_id, database_id)
         body = {}
-        resp = self.request(url, method="POST", params=json.dumps(body))
+        resp = self.do_internal_request(url, method="POST", params=json.dumps(body))
         return resp
 
     def delete_database(self, tenant_id, project_id, database_id):
         url = "{}/v2/organizations/{}/projects/{}/databases/{}" \
             .format(self.internal_url, tenant_id, project_id, database_id)
-        resp = self.request(url, method="DELETE")
+        resp = self.do_internal_request(url, method="DELETE")
         return resp
 
     def delete_dataplane(self, dataplane_id):
