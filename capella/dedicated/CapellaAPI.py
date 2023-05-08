@@ -842,6 +842,13 @@ class CapellaAPI(CommonCapellaAPI):
         resp = self.do_internal_request(url, method="GET", params='')
         return resp
 
+    def get_node_metrics(self, tenant_id, project_id, cluster_id, metrics, step, start, end):
+        url = '{}/v2/organizations/{}/projects/{}/clusters/{}/metrics/{}/query_range' \
+              .format(self.internal_url, tenant_id, project_id, cluster_id, metrics)
+        payload = {'step':step, 'start':start, 'end':end}
+        resp = self.do_internal_request(url, method="GET", params=json.dumps(payload))
+        return resp
+
     def create_project(self, tenant_id, name):
         project_details = {"name": name, "tenantId": tenant_id}
 
