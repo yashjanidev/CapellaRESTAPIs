@@ -85,6 +85,13 @@ class CapellaAPI(CommonCapellaAPI):
         resp = self.request(url, "GET")
         return resp
 
+    def get_serverless_databases_for_dataplane(self, dataplane_id):
+        url = "{}/internal/support/serverless-dataplanes/{}/databases".format(
+            self.interal_url, dataplane_id
+        )
+        resp = self.request(url, "GET")
+        return resp
+
     def update_database(self, database_id, override):
         """
         Update serverless database. Example override:
