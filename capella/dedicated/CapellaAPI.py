@@ -771,6 +771,13 @@ class CapellaAPI(CommonCapellaAPI):
                                         params=json.dumps(config))
         return resp
 
+    def get_sgw_databases(self, tenant_id, project_id, cluster_id, backend_id):
+        "Get a list of all available sgw databases (app endpoints)"
+        url = '{}/v2/organizations/{}/projects/{}/clusters/{}/backends/{}/databases' \
+              .format(self.internal_url, tenant_id, project_id, cluster_id, backend_id)
+        resp = self.do_internal_request(url, method="GET")
+        return resp
+
     def resume_sgw_database(self, tenant_id, project_id, cluster_id, backend_id, db_name):
         "Resume the sgw database (app endpoint)"
         url = '{}/v2/organizations/{}/projects/{}/clusters/{}/backends/{}/databases/{}/online' \
