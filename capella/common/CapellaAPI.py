@@ -146,3 +146,60 @@ class CommonCapellaAPI(CapellaAPIRequests):
         resp = self._urllib_request(url, "DELETE",
                                     headers=self.cbc_api_request_headers)
         return resp
+
+    def add_user_to_project(self, tenant_id, payload):
+        """
+        Add a user to the project
+
+        payload = {
+            "resourceId": project_ids[project_id],
+            "resourceType": "project",
+            "roles": [role], "users": [user["userid"]]}
+        }
+        """
+        url = "{}/v2/organizations/{}/permissions".format(self.internal_url, tenant_id)
+        resp = self.do_internal_request(url, "PUT", params=payload)
+        return resp
+
+    def remove_user_from_project(self, tenant_id, user_id, project_id):
+        """
+        Remove user from the project
+
+        """
+        url = "{}/v2/organizations/{}/permissions/{}/resource/{}"\
+            .format(self.internal_url, tenant_id, user_id, project_id)
+        resp = self.do_internal_request(url, "DELETE")
+        return resp
+
+    def create_project(self, tenant_id, name):
+        project_details = {"name": name, "tenantId": tenant_id}
+
+        url = '{}/v2/organizations/{}/projects'.format(self.internal_url, tenant_id)
+        capella_api_response = self.do_internal_request(url, method="POST",
+                                                        params=json.dumps(project_details))
+        return capella_api_response
+
+    def delete_project(self, tenant_id, project_id):
+        url = '{}/v2/organizations/{}/projects/{}'.format(self.internal_url, tenant_id,
+                                                          project_id)
+        capella_api_response = self.do_internal_request(url, method="DELETE",
+                                                        params='')
+        return capella_api_response
+
+    def access_project(self, tenant_id, project_id):
+        url = "{}/v2/organizations/{}/projects/{}".format(self.internal_url, tenant_id,
+                                                          project_id)
+        capella_api_response = self.do_internal_request(url, method="GET", params='')
+        return capella_api_response
+
+    def run_query(self, cluster_id, query_statement):
+        url = "{0}/v2/databases/{1}/proxy/_p/query/query/service" \
+            .format(self.internal_url, cluster_id)
+        resp = self.request(url, method="POST", params=json.dumps(query_statement))
+        return resp
+
+    def create_fts_index(self, database_id, fts_index_name, payload):
+        url = "{}/v2/databases/{}/proxy/_p/fts/api/bucket/{}/scope/samples/index/{}" \
+            .format(self.internal_url, database_id, database_id, fts_index_name)
+        resp = self.do_internal_request(url, method="PUT", params=json.dumps(payload))
+        return resp

@@ -129,21 +129,6 @@ class CapellaAPI(CommonCapellaAPI):
         capella_api_response = self.capella_api_get('/v2/users?perPage=' + str(self.perPage))
         return (capella_api_response)
 
-    def create_project(self, tenant_id, name):
-        project_details = {"name": name, "tenantId": tenant_id}
-
-        url = '{}/v2/organizations/{}/projects'.format(self.internal_url, tenant_id)
-        capella_api_response = self.do_internal_request(url, method="POST",
-                                                    params=json.dumps(project_details))
-        return capella_api_response
-
-    def delete_project(self, tenant_id, project_id):
-        url = '{}/v2/organizations/{}/projects/{}'.format(self.internal_url, tenant_id,
-                                                          project_id)
-        capella_api_response = self.do_internal_request(url, method="DELETE",
-                                                    params='')
-        return capella_api_response
-
     def create_bucket(self, tenant_id, project_id, cluster_id,
                       bucket_params):
         url = '{}/v2/organizations/{}/projects/{}/clusters/{}'\
@@ -855,4 +840,32 @@ class CapellaAPI(CommonCapellaAPI):
         url = '{}/v2/organizations/{}/projects/{}/clusters/{}/backends/{}/databases/{}/publiccert' \
               .format(self.internal_url, tenant_id, project_id, cluster_id, backend_id, db_name)
         resp = self.do_internal_request(url, method="GET", params='')
+        return resp
+
+    def create_project(self, tenant_id, name):
+        project_details = {"name": name, "tenantId": tenant_id}
+
+        url = '{}/v2/organizations/{}/projects'.format(self.internal_url, tenant_id)
+        capella_api_response = self.do_internal_request(url, method="POST",
+                                                        params=json.dumps(project_details))
+        return capella_api_response
+
+    def delete_project(self, tenant_id, project_id):
+        url = '{}/v2/organizations/{}/projects/{}'.format(self.internal_url, tenant_id,
+                                                          project_id)
+        capella_api_response = self.do_internal_request(url, method="DELETE",
+                                                        params='')
+        return capella_api_response
+
+    def turn_off_cluster(self, tenant_id, project_id, cluster_id):
+        url = '{}/v2/organizations/{}/projects/{}/clusters/{}/off' \
+            .format(self.internal_url, tenant_id, project_id, cluster_id)
+        resp = self.do_internal_request(url, method="POST", params='')
+        return resp
+
+    def turn_on_cluster(self, tenant_id, project_id, cluster_id):
+        url = '{}/v2/organizations/{}/projects/{}/clusters/{}/on' \
+            .format(self.internal_url, tenant_id, project_id, cluster_id)
+        payload = "{\"turnOnAppService\":true}"
+        resp = self.do_internal_request(url, method="POST", params=json.dumps(payload))
         return resp
