@@ -192,10 +192,10 @@ class CommonCapellaAPI(CapellaAPIRequests):
         capella_api_response = self.do_internal_request(url, method="GET", params='')
         return capella_api_response
 
-    def run_query(self, cluster_id, query_statement):
+    def run_query(self, cluster_id, payload):
         url = "{0}/v2/databases/{1}/proxy/_p/query/query/service" \
             .format(self.internal_url, cluster_id)
-        resp = self.do_internal_request(url, method="POST", params=json.dumps(query_statement))
+        resp = self.do_internal_request(url, method="POST", params=json.dumps(payload))
         return resp
 
     def create_fts_index(self, database_id, fts_index_name, payload):
