@@ -24,31 +24,40 @@ class CapellaAPIAuth(AuthBase):
         self.SECRET_KEY = secret
 
     def __call__(self, r):
-        # This is the endpoint being called
-        # Split out from the entire URL
-        endpoint = r.url.split(".com", 1)[-1]
+        if "v4" in r.url:
+            bearer_token =  base64.StdEncoding.EncodeToString([]byte(
+                self.ACCESS_KEY + ":" + self.SECRET_KEY))
+            # Values for the header
+            cbc_api_request_headers = {
+                'Authorization': 'Bearer ' + bearer_token,
+                'Content-Type': 'application/json'
+            }
+        else:
+            # This is the endpoint being called
+            # Split out from the entire URL
+            endpoint = r.url.split(".com", 1)[-1]
 
-        # The method being used
-        method = r.method
+            # The method being used
+            method = r.method
 
-        # Epoch time in milliseconds
-        cbc_api_now = int(time.time() * 1000)
+            # Epoch time in milliseconds
+            cbc_api_now = int(time.time() * 1000)
 
-        # Form the message string for the Hmac hash
-        cbc_api_message = method + '\n' + endpoint + '\n' + str(cbc_api_now)
+            # Form the message string for the Hmac hash
+            cbc_api_message = method + '\n' + endpoint + '\n' + str(cbc_api_now)
 
-        # Calculate the hmac hash value with secret key and message
-        cbc_api_signature = base64.b64encode(
-            hmac.new(self.SECRET_KEY.encode(),
-                     cbc_api_message.encode(),
-                     digestmod=hashlib.sha256).digest())
+            # Calculate the hmac hash value with secret key and message
+            cbc_api_signature = base64.b64encode(
+                hmac.new(self.SECRET_KEY.encode(),
+                         cbc_api_message.encode(),
+                         digestmod=hashlib.sha256).digest())
 
-        # Values for the header
-        cbc_api_request_headers = {
-           'Authorization': 'Bearer ' + self.ACCESS_KEY + ':' + cbc_api_signature.decode(),
-           'Couchbase-Timestamp': str(cbc_api_now),
-           'Content-Type': 'application/json'
-        }
+            # Values for the header
+            cbc_api_request_headers = {
+               'Authorization': 'Bearer ' + self.ACCESS_KEY + ':' + cbc_api_signature.decode(),
+               'Couchbase-Timestamp': str(cbc_api_now),
+               'Content-Type': 'application/json'
+            }
         # Add our key:values to the request header
         r.headers.update(cbc_api_request_headers)
 

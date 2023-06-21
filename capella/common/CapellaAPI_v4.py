@@ -1,0 +1,713 @@
+# -*- coding: utf-8 -*-
+# Generic/Built-in
+import logging
+
+import json
+from ..lib.CapellaAPIRequests import CapellaAPIRequests
+
+"""
+Import CommonCapellaAPI to get access to all the API functionalities.
+APIs are segregated according to class for better code management.
+"""
+
+class OrganizationAPIs(CapellaAPIRequests):
+
+    def __init__(self, url, secret, access):
+        super(OrganizationAPIs, self).__init__(url, secret, access)
+        self._log = logging.getLogger(__name__)
+        self.organization_endpoint = "/v4/organizations"
+
+    """
+    Method fetches the info of the organization mentioned.
+    In order to access this endpoint, the provided API key must have at least one of the roles referenced below:
+    - Organization Owner
+    - Project Creator
+    - Organization Member
+    :param organizationId (str) Organization ID under which the user is present
+    :param kwargs (dict) Do not use this under normal circumstances. This is only to test negative scenarios.
+    """
+    def fetch_organization_info(self, organizationId, **kwargs):
+        self._log.info("Fetching info for organization {}".format(organizationId))
+        if kwargs:
+            params = kwargs
+        else:
+            params = None
+        resp = self.capella_api_get("{}/{}".format(self.organization_endpoint, organizationId), params)
+        return resp
+
+    """
+    Method lists all the organizations.
+    In order to access this endpoint, the provided API key must have at least one of the roles referenced below:
+    - Organization Owner
+    - Project Creator
+    - Organization Member
+    :param kwargs (dict) Do not use this under normal circumstances. This is only to test negative scenarios.
+    """
+    def list_organizations(self, **kwargs):
+        self._log.info("Listing all the organizations")
+        if kwargs:
+            params = kwargs
+        else:
+            params = None
+        resp = self.capella_api_get(self.organization_endpoint, params)
+        return resp
+
+
+class APIKeysAPIs(CapellaAPIRequests):
+
+    def __init__(self, url, secret, access):
+        super(APIKeysAPIs, self).__init__(url, secret, access)
+        self.apikeys_endpoint = "/v4/organizations/{}/apikeys"
+        self._log = logging.getLogger(__name__)
+
+    """
+    Method to creates a new API key under an organization.
+    - Organization Owners can create Organization and Project scoped APIKeys.
+    - Organization Members and Project Creators can create a Project scoped APIKeys for which they are Project Owner.
+
+    :param organizationId (str) Organization ID under which the API key has to be created.
+    :param name (str) Name of the APIKey.
+    :param organizationRoles ([str]) Organization roles assigned to the APIKey. Accepted values - "organizationOwner"
+    "organizationMember" "projectCreator"
+    :param description (str) Description for the APIKey.
+    Default Value - ""
+    :param expiry (int) Expiry of the APIKey in number of days. When it is set to 0, token will not expire.
+    Default Value - 180
+    :param allowedCIDRs ([str]) List of inbound CIDRs for the APIKey. System making a request must come
+    from CIDRs listed in the allowedCIDRs.
+    Default Value - ["0.0.0.0/0"]
+    :param resources ([APIKeyResources]) Resources are the resource level permissions associated with the APIKey.
+    Default Value - []
+    [ APIKeyResources (dict)
+        {
+            type (str) Type of the resource.
+            Default Value - project
+            id (str) Id of the project.
+            roles ([str]) Project Roles associated with the APIKey.
+            Accepted Value - "projectOwner" "projectManager" "projectViewer" "projectDataReaderWriter" "projectDataReader"
+        }
+    ]
+    :param kwargs (dict) Do not use this under normal circumstances. This is only to test negative scenarios.
+    """
+    def create_api_key(self, organizationId, name, organizationRoles, description="", expiry=180,
+                      allowedCIDRs=["0.0.0.0/0"], resources=[], **kwargs):
+        self._log.info("Creating a new API key - {}".format(name))
+        params = {
+            "name": name,
+            "organizationRoles": organizationRoles,
+            "description": description,
+            "expiry": expiry,
+            "allowedCIDRs": allowedCIDRs,
+            "resources": resources
+        }
+        for k, v in kwargs.items():
+            params[k] = v
+        resp = self.capella_api_post(self.apikeys_endpoint.format(organizationId), params)
+        return resp
+
+    """
+    Method lists all the apikeys under organization mentioned.
+    Organization Owners can list all the APIKeys inside the Organization.
+    Organization Members and Project Creators can list all the Project scoped APIKey for which they are Project Owner.
+
+    :param organizationId (str) Organization ID for which the api keys have to be listed.
+    :param page (int) Sets what page you would like to view
+    :param perPage (int) Sets how many results you would like to have on each page
+    :param sortBy ([string]) Sets order of how you would like to sort results and also the key you would like to order by
+                             Example: sortBy=name
+    :param sortDirection (str) The order on which the items will be sorted. Accepted Values - asc / desc
+    :param kwargs (dict) Do not use this under normal circumstances. This is only to test negative scenarios.
+    """
+    def list_api_keys(self, organizationId, page=None, perPage=None, sortBy=None, sortDirection=None, **kwargs):
+        self._log.info("List all the API key for Organization {}".format(organizationId))
+        params = {}
+        if page:
+            params["page"] = page
+        if perPage:
+            params["perPage"] = perPage
+        if perPage:
+            params["sortBy"] = sortBy
+        if perPage:
+            params["sortDirection"] = sortDirection
+
+        for k, v in kwargs.items():
+            params[k] = v
+
+        resp = self.capella_api_get(self.apikeys_endpoint.format(organizationId), params)
+        return resp
+
+    """
+    Method fetches the details of given APIKey under an organization.
+    Organization Owners can get any APIKey inside the Organization.
+    Organization Members and Project Creator can get any Project scoped APIKey for which they are Project Owner.
+
+    :param organizationId (str) Organization ID under which the api key is present.
+    :param accessKey (str) The ID(acecssKey) of the APIKey.
+    :param kwargs (dict) Do not use this under normal circumstances. This is only to test negative scenarios.
+    """
+    def fetch_api_key_info(self, organizationId, accessKey, **kwargs):
+        self._log.info("Fetching API key info for {} in organization {}".format(accessKey, organizationId))
+        if kwargs:
+            params = kwargs
+        else:
+            params = None
+        resp = self.capella_api_get("{}/{}".format(self.apikeys_endpoint.format(organizationId), accessKey), params)
+        return resp
+
+    """
+    Method deletes the api key mentioned.
+    Organization Owners can delete any APIKey inside the Organization.
+    Organization Members and Project Creator can delete any Project scoped APIKey for which they are Project Owner.
+
+    :param organizationId (str) Organization ID under which the api key is present.
+    :param accessKey (str) The ID(acecssKey) of the APIKey to be deleted.
+    :param kwargs (dict) Do not use this under normal circumstances. This is only to test negative scenarios.
+    """
+    def delete_api_key(self, organizationId, accessKey, **kwargs):
+        self._log.info("Deleting API key {} in organization {}".format(accessKey, organizationId))
+        if kwargs:
+            params = kwargs
+        else:
+            params = None
+        resp = self.capella_api_del("{}/{}".format(self.apikeys_endpoint.format(organizationId), accessKey), params)
+        return resp
+
+
+class UsersAPIs(CapellaAPIRequests):
+
+    def __init__(self, url, secret, access):
+        super(UsersAPIs, self).__init__(url, secret, access)
+        self._log = logging.getLogger(__name__)
+        self.users_endpoint = "/v4/organizations/{}/users"
+
+    """
+    Method send invites to the user under organization mentioned.
+    In order to access this endpoint, the provided API key must have at least one of the roles referenced below:
+    - organizationOwner
+    :param organizationId (str) Organization ID for which the user has to be invited
+    :param name (str) The name of the user.
+    :param email (str) Email of the user.
+    :param organizationRole ([string]) 	Items Enum: "organizationOwner" "organizationMember" "projectCreator"
+    :param resources ([resource object])
+    [
+        Resource Object
+        {
+            resourceId (str) ResourceId of the resource.
+            resourceType (str) The type of resource like projects. Current accepted value is project
+            roles ([string]) Items Enum: "projectOwner" "projectClusterManager" "projectClusterViewer"
+            "projectDataWriter" "projectDataViewer"
+        }
+    ]
+    :param kwargs (dict) Do not use this under normal circumstances. This is only to test negative scenarios.
+    """
+    def invite_users_to_organization(self, organizationId, email, organizationRole, name="", resources=[], **kwargs):
+        self._log.info("Inviting user {} to organization {} with role {}".foramt(
+            email, organizationId, organizationRole))
+        params = {
+            "email": email,
+            "organizationRole": organizationRole
+        }
+        if name:
+            params["name"] = name
+        if resources:
+            params["resources"] = resources
+
+        for k, v in kwargs.items():
+            params[k] = v
+
+        resp = self.capella_api_post(self.users_endpoint.format(organizationId), params)
+        return resp
+
+    """
+    Method lists all the users under organization mentioned.
+    In order to access this endpoint, the provided API key must have at least one of the roles referenced below:
+    - organizationOwner
+    - organizationMember
+    - projectCreator
+    :param organizationId (str) Organization ID for which the users have to be listed.
+    :param page (int) Sets what page you would like to view
+    :param perPage (int) Sets how many results you would like to have on each page
+    :param sortBy ([string]) Sets order of how you would like to sort results and also the key you would like to order by
+                             Example: sortBy=name
+    :param sortDirection (str) The order on which the items will be sorted. Accepted Values - asc / desc
+    :param projectId (str) Project ID of the project to list only users under that project.
+    :param kwargs (dict) Do not use this under normal circumstances. This is only to test negative scenarios.
+    """
+
+    def list_org_users(self, organizationId, page=None, perPage=None, sortBy=None,
+                           sortDirection=None, projectId=None, **kwargs):
+        self._log.info("List all the users for Organization {}".format(organizationId))
+
+        params = {}
+        if page:
+            params["page"] = page
+        if perPage:
+            params["perPage"] = perPage
+        if perPage:
+            params["sortBy"] = sortBy
+        if perPage:
+            params["sortDirection"] = sortDirection
+        if projectId:
+            params["projectId"] = projectId
+
+        for k, v in kwargs.items():
+            params[k] = v
+
+        resp = self.capella_api_get(self.users_endpoint.format(organizationId), params)
+        return resp
+
+    """
+    Method fetches the info of the user mentioned.
+    In order to access this endpoint, the provided API key must have at least one of the roles referenced below:
+    - organizationOwner
+    - organizationMember
+    - projectCreator
+    :param organizationId (str) Organization ID under which the user is present
+    :param userId (str) User ID of the user whose info has to be fetched.
+    :param kwargs (dict) Do not use this under normal circumstances. This is only to test negative scenarios.
+    """
+    def fetch_user_info(self, organizationId, userId, **kwargs):
+        self._log.info("Fetching user info for {} in organization {}".format(userId, organizationId))
+
+        if kwargs:
+            params = kwargs
+        else:
+            params = None
+        resp = self.capella_api_get("{}/{}".format(self.users_endpoint.format(organizationId), userId), params)
+        return resp
+
+    """
+    Method updates organizational role and resources of the user.
+    In order to access this endpoint, the provided API key must have at least one of the roles referenced below:
+    - organizationOwner
+    - projectOwner
+    - An "organizationOwner" API key can be utilized to update organizational-level roles and project-level
+    roles for all projects within the organization.
+    - The "ProjectOwner" API key allows for updating project-level roles, solely within the projects
+    where the API key holds the "ProjectOwner" role.
+
+    :param organizationId (str) Organization ID under which the user is present.
+    :param userId (str) User ID of the user which is to be updated.
+    :param update_info ([dict])
+    {
+        :param op (str) Type of operation. Accepted Values: "add" "replace" "remove".
+        :param path (str) Path of resource that needs to be updated. Can be of following forms -
+        /organizationRole
+        /resources/{resourceId}/
+        /resources/{resourceId}/role
+        :param value Array of OrganizationRole (strings) or Array of Role (strings) or ResourcePermission (object)
+
+        OrganizationRole ([string])
+        Accepted values: "organizationOwner" "organizationMember" "projectCreator"
+        - "organizationOwner" is the admin and has unrestricted access to all resources within the organization.
+        - "organizationMember" can view settings, users, connected clouds, projects they're a part of, and teams.
+        Project role determines privileges within a project.
+        - "projectCreator" role includes all Organization Member privileges and automatically assigns the
+        Project Owner role to any project the user creates
+
+        Role ([string])
+        Accepted values: "projectOwner" "projectClusterManager" "projectClusterViewer" "projectDataWriter"
+        "projectDataViewer"
+        - "projectOwner" provides complete database-management access. Users with this role can access data
+        in any database in a project, referred as Project Owner in docs.
+        - "projectClusterManager" Provides access to management actions for all databases in a project.
+        This role can create and delete databases but doesn’t provide access to data, referred as Project Manager in docs.
+        - "projectClusterViewer" provides read-only access to view all databases in a project. 
+        This role does not provide access to data, referred as Project Viewer in docs.
+        - "projectDataWriter" provides read and write access to data within any database in a project,
+        referred as Database Data Reader/Writer in docs.
+        - "projectDataViewer" provides read-only access to view data within any database in a project.
+        This role allows use of tools like Query Workbench to read data but can’t modify or write data,
+        referred as Database Data Reader in docs.
+
+        ResourcePermission (dict)
+        {
+            resourceId (str) ResourceId of the resource.
+            resourceType (str) The type of resource like projects. Current accepted value is project
+            roles ([str]) Items Enum: "projectOwner" "projectClusterManager" "projectClusterViewer" 
+            "projectDataWriter" "projectDataViewer"
+        }
+    }
+    :param kwargs (dict) Do not use this under normal circumstances. This is only to test negative scenarios.
+    """
+
+    def update_user(self, organizationId, userId, update_info, **kwargs):
+        self._log.info("Updating user {} in organization {}".format(userId, organizationId))
+
+        if kwargs:
+            update_info += kwargs
+        resp = self.capella_api_patch("{}/{}".format(self.users_endpoint.format(organizationId), userId), update_info)
+        return resp
+
+    """
+    Method deletes the user mentioned.
+    In order to access this endpoint, the provided API key must have at least one of the roles referenced below:
+    - organizationOwner
+    :param organizationId (str) Organization ID under which the user to be deleted is present.
+    :param userId (str) User ID of the user which has to be deleted
+    :param kwargs (dict) Do not use this under normal circumstances. This is only to test negative scenarios.
+    """
+
+    def delete_user(self, organizationId, userId, **kwargs):
+        self._log.info("Deleting user {} in organization {}".format(userId, organizationId))
+        if kwargs:
+            params = kwargs
+        else:
+            params = None
+        resp = self.capella_api_del("{}/{}".format(self.users_endpoint.format(organizationId), userId), params)
+        return resp
+
+
+class ProjectAPIs(CapellaAPIRequests):
+
+    def __init__(self, url, secret, access):
+        super(ProjectAPIs, self).__init__(url, secret, access)
+        self._log = logging.getLogger(__name__)
+        self.project_endpoint = "/v4/organizations/{}/projects"
+
+    """
+    Method creates a project under organization mentioned.
+    In order to access this endpoint, the provided API key must have at least one of the roles referenced below:
+    - organizationOwner
+    - projectCreator
+    :param organizationId (str) Organization ID under which the project has to be created.
+    :param name (str) Name of the project to be created.
+    :param description (str) Description of the project. Optional.
+    :param kwargs (dict) Do not use this under normal circumstances. This is only to test negative scenarios.
+    """
+    def create_project(self, organizationId, name, description="", **kwargs):
+        self._log.info("Creating Project {} in organization {}".format(name, organizationId))
+        params = {
+            "name" : name,
+        }
+        if description:
+            params["description"] = description
+        for k,v in kwargs.items():
+            params[k] = v
+        resp = self.capella_api_post(self.project_endpoint.format(organizationId), params)
+        return resp
+
+    """
+    Method lists all the projects under organization mentioned.
+    In order to access this endpoint, the provided API key must have at least one of the roles referenced below:
+    - organizationOwner
+    - projectOwner
+    - projectClusterManager
+    - projectClusterManager
+    - projectDataWriter
+    - projectDataViewer
+    :param organizationId (str) Organization ID for which the projects have to be listed.
+    :param page (int) Sets what page you would like to view
+    :param perPage (int) Sets how many results you would like to have on each page
+    :param sortBy ([string]) Sets order of how you would like to sort results and also the key you would like to order by
+                             Example: sortBy=name
+    :param sortDirection (str) The order on which the items will be sorted. Accepted Values - asc / desc
+    :param kwargs (dict) Do not use this under normal circumstances. This is only to test negative scenarios.
+    """
+    def list_projects(self, organizationId, page=None, perPage=None, sortBy=None,
+                      sortDirection=None, **kwargs):
+        self._log.info("List all the project for Organization {}".format(organizationId))
+
+        params = {}
+        if page:
+            params["page"] = page
+        if perPage:
+            params["perPage"] = perPage
+        if perPage:
+            params["sortBy"] = sortBy
+        if perPage:
+            params["sortDirection"] = sortDirection
+
+        for k,v in kwargs.items():
+            params[k] = v
+
+        resp = self.capella_api_get(self.project_endpoint.format(organizationId), params)
+        return resp
+
+    """
+    Method lists all the info of the project mentioned.
+    In order to access this endpoint, the provided API key must have at least one of the roles referenced below:
+    - organizationOwner
+    - projectOwner
+    - projectClusterManager
+    - projectDataWriter
+    - projectDataViewer
+    :param organizationId (str) Organization ID under which the project is present.
+    :param projectId (str) Project ID of the project whose info has to be fetched
+    :param kwargs (dict) Do not use this under normal circumstances. This is only to test negative scenarios.
+    """
+    def fetch_project_info(self, organizationId, projectId, **kwargs):
+        self._log.info("Fetching project info for {} in organization {}".format(projectId, organizationId))
+        if kwargs:
+            params = kwargs
+        else:
+            params = None
+        resp = self.capella_api_get("{}/{}".format(self.project_endpoint.format(organizationId), projectId), params)
+        return resp
+
+    """
+    Method updates name and description of the project mentioned.
+    In order to access this endpoint, the provided API key must have at least one of the roles referenced below:
+    - organizationOwner
+    - projectOwner
+    :param organizationId (str) Organization ID under which the project is present.
+    :param projectId (str) Project ID of the project whose info has to be updated
+    :param name (str) Updated name of the project.
+    :param description (str) Updated Description of the project.
+    :param ifmatch (bool) Is set to true then it uses a precondition header that specifies the entity tag of a resource.
+    :param kwargs (dict) Do not use this under normal circumstances. This is only to test negative scenarios.
+    """
+    def update_project(self, organizationId, projectId, name, description, ifmatch, **kwargs):
+        self._log.info("Updating project {} in organization {}".format(projectId, organizationId))
+        params = {
+            "name": name,
+            "description": description
+        }
+        header = {}
+        if ifmatch:
+            result = self.fetch_project_info(organizationId, projectId)
+            version_id = result.json()["audit"]["version"]
+            header = {"If-Match": "Version: {}".format(version_id)}
+
+        for k,v in kwargs.items():
+            if k == "If-Match":
+                header = {"If-Match": "Version: {}".format(v)}
+            else:
+                params[k] = v
+
+        resp = self.capella_api_put("{}/{}".format(self.project_endpoint.format(organizationId), projectId),
+                                    params, header)
+        return resp
+
+    """
+    Method deletes the project mentioned.
+    In order to access this endpoint, the provided API key must have at least one of the roles referenced below:
+    - organizationOwner
+    - projectOwner
+    :param organizationId (str) Organization ID under which the project is present.
+    :param projectId (str) Project ID of the project which has to be deleted.
+    :param kwargs (dict) Do not use this under normal circumstances. This is only to test negative scenarios.
+    """
+    def delete_project(self, organizationId, projectId, **kwargs):
+        self._log.info("Deleting project {} in organization {}".format(projectId, organizationId))
+        if kwargs:
+            params = kwargs
+        else:
+            params = None
+        resp = self.capella_api_del("{}/{}".format(self.project_endpoint.format(organizationId), projectId), params)
+        return resp
+
+
+class CommonCapellaAPI(ProjectAPIs, UsersAPIs, APIKeysAPIs, OrganizationAPIs, CapellaAPIRequests):
+
+    def __init__(self, url, secret, access, user, pwd, TOKEN_FOR_INTERNAL_SUPPORT=None):
+        super(CommonCapellaAPI, self).__init__(url, secret, access)
+        self.user = user
+        self.pwd = pwd
+        self.internal_url = url.replace("https://cloud", "https://", 1)
+        self._log = logging.getLogger(__name__)
+        self.perPage = 100
+        self.TOKEN_FOR_INTERNAL_SUPPORT = TOKEN_FOR_INTERNAL_SUPPORT
+        self.cbc_api_request_headers = {
+            'Authorization': 'Bearer %s' % self.TOKEN_FOR_INTERNAL_SUPPORT,
+            'Content-Type': 'application/json'
+        }
+
+    def trigger_log_collection(self, cluster_id, log_id={}):
+        url = self.internal_url + "/internal/support/logcollections/clusters/{}".format(cluster_id)
+        resp = self._urllib_request(url, "POST", params=json.dumps(log_id),
+                                    headers=self.cbc_api_request_headers)
+        return resp
+
+    def get_cluster_tasks(self, cluster_id):
+        url = self.internal_url + "/internal/support/clusters/{}/pools/default/tasks".format(cluster_id)
+        resp = self._urllib_request(url, "GET",
+                                    headers=self.cbc_api_request_headers)
+        return resp
+
+    def signup_user(self, full_name, email, password, tenant_name, token=None):
+        """
+        Invite a new user to the tenant
+
+        Example use:
+
+        ```
+        token = "secret-token"
+        resp = client.invite_user(tenant_id, user, token)
+        verify_token = resp.headers["Vnd-project-Avengers-com-e2e-token"]
+        user_id = resp.json()["userId"]
+        ```
+        """
+        headers = {}
+        if token:
+            headers["Vnd-project-Avengers-com-e2e"] = token
+        url = "{}/register".format(self.internal_url)
+        body = {
+            "tenant": tenant_name,
+            "email": email,
+            "name": full_name,
+            "password": password
+        }
+        resp = self.do_internal_request(url, method="POST",
+                                        params=json.dumps(body),
+                                        headers=headers)
+        return resp
+
+    def verify_email(self, token):
+        """
+        Verify an email invitation.
+
+        Example use:
+
+        ```
+        token = "email-verify-token"
+        resp = client.verify_email(token)
+        jwt = resp.json()["jwt"]
+        ```
+        """
+        url = "{}/emails/verify/{}".format(self.internal_url, token)
+        resp = self.do_internal_request(url, method="POST")
+        return resp
+
+    """
+    Method Deprecated.
+    New Method - OrganizationAPIs.list_organizations
+    def list_accessible_tenants(self):
+        url = "{}/tenants".format(self.internal_url)
+        resp = self.do_internal_request(url, method="GET")
+        return resp
+    """
+
+    """
+    Method Deprecated.
+    New Method - APIKeysAPIs.create_api_key
+    def create_access_secret_key(self, name, tenant_id):
+        headers = {}
+        url = "{}/tokens?tenantId={}".format(self.internal_url, tenant_id)
+        body = {
+            "name": name,
+            "tenantId": tenant_id
+        }
+        resp = self.do_internal_request(url, method="POST",
+                                        params=json.dumps(body),
+                                        headers=headers)
+        return resp
+    """
+
+    """
+    Method Deprecated.
+    New Method - APIKeysAPIs.delete_api_key
+    def revoke_access_secret_key(self, tenant_id, key_id):
+        url = "{}/tokens/{}?tenantId={}".format(self.internal_url, key_id, tenant_id)
+        resp = self.do_internal_request(url, method="DELETE")
+        return resp
+    """
+
+    def create_circuit_breaker(self, cluster_id, duration_seconds=-1):
+        """
+        Create a deployment circuit breaker for a cluster, which prevents
+        any auto-generated deployments such as auto-scaling up/down, control
+        plane initiated rebalances, etc.
+
+        Default circuit breaker duration is 24h.
+
+        See AV-46172 for more.
+        """
+        url = "{}/internal/support/clusters/{}/deployments-circuit-breaker" \
+            .format(self.internal_url, cluster_id)
+        params = {}
+        if duration_seconds > 0:
+            params['timeInSeconds'] = duration_seconds
+        resp = self._urllib_request(url, "POST", params=json.dumps(params),
+                                    headers=self.cbc_api_request_headers)
+        return resp
+
+    def get_circuit_breaker(self, cluster_id):
+        """
+        Retrieve a deployment circuit breaker for a cluster.
+
+        If circuit breaker is not set for a cluster, this returns a 404.
+
+        See AV-46172 for more.
+        """
+        url = "{}/internal/support/clusters/{}/deployments-circuit-breaker" \
+            .format(self.internal_url, cluster_id)
+        resp = self._urllib_request(url, "GET",
+                                    headers=self.cbc_api_request_headers)
+        return resp
+
+    def delete_circuit_breaker(self, cluster_id):
+        """
+        Delete circuit breaker for a cluster.
+
+        See AV-46172 for more.
+        """
+        url = "{}/internal/support/clusters/{}/deployments-circuit-breaker" \
+            .format(self.internal_url, cluster_id)
+        resp = self._urllib_request(url, "DELETE",
+                                    headers=self.cbc_api_request_headers)
+        return resp
+
+    """
+    Method Deprecated.
+    New Method - UsersAPIs.invite_users_to_organization
+    def add_user_to_project(self, tenant_id, payload):
+        url = "{}/v2/organizations/{}/permissions".format(self.internal_url, tenant_id)
+        resp = self.do_internal_request(url, "PUT", params=payload)
+        return resp
+    """
+
+    """
+    Method Deprecated.
+    New Method - UsersAPIs.delete_user
+    def remove_user_from_project(self, tenant_id, user_id, project_id):
+        url = "{}/v2/organizations/{}/permissions/{}/resource/{}" \
+            .format(self.internal_url, tenant_id, user_id, project_id)
+        resp = self.do_internal_request(url, "DELETE")
+        return resp
+    """
+
+    """
+    Method Deprecated.
+    New Method - ProjectAPIs.create_project
+    def create_project(self, tenant_id, name):
+        project_details = {"name": name, "tenantId": tenant_id}
+
+        url = '{}/v2/organizations/{}/projects'.format(self.internal_url, tenant_id)
+        capella_api_response = self.do_internal_request(url, method="POST",
+                                                        params=json.dumps(project_details))
+        return capella_api_response
+    """
+
+    """
+    Method Deprecated.
+    New Method - ProjectAPIs.delete_project
+    def delete_project(self, tenant_id, project_id):
+        url = '{}/v2/organizations/{}/projects/{}'.format(self.internal_url, tenant_id,
+                                                          project_id)
+        capella_api_response = self.do_internal_request(url, method="DELETE",
+                                                        params='')
+        return capella_api_response
+    """
+
+    """
+    Method Deprecated.
+    New Method - ProjectAPIs.fetch_project_info
+    def access_project(self, tenant_id, project_id):
+        url = "{}/v2/organizations/{}/projects/{}".format(self.internal_url, tenant_id,
+                                                          project_id)
+        capella_api_response = self.do_internal_request(url, method="GET", params='')
+        return capella_api_response
+    """
+
+    def run_query(self, cluster_id, payload):
+        url = "{0}/v2/databases/{1}/proxy/_p/query/query/service" \
+            .format(self.internal_url, cluster_id)
+        resp = self.do_internal_request(url, method="POST", params=json.dumps(payload))
+        return resp
+
+    def create_fts_index(self, database_id, fts_index_name, payload):
+        url = "{}/v2/databases/{}/proxy/_p/fts/api/bucket/{}/scope/samples/index/{}" \
+            .format(self.internal_url, database_id, database_id, fts_index_name)
+        resp = self.do_internal_request(url, method="PUT", params=json.dumps(payload))
+        return resp

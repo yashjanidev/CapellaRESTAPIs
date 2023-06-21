@@ -129,7 +129,7 @@ class CapellaAPIRequests(object):
 
         return (cbc_api_response)
 
-    def capella_api_put(self, api_endpoint, request_body):
+    def capella_api_put(self, api_endpoint, request_body, headers=None):
         cbc_api_response = None
 
         self._log.info(api_endpoint)
@@ -137,6 +137,32 @@ class CapellaAPIRequests(object):
 
         try:
             cbc_api_response = self.network_session.put(
+                self.API_BASE_URL + api_endpoint,
+                json=request_body,
+                auth=CapellaAPIAuth(self.SECRET, self.ACCESS),
+                verify=False, headers=headers)
+            self._log.debug(cbc_api_response.content)
+
+        except requests.exceptions.HTTPError:
+            error = pprint.pformat(cbc_api_response.json())
+            raise GenericHTTPError(error)
+
+        except MissingAccessKeyError:
+            print("Missing Access Key environment variable")
+
+        except MissingSecretKeyError:
+            print("Missing Access Key environment variable")
+
+        return (cbc_api_response)
+
+    def capella_api_patch(self, api_endpoint, request_body):
+        cbc_api_response = None
+
+        self._log.info(api_endpoint)
+        self._log.debug("Request body: " + str(request_body))
+
+        try:
+            cbc_api_response = self.network_session.patch(
                 self.API_BASE_URL + api_endpoint,
                 json=request_body,
                 auth=CapellaAPIAuth(self.SECRET, self.ACCESS),
@@ -209,6 +235,9 @@ class CapellaAPIRequests(object):
             elif method == "PUT":
                 resp = session.put(api, data=params, headers=headers,
                                    timeout=timeout, verify=verify)
+            elif method == "PATCH":
+                resp = session.patch(api, data=params, headers=headers,
+                                     timeout=timeout, verify=verify)
             return resp
         except requests.exceptions.HTTPError as errh:
             self._log.error("HTTP Error {0}".format(errh))
