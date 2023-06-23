@@ -10,6 +10,7 @@ Import CommonCapellaAPI to get access to all the API functionalities.
 APIs are segregated according to class for better code management.
 """
 
+
 class OrganizationAPIs(CapellaAPIRequests):
 
     def __init__(self, url, secret, access):
@@ -24,15 +25,19 @@ class OrganizationAPIs(CapellaAPIRequests):
     - Project Creator
     - Organization Member
     :param organizationId (str) Organization ID under which the user is present
+    :param headers (dict) Headers to be sent with the API call.
     :param kwargs (dict) Do not use this under normal circumstances. This is only to test negative scenarios.
     """
-    def fetch_organization_info(self, organizationId, **kwargs):
-        self._log.info("Fetching info for organization {}".format(organizationId))
+
+    def fetch_organization_info(self, organizationId, headers=None, **kwargs):
+        self._log.info(
+            "Fetching info for organization {}".format(organizationId))
         if kwargs:
             params = kwargs
         else:
             params = None
-        resp = self.capella_api_get("{}/{}".format(self.organization_endpoint, organizationId), params)
+        resp = self.capella_api_get(
+            "{}/{}".format(self.organization_endpoint, organizationId), params, headers)
         return resp
 
     """
@@ -41,15 +46,18 @@ class OrganizationAPIs(CapellaAPIRequests):
     - Organization Owner
     - Project Creator
     - Organization Member
+    :param headers (dict) Headers to be sent with the API call.
     :param kwargs (dict) Do not use this under normal circumstances. This is only to test negative scenarios.
     """
-    def list_organizations(self, **kwargs):
+
+    def list_organizations(self, headers=None, **kwargs):
         self._log.info("Listing all the organizations")
         if kwargs:
             params = kwargs
         else:
             params = None
-        resp = self.capella_api_get(self.organization_endpoint, params)
+        resp = self.capella_api_get(
+            self.organization_endpoint, params, headers)
         return resp
 
 
@@ -87,10 +95,21 @@ class APIKeysAPIs(CapellaAPIRequests):
             Accepted Value - "projectOwner" "projectManager" "projectViewer" "projectDataReaderWriter" "projectDataReader"
         }
     ]
+    :param headers (dict) Headers to be sent with the API call.
     :param kwargs (dict) Do not use this under normal circumstances. This is only to test negative scenarios.
     """
-    def create_api_key(self, organizationId, name, organizationRoles, description="", expiry=180,
-                      allowedCIDRs=["0.0.0.0/0"], resources=[], **kwargs):
+
+    def create_api_key(
+            self,
+            organizationId,
+            name,
+            organizationRoles,
+            description="",
+            expiry=180,
+            allowedCIDRs=["0.0.0.0/0"],
+            resources=[],
+            headers=None,
+            **kwargs):
         self._log.info("Creating a new API key - {}".format(name))
         params = {
             "name": name,
@@ -102,7 +121,8 @@ class APIKeysAPIs(CapellaAPIRequests):
         }
         for k, v in kwargs.items():
             params[k] = v
-        resp = self.capella_api_post(self.apikeys_endpoint.format(organizationId), params)
+        resp = self.capella_api_post(
+            self.apikeys_endpoint.format(organizationId), params, headers)
         return resp
 
     """
@@ -116,10 +136,21 @@ class APIKeysAPIs(CapellaAPIRequests):
     :param sortBy ([string]) Sets order of how you would like to sort results and also the key you would like to order by
                              Example: sortBy=name
     :param sortDirection (str) The order on which the items will be sorted. Accepted Values - asc / desc
+    :param headers (dict) Headers to be sent with the API call.
     :param kwargs (dict) Do not use this under normal circumstances. This is only to test negative scenarios.
     """
-    def list_api_keys(self, organizationId, page=None, perPage=None, sortBy=None, sortDirection=None, **kwargs):
-        self._log.info("List all the API key for Organization {}".format(organizationId))
+
+    def list_api_keys(
+            self,
+            organizationId,
+            page=None,
+            perPage=None,
+            sortBy=None,
+            sortDirection=None,
+            headers=None,
+            **kwargs):
+        self._log.info(
+            "List all the API key for Organization {}".format(organizationId))
         params = {}
         if page:
             params["page"] = page
@@ -133,7 +164,8 @@ class APIKeysAPIs(CapellaAPIRequests):
         for k, v in kwargs.items():
             params[k] = v
 
-        resp = self.capella_api_get(self.apikeys_endpoint.format(organizationId), params)
+        resp = self.capella_api_get(
+            self.apikeys_endpoint.format(organizationId), params, headers)
         return resp
 
     """
@@ -143,15 +175,25 @@ class APIKeysAPIs(CapellaAPIRequests):
 
     :param organizationId (str) Organization ID under which the api key is present.
     :param accessKey (str) The ID(acecssKey) of the APIKey.
+    :param headers (dict) Headers to be sent with the API call.
     :param kwargs (dict) Do not use this under normal circumstances. This is only to test negative scenarios.
     """
-    def fetch_api_key_info(self, organizationId, accessKey, **kwargs):
-        self._log.info("Fetching API key info for {} in organization {}".format(accessKey, organizationId))
+
+    def fetch_api_key_info(
+            self,
+            organizationId,
+            accessKey,
+            headers=None,
+            **kwargs):
+        self._log.info(
+            "Fetching API key info for {} in organization {}".format(
+                accessKey, organizationId))
         if kwargs:
             params = kwargs
         else:
             params = None
-        resp = self.capella_api_get("{}/{}".format(self.apikeys_endpoint.format(organizationId), accessKey), params)
+        resp = self.capella_api_get("{}/{}".format(self.apikeys_endpoint.format(
+            organizationId), accessKey), params, headers)
         return resp
 
     """
@@ -161,15 +203,25 @@ class APIKeysAPIs(CapellaAPIRequests):
 
     :param organizationId (str) Organization ID under which the api key is present.
     :param accessKey (str) The ID(acecssKey) of the APIKey to be deleted.
+    :param headers (dict) Headers to be sent with the API call.
     :param kwargs (dict) Do not use this under normal circumstances. This is only to test negative scenarios.
     """
-    def delete_api_key(self, organizationId, accessKey, **kwargs):
-        self._log.info("Deleting API key {} in organization {}".format(accessKey, organizationId))
+
+    def delete_api_key(
+            self,
+            organizationId,
+            accessKey,
+            headers=None,
+            **kwargs):
+        self._log.info(
+            "Deleting API key {} in organization {}".format(
+                accessKey, organizationId))
         if kwargs:
             params = kwargs
         else:
             params = None
-        resp = self.capella_api_del("{}/{}".format(self.apikeys_endpoint.format(organizationId), accessKey), params)
+        resp = self.capella_api_del("{}/{}".format(self.apikeys_endpoint.format(
+            organizationId), accessKey), params, headers)
         return resp
 
 
@@ -198,11 +250,22 @@ class UsersAPIs(CapellaAPIRequests):
             "projectDataWriter" "projectDataViewer"
         }
     ]
+    :param headers (dict) Headers to be sent with the API call.
     :param kwargs (dict) Do not use this under normal circumstances. This is only to test negative scenarios.
     """
-    def invite_users_to_organization(self, organizationId, email, organizationRole, name="", resources=[], **kwargs):
-        self._log.info("Inviting user {} to organization {} with role {}".foramt(
-            email, organizationId, organizationRole))
+
+    def invite_users_to_organization(
+            self,
+            organizationId,
+            email,
+            organizationRole,
+            name="",
+            resources=[],
+            headers=None,
+            **kwargs):
+        self._log.info(
+            "Inviting user {} to organization {} with role {}".foramt(
+                email, organizationId, organizationRole))
         params = {
             "email": email,
             "organizationRole": organizationRole
@@ -215,7 +278,8 @@ class UsersAPIs(CapellaAPIRequests):
         for k, v in kwargs.items():
             params[k] = v
 
-        resp = self.capella_api_post(self.users_endpoint.format(organizationId), params)
+        resp = self.capella_api_post(
+            self.users_endpoint.format(organizationId), params, headers)
         return resp
 
     """
@@ -231,12 +295,22 @@ class UsersAPIs(CapellaAPIRequests):
                              Example: sortBy=name
     :param sortDirection (str) The order on which the items will be sorted. Accepted Values - asc / desc
     :param projectId (str) Project ID of the project to list only users under that project.
+    :param headers (dict) Headers to be sent with the API call.
     :param kwargs (dict) Do not use this under normal circumstances. This is only to test negative scenarios.
     """
 
-    def list_org_users(self, organizationId, page=None, perPage=None, sortBy=None,
-                           sortDirection=None, projectId=None, **kwargs):
-        self._log.info("List all the users for Organization {}".format(organizationId))
+    def list_org_users(
+            self,
+            organizationId,
+            page=None,
+            perPage=None,
+            sortBy=None,
+            sortDirection=None,
+            projectId=None,
+            headers=None,
+            **kwargs):
+        self._log.info(
+            "List all the users for Organization {}".format(organizationId))
 
         params = {}
         if page:
@@ -253,7 +327,8 @@ class UsersAPIs(CapellaAPIRequests):
         for k, v in kwargs.items():
             params[k] = v
 
-        resp = self.capella_api_get(self.users_endpoint.format(organizationId), params)
+        resp = self.capella_api_get(
+            self.users_endpoint.format(organizationId), params, headers)
         return resp
 
     """
@@ -264,16 +339,21 @@ class UsersAPIs(CapellaAPIRequests):
     - projectCreator
     :param organizationId (str) Organization ID under which the user is present
     :param userId (str) User ID of the user whose info has to be fetched.
+    :param headers (dict) Headers to be sent with the API call.
     :param kwargs (dict) Do not use this under normal circumstances. This is only to test negative scenarios.
     """
-    def fetch_user_info(self, organizationId, userId, **kwargs):
-        self._log.info("Fetching user info for {} in organization {}".format(userId, organizationId))
+
+    def fetch_user_info(self, organizationId, userId, headers=None, **kwargs):
+        self._log.info(
+            "Fetching user info for {} in organization {}".format(
+                userId, organizationId))
 
         if kwargs:
             params = kwargs
         else:
             params = None
-        resp = self.capella_api_get("{}/{}".format(self.users_endpoint.format(organizationId), userId), params)
+        resp = self.capella_api_get("{}/{}".format(self.users_endpoint.format(
+            organizationId), userId), params, headers)
         return resp
 
     """
@@ -312,7 +392,7 @@ class UsersAPIs(CapellaAPIRequests):
         in any database in a project, referred as Project Owner in docs.
         - "projectClusterManager" Provides access to management actions for all databases in a project.
         This role can create and delete databases but doesn’t provide access to data, referred as Project Manager in docs.
-        - "projectClusterViewer" provides read-only access to view all databases in a project. 
+        - "projectClusterViewer" provides read-only access to view all databases in a project.
         This role does not provide access to data, referred as Project Viewer in docs.
         - "projectDataWriter" provides read and write access to data within any database in a project,
         referred as Database Data Reader/Writer in docs.
@@ -324,19 +404,29 @@ class UsersAPIs(CapellaAPIRequests):
         {
             resourceId (str) ResourceId of the resource.
             resourceType (str) The type of resource like projects. Current accepted value is project
-            roles ([str]) Items Enum: "projectOwner" "projectClusterManager" "projectClusterViewer" 
+            roles ([str]) Items Enum: "projectOwner" "projectClusterManager" "projectClusterViewer"
             "projectDataWriter" "projectDataViewer"
         }
     }
+    :param headers (dict) Headers to be sent with the API call.
     :param kwargs (dict) Do not use this under normal circumstances. This is only to test negative scenarios.
     """
 
-    def update_user(self, organizationId, userId, update_info, **kwargs):
-        self._log.info("Updating user {} in organization {}".format(userId, organizationId))
+    def update_user(
+            self,
+            organizationId,
+            userId,
+            update_info,
+            headers=None,
+            **kwargs):
+        self._log.info(
+            "Updating user {} in organization {}".format(
+                userId, organizationId))
 
         if kwargs:
             update_info += kwargs
-        resp = self.capella_api_patch("{}/{}".format(self.users_endpoint.format(organizationId), userId), update_info)
+        resp = self.capella_api_patch("{}/{}".format(self.users_endpoint.format(
+            organizationId), userId), update_info, headers)
         return resp
 
     """
@@ -345,16 +435,20 @@ class UsersAPIs(CapellaAPIRequests):
     - organizationOwner
     :param organizationId (str) Organization ID under which the user to be deleted is present.
     :param userId (str) User ID of the user which has to be deleted
+    :param headers (dict) Headers to be sent with the API call.
     :param kwargs (dict) Do not use this under normal circumstances. This is only to test negative scenarios.
     """
 
-    def delete_user(self, organizationId, userId, **kwargs):
-        self._log.info("Deleting user {} in organization {}".format(userId, organizationId))
+    def delete_user(self, organizationId, userId, headers=None, **kwargs):
+        self._log.info(
+            "Deleting user {} in organization {}".format(
+                userId, organizationId))
         if kwargs:
             params = kwargs
         else:
             params = None
-        resp = self.capella_api_del("{}/{}".format(self.users_endpoint.format(organizationId), userId), params)
+        resp = self.capella_api_del("{}/{}".format(self.users_endpoint.format(
+            organizationId), userId), params, headers)
         return resp
 
 
@@ -373,18 +467,29 @@ class ProjectAPIs(CapellaAPIRequests):
     :param organizationId (str) Organization ID under which the project has to be created.
     :param name (str) Name of the project to be created.
     :param description (str) Description of the project. Optional.
+    :param headers (dict) Headers to be sent with the API call.
     :param kwargs (dict) Do not use this under normal circumstances. This is only to test negative scenarios.
     """
-    def create_project(self, organizationId, name, description="", **kwargs):
-        self._log.info("Creating Project {} in organization {}".format(name, organizationId))
+
+    def create_project(
+            self,
+            organizationId,
+            name,
+            description="",
+            headers=None,
+            **kwargs):
+        self._log.info(
+            "Creating Project {} in organization {}".format(
+                name, organizationId))
         params = {
-            "name" : name,
+            "name": name,
         }
         if description:
             params["description"] = description
-        for k,v in kwargs.items():
+        for k, v in kwargs.items():
             params[k] = v
-        resp = self.capella_api_post(self.project_endpoint.format(organizationId), params)
+        resp = self.capella_api_post(
+            self.project_endpoint.format(organizationId), params, headers)
         return resp
 
     """
@@ -402,11 +507,21 @@ class ProjectAPIs(CapellaAPIRequests):
     :param sortBy ([string]) Sets order of how you would like to sort results and also the key you would like to order by
                              Example: sortBy=name
     :param sortDirection (str) The order on which the items will be sorted. Accepted Values - asc / desc
+    :param headers (dict) Headers to be sent with the API call.
     :param kwargs (dict) Do not use this under normal circumstances. This is only to test negative scenarios.
     """
-    def list_projects(self, organizationId, page=None, perPage=None, sortBy=None,
-                      sortDirection=None, **kwargs):
-        self._log.info("List all the project for Organization {}".format(organizationId))
+
+    def list_projects(
+            self,
+            organizationId,
+            page=None,
+            perPage=None,
+            sortBy=None,
+            sortDirection=None,
+            headers=None,
+            **kwargs):
+        self._log.info(
+            "List all the project for Organization {}".format(organizationId))
 
         params = {}
         if page:
@@ -418,10 +533,11 @@ class ProjectAPIs(CapellaAPIRequests):
         if perPage:
             params["sortDirection"] = sortDirection
 
-        for k,v in kwargs.items():
+        for k, v in kwargs.items():
             params[k] = v
 
-        resp = self.capella_api_get(self.project_endpoint.format(organizationId), params)
+        resp = self.capella_api_get(
+            self.project_endpoint.format(organizationId), params, headers)
         return resp
 
     """
@@ -434,15 +550,25 @@ class ProjectAPIs(CapellaAPIRequests):
     - projectDataViewer
     :param organizationId (str) Organization ID under which the project is present.
     :param projectId (str) Project ID of the project whose info has to be fetched
+    :param headers (dict) Headers to be sent with the API call.
     :param kwargs (dict) Do not use this under normal circumstances. This is only to test negative scenarios.
     """
-    def fetch_project_info(self, organizationId, projectId, **kwargs):
-        self._log.info("Fetching project info for {} in organization {}".format(projectId, organizationId))
+
+    def fetch_project_info(
+            self,
+            organizationId,
+            projectId,
+            headers=None,
+            **kwargs):
+        self._log.info(
+            "Fetching project info for {} in organization {}".format(
+                projectId, organizationId))
         if kwargs:
             params = kwargs
         else:
             params = None
-        resp = self.capella_api_get("{}/{}".format(self.project_endpoint.format(organizationId), projectId), params)
+        resp = self.capella_api_get("{}/{}".format(self.project_endpoint.format(
+            organizationId), projectId), params, headers)
         return resp
 
     """
@@ -455,28 +581,39 @@ class ProjectAPIs(CapellaAPIRequests):
     :param name (str) Updated name of the project.
     :param description (str) Updated Description of the project.
     :param ifmatch (bool) Is set to true then it uses a precondition header that specifies the entity tag of a resource.
+    :param headers (dict) Headers to be sent with the API call.
     :param kwargs (dict) Do not use this under normal circumstances. This is only to test negative scenarios.
     """
-    def update_project(self, organizationId, projectId, name, description, ifmatch, **kwargs):
-        self._log.info("Updating project {} in organization {}".format(projectId, organizationId))
+
+    def update_project(
+            self,
+            organizationId,
+            projectId,
+            name,
+            description,
+            ifmatch,
+            headers=None,
+            **kwargs):
+        self._log.info(
+            "Updating project {} in organization {}".format(
+                projectId, organizationId))
         params = {
             "name": name,
             "description": description
         }
-        header = {}
+
         if ifmatch:
+            if not headers:
+                headers = {}
             result = self.fetch_project_info(organizationId, projectId)
             version_id = result.json()["audit"]["version"]
-            header = {"If-Match": "Version: {}".format(version_id)}
+            headers["If-Match"] = "Version: {}".format(version_id)
 
-        for k,v in kwargs.items():
-            if k == "If-Match":
-                header = {"If-Match": "Version: {}".format(v)}
-            else:
-                params[k] = v
+        for k, v in kwargs.items():
+            params[k] = v
 
-        resp = self.capella_api_put("{}/{}".format(self.project_endpoint.format(organizationId), projectId),
-                                    params, header)
+        resp = self.capella_api_put(
+            "{}/{}".format(self.project_endpoint.format(organizationId), projectId), params, headers)
         return resp
 
     """
@@ -486,21 +623,37 @@ class ProjectAPIs(CapellaAPIRequests):
     - projectOwner
     :param organizationId (str) Organization ID under which the project is present.
     :param projectId (str) Project ID of the project which has to be deleted.
+    :param headers (dict) Headers to be sent with the API call.
     :param kwargs (dict) Do not use this under normal circumstances. This is only to test negative scenarios.
     """
-    def delete_project(self, organizationId, projectId, **kwargs):
-        self._log.info("Deleting project {} in organization {}".format(projectId, organizationId))
+
+    def delete_project(
+            self,
+            organizationId,
+            projectId,
+            headers=None,
+            **kwargs):
+        self._log.info(
+            "Deleting project {} in organization {}".format(
+                projectId, organizationId))
         if kwargs:
             params = kwargs
         else:
             params = None
-        resp = self.capella_api_del("{}/{}".format(self.project_endpoint.format(organizationId), projectId), params)
+        resp = self.capella_api_del("{}/{}".format(self.project_endpoint.format(
+            organizationId), projectId), params, headers)
         return resp
 
 
-class CommonCapellaAPI(ProjectAPIs, UsersAPIs, APIKeysAPIs, OrganizationAPIs, CapellaAPIRequests):
+class CommonCapellaAPI(
+        ProjectAPIs,
+        UsersAPIs,
+        APIKeysAPIs,
+        OrganizationAPIs,
+        CapellaAPIRequests):
 
-    def __init__(self, url, secret, access, user, pwd, TOKEN_FOR_INTERNAL_SUPPORT=None):
+    def __init__(self, url, secret, access, user, pwd,
+                 TOKEN_FOR_INTERNAL_SUPPORT=None):
         super(CommonCapellaAPI, self).__init__(url, secret, access)
         self.user = user
         self.pwd = pwd
@@ -514,13 +667,15 @@ class CommonCapellaAPI(ProjectAPIs, UsersAPIs, APIKeysAPIs, OrganizationAPIs, Ca
         }
 
     def trigger_log_collection(self, cluster_id, log_id={}):
-        url = self.internal_url + "/internal/support/logcollections/clusters/{}".format(cluster_id)
+        url = self.internal_url + \
+            "/internal/support/logcollections/clusters/{}".format(cluster_id)
         resp = self._urllib_request(url, "POST", params=json.dumps(log_id),
                                     headers=self.cbc_api_request_headers)
         return resp
 
     def get_cluster_tasks(self, cluster_id):
-        url = self.internal_url + "/internal/support/clusters/{}/pools/default/tasks".format(cluster_id)
+        url = self.internal_url + \
+            "/internal/support/clusters/{}/pools/default/tasks".format(cluster_id)
         resp = self._urllib_request(url, "GET",
                                     headers=self.cbc_api_request_headers)
         return resp
@@ -703,11 +858,32 @@ class CommonCapellaAPI(ProjectAPIs, UsersAPIs, APIKeysAPIs, OrganizationAPIs, Ca
     def run_query(self, cluster_id, payload):
         url = "{0}/v2/databases/{1}/proxy/_p/query/query/service" \
             .format(self.internal_url, cluster_id)
-        resp = self.do_internal_request(url, method="POST", params=json.dumps(payload))
+        resp = self.do_internal_request(
+            url, method="POST", params=json.dumps(payload))
         return resp
 
     def create_fts_index(self, database_id, fts_index_name, payload):
         url = "{}/v2/databases/{}/proxy/_p/fts/api/bucket/{}/scope/samples/index/{}" \
             .format(self.internal_url, database_id, database_id, fts_index_name)
-        resp = self.do_internal_request(url, method="PUT", params=json.dumps(payload))
+        resp = self.do_internal_request(
+            url, method="PUT", params=json.dumps(payload))
+        return resp
+
+    def create_control_plane_api_key(
+            self,
+            organizationID,
+            name,
+            roles=["organizationOwner"],
+            keyType="machine",
+            description=""):
+        url = "{}/v2/organizations/{}/apikeys".format(
+            self.internal_url, organizationID)
+        params = {
+            "name": name,
+            "roles": roles,
+            "keyType": keyType,
+            "description": description
+        }
+        resp = self.do_internal_request(
+            url, method="POST", params=json.dumps(params))
         return resp

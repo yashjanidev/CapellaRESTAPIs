@@ -44,7 +44,10 @@ class CapellaAPIRequests(object):
             self.lock.acquire()
             if self.jwt is None:
                 self._log.debug("refreshing token")
-                basic = base64.b64encode('{}:{}'.format(self.user, self.pwd).encode()).decode()
+                basic = base64.b64encode(
+                    '{}:{}'.format(
+                        self.user,
+                        self.pwd).encode()).decode()
                 header = {'Authorization': 'Basic %s' % basic}
                 resp = self._urllib_request(
                     "{}/sessions".format(self.internal_url), method="POST",
@@ -52,31 +55,32 @@ class CapellaAPIRequests(object):
                 self.jwt = json.loads(resp.content).get("jwt")
             self.lock.release()
         cbc_api_request_headers = {
-           'Authorization': 'Bearer %s' % self.jwt,
-           'Content-Type': 'application/json'
+            'Authorization': 'Bearer %s' % self.jwt,
+            'Content-Type': 'application/json'
         }
         return cbc_api_request_headers
 
     def do_internal_request(self, url, method, params='', headers={}):
         capella_header = self.get_authorization_internal()
         capella_header.update(headers)
-        resp = self._urllib_request(url, method, params=params, headers=capella_header)
+        resp = self._urllib_request(
+            url, method, params=params, headers=capella_header)
         if resp.status_code == 401:
             self.jwt = None
             return self.do_internal_request(url, method, params)
         return resp
 
     # Methods
-    def capella_api_get(self, api_endpoint, params=None):
+    def capella_api_get(self, api_endpoint, params=None, headers=None):
         cbc_api_response = None
         self._log.info(api_endpoint)
 
         try:
             cbc_api_response = self.network_session.get(
-                    self.API_BASE_URL + api_endpoint,
-                    auth=CapellaAPIAuth(self.SECRET, self.ACCESS),
-                    params=params,
-                    verify=False)
+                self.API_BASE_URL + api_endpoint,
+                auth=CapellaAPIAuth(self.SECRET, self.ACCESS),
+                params=params,
+                verify=False, headers=headers)
             self._log.info(cbc_api_response.content)
 
         except requests.exceptions.HTTPError:
@@ -98,7 +102,7 @@ class CapellaAPIRequests(object):
 
         return (cbc_api_response)
 
-    def capella_api_post(self, api_endpoint, request_body):
+    def capella_api_post(self, api_endpoint, request_body, headers=None):
         cbc_api_response = None
 
         self._log.info(api_endpoint)
@@ -109,7 +113,7 @@ class CapellaAPIRequests(object):
                 self.API_BASE_URL + api_endpoint,
                 json=request_body,
                 auth=CapellaAPIAuth(self.SECRET, self.ACCESS),
-                verify=False)
+                verify=False, headers=headers)
             self._log.debug(cbc_api_response.content)
 
         except requests.exceptions.HTTPError:
@@ -155,7 +159,7 @@ class CapellaAPIRequests(object):
 
         return (cbc_api_response)
 
-    def capella_api_patch(self, api_endpoint, request_body):
+    def capella_api_patch(self, api_endpoint, request_body, headers=None):
         cbc_api_response = None
 
         self._log.info(api_endpoint)
@@ -166,7 +170,7 @@ class CapellaAPIRequests(object):
                 self.API_BASE_URL + api_endpoint,
                 json=request_body,
                 auth=CapellaAPIAuth(self.SECRET, self.ACCESS),
-                verify=False)
+                verify=False, headers=headers)
             self._log.debug(cbc_api_response.content)
 
         except requests.exceptions.HTTPError:
@@ -181,7 +185,7 @@ class CapellaAPIRequests(object):
 
         return (cbc_api_response)
 
-    def capella_api_del(self, api_endpoint, request_body=None):
+    def capella_api_del(self, api_endpoint, request_body=None, headers=None):
         cbc_api_response = None
 
         self._log.info(api_endpoint)
@@ -192,13 +196,13 @@ class CapellaAPIRequests(object):
                 cbc_api_response = self.network_session.delete(
                     self.API_BASE_URL + api_endpoint,
                     auth=CapellaAPIAuth(self.SECRET, self.ACCESS),
-                    verify=False)
+                    verify=False, headers=headers)
             else:
                 cbc_api_response = self.network_session.delete(
                     self.API_BASE_URL + api_endpoint,
                     json=request_body,
                     auth=CapellaAPIAuth(self.SECRET, self.ACCESS),
-                    verify=False)
+                    verify=False, headers=headers)
 
             self._log.debug(cbc_api_response.content)
 

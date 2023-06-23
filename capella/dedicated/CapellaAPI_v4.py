@@ -73,12 +73,27 @@ class ClusterAPIs(CapellaAPIRequests):
         :param timezone (str) The standard timezone for the cluster. Should be the TZ identifier.
         Enum: "ET" "GMT" "IST" "PT"
     }
+    :param headers (dict) Headers to be sent with the API call.
     :param kwargs (dict) Do not use this under normal circumstances. This is only to test negative scenarios.
     """
 
-    def create_cluster(self, organizationId, projectId, name, cloudProvider, couchbaseServer,
-                       serviceGroups, availability, trial, support, description="", **kwargs):
-        self._log.info("Creating Cluster {} in project {} in organization {}".format(name, projectId, organizationId))
+    def create_cluster(
+            self,
+            organizationId,
+            projectId,
+            name,
+            cloudProvider,
+            couchbaseServer,
+            serviceGroups,
+            availability,
+            trial,
+            support,
+            description="",
+            headers=None,
+            **kwargs):
+        self._log.info(
+            "Creating Cluster {} in project {} in organization {}".format(
+                name, projectId, organizationId))
         params = {
             "name": name,
             "cloudProvider": cloudProvider,
@@ -92,7 +107,9 @@ class ClusterAPIs(CapellaAPIRequests):
             params["description"] = description
         for k, v in kwargs.items():
             params[k] = v
-        resp = self.capella_api_post(self.cluster_endpoint.format(organizationId, projectId), params)
+        resp = self.capella_api_post(
+            self.cluster_endpoint.format(
+                organizationId, projectId), params, headers)
         return resp
 
     """
@@ -112,12 +129,23 @@ class ClusterAPIs(CapellaAPIRequests):
     :param sortBy ([string]) Sets order of how you would like to sort results and also the key you would like to order by
                              Example: sortBy=name
     :param sortDirection (str) The order on which the items will be sorted. Accepted Values - asc / desc
+    :param headers (dict) Headers to be sent with the API call.
     :param kwargs (dict) Do not use this under normal circumstances. This is only to test negative scenarios.
     """
-    def list_clusters(self, organizationId, projectId, page=None, perPage=None, sortBy=None,
-                         sortDirection=None, **kwargs):
-        self._log.info("List all the cluster for project {} in organization {}".format(
-            projectId, organizationId))
+
+    def list_clusters(
+            self,
+            organizationId,
+            projectId,
+            page=None,
+            perPage=None,
+            sortBy=None,
+            sortDirection=None,
+            headers=None,
+            **kwargs):
+        self._log.info(
+            "List all the cluster for project {} in organization {}".format(
+                projectId, organizationId))
         params = {}
         if page:
             params["page"] = page
@@ -131,7 +159,9 @@ class ClusterAPIs(CapellaAPIRequests):
         for k, v in kwargs.items():
             params[k] = v
 
-        resp = self.capella_api_get(self.cluster_endpoint.format(organizationId, projectId), params)
+        resp = self.capella_api_get(
+            self.cluster_endpoint.format(
+                organizationId, projectId), params, headers)
         return resp
 
     """
@@ -146,17 +176,32 @@ class ClusterAPIs(CapellaAPIRequests):
     :param organizationId (str) Organization ID under which the cluster is present.
     :param projectId (str) Project ID under which the cluster is present.
     :param clusterId (str) Cluster ID of the cluster whose info has to be fetched.
+    :param headers (dict) Headers to be sent with the API call.
     :param kwargs (dict) Do not use this under normal circumstances. This is only to test negative scenarios.
     """
-    def fetch_cluster_info(self, organizationId, projectId, clusterId):
-        self._log.info("Fetching cluster info for {} in project {} in organization {}".format(
-            clusterId, projectId, organizationId))
+
+    def fetch_cluster_info(
+            self,
+            organizationId,
+            projectId,
+            clusterId,
+            headers=None,
+            **kwargs):
+        self._log.info(
+            "Fetching cluster info for {} in project {} in organization {}".format(
+                clusterId, projectId, organizationId))
         if kwargs:
             params = kwargs
         else:
             params = None
-        resp = self.capella_api_get("{}/{}".format(self.cluster_endpoint.format(
-            organizationId, projectId), clusterId), params)
+        resp = self.capella_api_get(
+            "{}/{}".format(
+                self.cluster_endpoint.format(
+                    organizationId,
+                    projectId),
+                clusterId),
+            params,
+            headers)
         return resp
 
     """
@@ -203,32 +248,50 @@ class ClusterAPIs(CapellaAPIRequests):
         }]
     }]
     :param ifmatch (bool) Is set to true then it uses a precondition header that specifies the entity tag of a resource.
+    :param headers (dict) Headers to be sent with the API call.
     :param kwargs (dict) Do not use this under normal circumstances. This is only to test negative scenarios.
     """
-    def update_cluster(self, organizationId, projectId, clusterId, name, description, support,
-                       serviceGroups, ifmatch, **kwargs):
-        self._log.info("Updating cluster {} in project {} in organization {}".format(
-            clusterId, projectId, organizationId))
+
+    def update_cluster(
+            self,
+            organizationId,
+            projectId,
+            clusterId,
+            name,
+            description,
+            support,
+            serviceGroups,
+            ifmatch,
+            headers=None,
+            **kwargs):
+        self._log.info(
+            "Updating cluster {} in project {} in organization {}".format(
+                clusterId, projectId, organizationId))
         params = {
             "name": name,
             "description": description,
             "support": support,
             "serviceGroups": serviceGroups
         }
-        header = {}
         if ifmatch:
-            result = self.fetch_cluster_info(organizationId, projectId, clusterId)
+            if not headers:
+                headers = {}
+            result = self.fetch_cluster_info(
+                organizationId, projectId, clusterId)
             version_id = result.json()["audit"]["version"]
-            header = {"If-Match": "Version: {}".format(version_id)}
+            headers["If-Match"] = "Version: {}".format(version_id)
 
-        for k,v in kwargs.items():
-            if k == "If-Match":
-                header = {"If-Match": "Version: {}".format(v)}
-            else:
-                params[k] = v
+        for k, v in kwargs.items():
+            params[k] = v
 
-        resp = self.capella_api_put("{}/{}".format(self.cluster_endpoint.format(
-            organizationId, projectId), clusterId), params, header)
+        resp = self.capella_api_put(
+            "{}/{}".format(
+                self.cluster_endpoint.format(
+                    organizationId,
+                    projectId),
+                clusterId),
+            params,
+            headers)
         return resp
 
     """
@@ -240,17 +303,32 @@ class ClusterAPIs(CapellaAPIRequests):
     :param organizationId (str) Organization ID under which the cluster is present.
     :param projectId (str) Project ID under which the cluster is present.
     :param clusterId (str) Cluster ID of the cluster which has to be deleted.
+    :param headers (dict) Headers to be sent with the API call.
     :param kwargs (dict) Do not use this under normal circumstances. This is only to test negative scenarios.
     """
-    def delete_cluster(self, organizationId, projectId, clusterId, **kwargs):
-        self._log.info("Deleting cluster {} in project {} in organization {}".format(
-            clusterId, projectId, organizationId))
+
+    def delete_cluster(
+            self,
+            organizationId,
+            projectId,
+            clusterId,
+            headers=None,
+            **kwargs):
+        self._log.info(
+            "Deleting cluster {} in project {} in organization {}".format(
+                clusterId, projectId, organizationId))
         if kwargs:
             params = kwargs
         else:
             params = None
-        resp = self.capella_api_del("{}/{}".format(self.cluster_endpoint.format(
-            organizationId, projectId), clusterId), params)
+        resp = self.capella_api_del(
+            "{}/{}".format(
+                self.cluster_endpoint.format(
+                    organizationId,
+                    projectId),
+                clusterId),
+            params,
+            headers)
         return resp
 
 
@@ -274,11 +352,23 @@ class AllowedCIDRAPIs(CapellaAPIRequests):
     :param comment (str) A short description about the allowed CIDR.
     :param expiresAt (str) An RFC3339 timestamp determining when the allowed CIDR should expire.
     If this field is empty/omitted then the allowed CIDR is permanent and will never automatically expire.
+    :param headers (dict) Headers to be sent with the API call.
     :param kwargs (dict) Do not use this under normal circumstances. This is only to test negative scenarios.
     """
-    def add_CIDR_to_allowed_CIDRs_list(self, organizationId, projectId, clusterId, cidr, comment="", expiresAt="",
-                                       **kwargs):
-        self._log.info("Adding {} CIDR block to {} cluster allowed CIDR list".format(cidr, clusterId))
+
+    def add_CIDR_to_allowed_CIDRs_list(
+            self,
+            organizationId,
+            projectId,
+            clusterId,
+            cidr,
+            comment="",
+            expiresAt="",
+            headers=None,
+            **kwargs):
+        self._log.info(
+            "Adding {} CIDR block to {} cluster allowed CIDR list".format(
+                cidr, clusterId))
         params = {
             "cidr": cidr
         }
@@ -288,7 +378,8 @@ class AllowedCIDRAPIs(CapellaAPIRequests):
             params["expiresAt"] = expiresAt
         for k, v in kwargs.items():
             params[k] = v
-        resp = self.capella_api_post(self.allowedCIDR_endpoint.format(organizationId, projectId, clusterId), params)
+        resp = self.capella_api_post(self.allowedCIDR_endpoint.format(
+            organizationId, projectId, clusterId), params, headers)
         return resp
 
     """
@@ -306,11 +397,23 @@ class AllowedCIDRAPIs(CapellaAPIRequests):
     :param sortBy ([string]) Sets order of how you would like to sort results and also the key you would like to order by
                              Example: sortBy=name
     :param sortDirection (str) The order on which the items will be sorted. Accepted Values - asc / desc
+    :param headers (dict) Headers to be sent with the API call.
     :param kwargs (dict) Do not use this under normal circumstances. This is only to test negative scenarios.
     """
-    def list_allowed_CIDRs(self, organizationId, projectId, clusterId, page=None, perPage=None, sortBy=None,
-                               sortDirection=None, **kwargs):
-        self._log.info("List all the allowed CIDRs for cluster {}".format(clusterId))
+
+    def list_allowed_CIDRs(
+            self,
+            organizationId,
+            projectId,
+            clusterId,
+            page=None,
+            perPage=None,
+            sortBy=None,
+            sortDirection=None,
+            headers=None,
+            **kwargs):
+        self._log.info(
+            "List all the allowed CIDRs for cluster {}".format(clusterId))
         params = {}
         if page:
             params["page"] = page
@@ -324,7 +427,8 @@ class AllowedCIDRAPIs(CapellaAPIRequests):
         for k, v in kwargs.items():
             params[k] = v
 
-        resp = self.capella_api_get(self.allowedCIDR_endpoint.format(organizationId, projectId, clusterId), params)
+        resp = self.capella_api_get(self.allowedCIDR_endpoint.format(
+            organizationId, projectId, clusterId), params, headers)
         return resp
 
     """
@@ -338,16 +442,34 @@ class AllowedCIDRAPIs(CapellaAPIRequests):
     :param projectId (str) Project ID under which the cluster is present.
     :param clusterId (str) Cluster ID of the cluster under which the allowed CIDR ID is present.
     :param allowedCidrId (str) The GUID4 ID of the allowed CIDR.
+    :param headers (dict) Headers to be sent with the API call.
     :param kwargs (dict) Do not use this under normal circumstances. This is only to test negative scenarios.
     """
-    def fetch_allowed_CIDR_info(self, organizationId, projectId, clusterId, allowedCidrId, **kwargs):
-        self._log.info("Fetching allowed CIDR info for {} in cluster {}".format(allowedCidrId, clusterId))
+
+    def fetch_allowed_CIDR_info(
+            self,
+            organizationId,
+            projectId,
+            clusterId,
+            allowedCidrId,
+            headers=None,
+            **kwargs):
+        self._log.info(
+            "Fetching allowed CIDR info for {} in cluster {}".format(
+                allowedCidrId, clusterId))
         if kwargs:
             params = kwargs
         else:
             params = None
-        resp = self.capella_api_get("{}/{}".format(self.allowedCIDR_endpoint.format(
-            organizationId, projectId, clusterId), allowedCidrId), params)
+        resp = self.capella_api_get(
+            "{}/{}".format(
+                self.allowedCIDR_endpoint.format(
+                    organizationId,
+                    projectId,
+                    clusterId),
+                allowedCidrId),
+            params,
+            headers)
         return resp
 
     """
@@ -360,16 +482,34 @@ class AllowedCIDRAPIs(CapellaAPIRequests):
     :param projectId (str) Project ID under which the cluster is present.
     :param clusterId (str) Cluster ID of the cluster under which the allowed CIDR ID is present.
     :param allowedCidrId (str) The GUID4 ID of the allowed CIDR which is to be deleted.
+    :param headers (dict) Headers to be sent with the API call.
     :param kwargs (dict) Do not use this under normal circumstances. This is only to test negative scenarios.
     """
-    def delete_allowed_CIDR(self, organizationId, projectId, clusterId, allowedCidrId, **kwargs):
-        self._log.info("Deleting allowed CIDR {} from cluster {}".format(allowedCidrId, clusterId))
+
+    def delete_allowed_CIDR(
+            self,
+            organizationId,
+            projectId,
+            clusterId,
+            allowedCidrId,
+            headers=None,
+            **kwargs):
+        self._log.info(
+            "Deleting allowed CIDR {} from cluster {}".format(
+                allowedCidrId, clusterId))
         if kwargs:
             params = kwargs
         else:
             params = None
-        resp = self.capella_api_del("{}/{}".format(self.allowedCIDR_endpoint.format(
-            organizationId, projectId, clusterId), allowedCidrId), params)
+        resp = self.capella_api_del(
+            "{}/{}".format(
+                self.allowedCIDR_endpoint.format(
+                    organizationId,
+                    projectId,
+                    clusterId),
+                allowedCidrId),
+            params,
+            headers)
         return resp
 
 
@@ -407,10 +547,23 @@ class DatabaseUsersAPIs(CapellaAPIRequests):
             }]
         }
     }]
+    :param headers (dict) Headers to be sent with the API call.
     :param kwargs (dict) Do not use this under normal circumstances. This is only to test negative scenarios.
     """
-    def create_database_user(self, organizationId, projectId, clusterId, name, access, password="", **kwargs):
-        self._log.info("Creating Database User {} in cluster {}".format(name, clusterId))
+
+    def create_database_user(
+            self,
+            organizationId,
+            projectId,
+            clusterId,
+            name,
+            access,
+            password="",
+            headers=None,
+            **kwargs):
+        self._log.info(
+            "Creating Database User {} in cluster {}".format(
+                name, clusterId))
         params = {
             "name": name,
             "access": access
@@ -419,7 +572,8 @@ class DatabaseUsersAPIs(CapellaAPIRequests):
             params["password"] = password
         for k, v in kwargs.items():
             params[k] = v
-        resp = self.capella_api_post(self.db_user_endpoint.format(organizationId, projectId, clusterId), params)
+        resp = self.capella_api_post(self.db_user_endpoint.format(
+            organizationId, projectId, clusterId), params, headers)
         return resp
 
     """
@@ -437,11 +591,23 @@ class DatabaseUsersAPIs(CapellaAPIRequests):
     :param sortBy ([string]) Sets order of how you would like to sort results and also the key you would like to order by
                              Example: sortBy=name
     :param sortDirection (str) The order on which the items will be sorted. Accepted Values - asc / desc
+    :param headers (dict) Headers to be sent with the API call.
     :param kwargs (dict) Do not use this under normal circumstances. This is only to test negative scenarios.
     """
-    def list_database_users(self, organizationId, projectId, clusterId, page=None, perPage=None, sortBy=None,
-                                      sortDirection=None, **kwargs):
-        self._log.info("List all the database users for cluster {}".format(clusterId))
+
+    def list_database_users(
+            self,
+            organizationId,
+            projectId,
+            clusterId,
+            page=None,
+            perPage=None,
+            sortBy=None,
+            sortDirection=None,
+            headers=None,
+            **kwargs):
+        self._log.info(
+            "List all the database users for cluster {}".format(clusterId))
         params = {}
         if page:
             params["page"] = page
@@ -455,7 +621,8 @@ class DatabaseUsersAPIs(CapellaAPIRequests):
         for k, v in kwargs.items():
             params[k] = v
 
-        resp = self.capella_api_get(self.db_user_endpoint.format(organizationId, projectId, clusterId), params)
+        resp = self.capella_api_get(self.db_user_endpoint.format(
+            organizationId, projectId, clusterId), params, headers)
         return resp
 
     """
@@ -469,16 +636,34 @@ class DatabaseUsersAPIs(CapellaAPIRequests):
     :param projectId (str) Project ID under which the cluster is present.
     :param clusterId (str) Cluster ID of the cluster under which the database user ID is present.
     :param userId (str) The GUID4 ID of the database user.
+    :param headers (dict) Headers to be sent with the API call.
     :param kwargs (dict) Do not use this under normal circumstances. This is only to test negative scenarios.
     """
-    def fetch_database_user_info(self, organizationId, projectId, clusterId, userId, **kwargs):
-        self._log.info("Fetching Database user info for {} present in cluster {}".format(userId, clusterId))
+
+    def fetch_database_user_info(
+            self,
+            organizationId,
+            projectId,
+            clusterId,
+            userId,
+            headers=None,
+            **kwargs):
+        self._log.info(
+            "Fetching Database user info for {} present in cluster {}".format(
+                userId, clusterId))
         if kwargs:
             params = kwargs
         else:
             params = None
-        resp = self.capella_api_get("{}/{}".format(self.db_user_endpoint.format(
-            organizationId, projectId, clusterId), userId), params)
+        resp = self.capella_api_get(
+            "{}/{}".format(
+                self.db_user_endpoint.format(
+                    organizationId,
+                    projectId,
+                    clusterId),
+                userId),
+            params,
+            headers)
         return resp
 
     """
@@ -507,27 +692,46 @@ class DatabaseUsersAPIs(CapellaAPIRequests):
         }
     }]
     :param ifmatch (bool) Is set to true then it uses a precondition header that specifies the entity tag of a resource.
+    :param headers (dict) Headers to be sent with the API call.
     :param kwargs (dict) Do not use this under normal circumstances. This is only to test negative scenarios.
     """
-    def update_database_user(self, organizationId, projectId, clusterId, userId, access, ifmatch, **kwargs):
-        self._log.info("Updating database user {} in cluster {}".format(userId, clusterId))
+
+    def update_database_user(
+            self,
+            organizationId,
+            projectId,
+            clusterId,
+            userId,
+            access,
+            ifmatch,
+            headers=None,
+            **kwargs):
+        self._log.info(
+            "Updating database user {} in cluster {}".format(
+                userId, clusterId))
         params = {
             "access": access
         }
-        header = {}
         if ifmatch:
-            result = self.fetch_database_user_info(organizationId, projectId, clusterId, userId)
+            if not headers:
+                headers = {}
+            result = self.fetch_database_user_info(
+                organizationId, projectId, clusterId, userId)
             version_id = result.json()["audit"]["version"]
-            header = {"If-Match": "Version: {}".format(version_id)}
+            headers["If-Match"] = "Version: {}".format(version_id)
 
         for k, v in kwargs.items():
-            if k == "If-Match":
-                header = {"If-Match": "Version: {}".format(v)}
-            else:
-                params[k] = v
+            params[k] = v
 
-        resp = self.capella_api_put("{}/{}".format(self.db_user_endpoint.format(
-            organizationId, projectId, clusterId), userId), params, header)
+        resp = self.capella_api_put(
+            "{}/{}".format(
+                self.db_user_endpoint.format(
+                    organizationId,
+                    projectId,
+                    clusterId),
+                userId),
+            params,
+            headers)
         return resp
 
     """
@@ -539,18 +743,34 @@ class DatabaseUsersAPIs(CapellaAPIRequests):
     :param projectId (str) Project ID under which the cluster is present.
     :param clusterId (str) Cluster ID of the cluster under which the allowed CIDR ID is present.
     :param userId (str) The GUID4 ID of the database user which is to be deleted.
+    :param headers (dict) Headers to be sent with the API call.
     :param kwargs (dict) Do not use this under normal circumstances. This is only to test negative scenarios.
     """
-    def delete_database_user(self, organizationId, projectId, clusterId, userId, **kwargs):
-        self._log.info("Deleting database user {} from cluster {}".format(userId, clusterId))
-        url = "{}{}/{}".format(self.internal_url, self.db_user_endpoint.format(organizationId, projectId,
-                                                                                   clusterId), userId)
+
+    def delete_database_user(
+            self,
+            organizationId,
+            projectId,
+            clusterId,
+            userId,
+            headers=None,
+            **kwargs):
+        self._log.info(
+            "Deleting database user {} from cluster {}".format(
+                userId, clusterId))
         if kwargs:
             params = kwargs
         else:
             params = None
-        resp = self.capella_api_del("{}/{}".format(self.db_user_endpoint.format(
-            organizationId, projectId, clusterId), userId), params)
+        resp = self.capella_api_del(
+            "{}/{}".format(
+                self.db_user_endpoint.format(
+                    organizationId,
+                    projectId,
+                    clusterId),
+                userId),
+            params,
+            headers)
         return resp
 
 
@@ -585,7 +805,7 @@ class BucketAPIs(CapellaAPIRequests):
         Default: "couchbase"
         Accepted Values: "couchbase" "ephemeral"
 
-    :param storageBackend (str) The storage engine to be assigned to and used by the bucket. 
+    :param storageBackend (str) The storage engine to be assigned to and used by the bucket.
     The minimum memory required for Couchstore is 100 MiB, and the minimum memory required for Magma is 1 GiB.
     This field cannot be changed later.
         Default: "couchstore"
@@ -621,12 +841,30 @@ class BucketAPIs(CapellaAPIRequests):
     data loss due to memory exhaustion.
         Accepted Values: "valueOnly" "fullEviction" "noEviction" "nruEviction"
 
+    :param headers (dict) Headers to be sent with the API call.
     :param kwargs (dict) Do not use this under normal circumstances. This is only to test negative scenarios.
     """
-    def create_bucket(self, organizationId, projectId, clusterId, name, type, storageBackend, memoryAllocationInMb,
-                      bucketConflictResolution, durabilityLevel, replicas, flush, timeToLiveInSeconds,
-                      evictionPolicy="", **kwargs):
-        self._log.info("Creating bucket {} in cluster {}".format(name, clusterId))
+
+    def create_bucket(
+            self,
+            organizationId,
+            projectId,
+            clusterId,
+            name,
+            type,
+            storageBackend,
+            memoryAllocationInMb,
+            bucketConflictResolution,
+            durabilityLevel,
+            replicas,
+            flush,
+            timeToLiveInSeconds,
+            evictionPolicy="",
+            headers=None,
+            **kwargs):
+        self._log.info(
+            "Creating bucket {} in cluster {}".format(
+                name, clusterId))
         params = {
             "name": name,
             "type": type,
@@ -642,7 +880,13 @@ class BucketAPIs(CapellaAPIRequests):
             params["evictionPolicy"] = evictionPolicy
         for k, v in kwargs.items():
             params[k] = v
-        resp = self.capella_api_post(self.bucket_endpoint.format(organizationId, projectId, clusterId), params)
+        resp = self.capella_api_post(
+            self.bucket_endpoint.format(
+                organizationId,
+                projectId,
+                clusterId),
+            params,
+            headers)
         return resp
 
     """
@@ -657,15 +901,25 @@ class BucketAPIs(CapellaAPIRequests):
     :param organizationId (str) Organization ID under which the cluster is present.
     :param projectId (str) Project ID under which the cluster is present.
     :param clusterId (str) Cluster ID of the cluster for which the bucket list is to be fetched.
+    :param headers (dict) Headers to be sent with the API call.
     :param kwargs (dict) Do not use this under normal circumstances. This is only to test negative scenarios.
     """
-    def list_buckets(self, organizationId, projectId, clusterId, **kwargs):
-        self._log.info("List all the buckets in the cluster {}".format(clusterId))
+
+    def list_buckets(
+            self,
+            organizationId,
+            projectId,
+            clusterId,
+            headers=None,
+            **kwargs):
+        self._log.info(
+            "List all the buckets in the cluster {}".format(clusterId))
         if kwargs:
             params = kwargs
         else:
             params = None
-        resp = self.capella_api_get(self.bucket_endpoint.format(organizationId, projectId, clusterId), params)
+        resp = self.capella_api_get(self.bucket_endpoint.format(
+            organizationId, projectId, clusterId), params, headers)
         return resp
 
     """
@@ -681,16 +935,27 @@ class BucketAPIs(CapellaAPIRequests):
     :param projectId (str) Project ID under which the cluster is present.
     :param clusterId (str) Cluster ID of the cluster under which the bucket is present.
     :param bucketId (str) The ID of the bucket. It is the URL-compatible base64 encoding of the bucket name.
+    :param headers (dict) Headers to be sent with the API call.
     :param kwargs (dict) Do not use this under normal circumstances. This is only to test negative scenarios.
     """
-    def fetch_bucket_info(self, organizationId, projectId, clusterId, bucketId, **kwargs):
-        self._log.info("Fetching bucket info for {} present in cluster {}".format(bucketId, clusterId))
+
+    def fetch_bucket_info(
+            self,
+            organizationId,
+            projectId,
+            clusterId,
+            bucketId,
+            headers=None,
+            **kwargs):
+        self._log.info(
+            "Fetching bucket info for {} present in cluster {}".format(
+                bucketId, clusterId))
         if kwargs:
             params = kwargs
         else:
             params = None
         resp = self.capella_api_get("{}/{}".format(self.bucket_endpoint.format(
-            organizationId, projectId, clusterId), bucketId), params)
+            organizationId, projectId, clusterId), bucketId), params, headers)
         return resp
 
     """
@@ -724,11 +989,27 @@ class BucketAPIs(CapellaAPIRequests):
     to live for items in the bucket. If specified as 0, TTL is disabled.
 
     :param ifmatch (bool) Is set to true then it uses a precondition header that specifies the entity tag of a resource.
+    :param headers (dict) Headers to be sent with the API call.
     :param kwargs (dict) Do not use this under normal circumstances. This is only to test negative scenarios.
     """
-    def update_bucket_config(self, organizationId, projectId, clusterId, bucketId, memoryAllocationInMb,
-                             durabilityLevel, replicas, flush, timeToLiveInSeconds, ifmatch, **kwargs):
-        self._log.info("Updating bucket {} in cluster {}".format(bucketId, clusterId))
+
+    def update_bucket_config(
+            self,
+            organizationId,
+            projectId,
+            clusterId,
+            bucketId,
+            memoryAllocationInMb,
+            durabilityLevel,
+            replicas,
+            flush,
+            timeToLiveInSeconds,
+            ifmatch,
+            headers=None,
+            **kwargs):
+        self._log.info(
+            "Updating bucket {} in cluster {}".format(
+                bucketId, clusterId))
         params = {
             "memoryAllocationInMb": memoryAllocationInMb,
             "durabilityLevel": durabilityLevel,
@@ -736,20 +1017,19 @@ class BucketAPIs(CapellaAPIRequests):
             "flush": flush,
             "timeToLiveInSeconds": timeToLiveInSeconds
         }
-        header = {}
         if ifmatch:
-            result = self.fetch_bucket_info(organizationId, projectId, clusterId, bucketId)
+            if not headers:
+                headers = {}
+            result = self.fetch_bucket_info(
+                organizationId, projectId, clusterId, bucketId)
             version_id = result.json()["audit"]["version"]
-            header = {"If-Match": "Version: {}".format(version_id)}
+            headers["If-Match"] = "Version: {}".format(version_id)
 
         for k, v in kwargs.items():
-            if k == "If-Match":
-                header = {"If-Match": "Version: {}".format(v)}
-            else:
-                params[k] = v
+            params[k] = v
 
         resp = self.capella_api_put("{}/{}".format(self.bucket_endpoint.format(
-            organizationId, projectId, clusterId), bucketId), params, header)
+            organizationId, projectId, clusterId), bucketId), params, headers)
         return resp
 
     """
@@ -762,16 +1042,27 @@ class BucketAPIs(CapellaAPIRequests):
     :param projectId (str) Project ID under which the cluster is present.
     :param clusterId (str) Cluster ID of the cluster under which the bucket is present.
     :param bucketId (str) The ID of the bucket. It is the URL-compatible base64 encoding of the bucket name.
+    :param headers (dict) Headers to be sent with the API call.
     :param kwargs (dict) Do not use this under normal circumstances. This is only to test negative scenarios.
     """
-    def delete_bucket(self, organizationId, projectId, clusterId, bucketId, **kwargs):
-        self._log.info("Deleting bucket {} in cluster {}".format(bucketId, clusterId))
+
+    def delete_bucket(
+            self,
+            organizationId,
+            projectId,
+            clusterId,
+            bucketId,
+            headers=None,
+            **kwargs):
+        self._log.info(
+            "Deleting bucket {} in cluster {}".format(
+                bucketId, clusterId))
         if kwargs:
             params = kwargs
         else:
             params = None
         resp = self.capella_api_del("{}/{}".format(self.bucket_endpoint.format(
-            organizationId, projectId, clusterId), bucketId), params)
+            organizationId, projectId, clusterId), bucketId), params, headers)
         return resp
 
 
@@ -792,17 +1083,29 @@ class ScopeAPIs(CapellaAPIRequests):
     :param clusterId (str) Cluster ID of the cluster under which the bucket is present.
     :param bucketId (str) The ID of the bucket. It is the URL-compatible base64 encoding of the bucket name.
     :param name (str) The name of the scope.
+    :param headers (dict) Headers to be sent with the API call.
     :param kwargs (dict) Do not use this under normal circumstances. This is only to test negative scenarios.
     """
-    def create_scope(self, organizationId, projectId, clusterId, bucketId, name, **kwargs):
-        self._log.info("Creating scope {} in bucket {} in cluster {}".format(name, bucketId, clusterId))
+
+    def create_scope(
+            self,
+            organizationId,
+            projectId,
+            clusterId,
+            bucketId,
+            name,
+            headers=None,
+            **kwargs):
+        self._log.info(
+            "Creating scope {} in bucket {} in cluster {}".format(
+                name, bucketId, clusterId))
         params = {
             "name": name
         }
         for k, v in kwargs.items():
             params[k] = v
         resp = self.capella_api_post(self.scope_endpoint.format(
-            organizationId, projectId, clusterId, bucketId), params)
+            organizationId, projectId, clusterId, bucketId), params, headers)
         return resp
 
     """
@@ -814,16 +1117,27 @@ class ScopeAPIs(CapellaAPIRequests):
     :param projectId (str) Project ID under which the cluster is present.
     :param clusterId (str) Cluster ID of the cluster under which the bucket is present.
     :param bucketId (str) The ID of the bucket. It is the URL-compatible base64 encoding of the bucket name.
+    :param headers (dict) Headers to be sent with the API call.
     :param kwargs (dict) Do not use this under normal circumstances. This is only to test negative scenarios.
     """
-    def list_scopes(self, organizationId, projectId, clusterId, bucketId, **kwargs):
-        self._log.info("List all the scopes for bucket {} in cluster {}".format(bucketId, clusterId))
+
+    def list_scopes(
+            self,
+            organizationId,
+            projectId,
+            clusterId,
+            bucketId,
+            headers=None,
+            **kwargs):
+        self._log.info(
+            "List all the scopes for bucket {} in cluster {}".format(
+                bucketId, clusterId))
         if kwargs:
             params = kwargs
         else:
             params = None
         resp = self.capella_api_get(self.scope_endpoint.format(
-            organizationId, projectId, clusterId, bucketId), params)
+            organizationId, projectId, clusterId, bucketId), params, headers)
         return resp
 
     """
@@ -836,16 +1150,36 @@ class ScopeAPIs(CapellaAPIRequests):
     :param clusterId (str) Cluster ID of the cluster under which the bucket is present.
     :param bucketId (str) The ID of the bucket. It is the URL-compatible base64 encoding of the bucket name.
     :param scopeName (str) The name of the scope whose info is to be fetched.
+    :param headers (dict) Headers to be sent with the API call.
     :param kwargs (dict) Do not use this under normal circumstances. This is only to test negative scenarios.
     """
-    def fetch_scope_info(self, organizationId, projectId, clusterId, bucketId, scopeName, **kwargs):
-        self._log.info("Fetching scope info for {} in bucket {} in cluster {}".format(scopeName, bucketId, clusterId))
+
+    def fetch_scope_info(
+            self,
+            organizationId,
+            projectId,
+            clusterId,
+            bucketId,
+            scopeName,
+            headers=None,
+            **kwargs):
+        self._log.info(
+            "Fetching scope info for {} in bucket {} in cluster {}".format(
+                scopeName, bucketId, clusterId))
         if kwargs:
             params = kwargs
         else:
             params = None
-        resp = self.capella_api_get("{}/{}".format(self.scope_endpoint.format(
-            organizationId, projectId, clusterId, bucketId), scopeName), params)
+        resp = self.capella_api_get(
+            "{}/{}".format(
+                self.scope_endpoint.format(
+                    organizationId,
+                    projectId,
+                    clusterId,
+                    bucketId),
+                scopeName),
+            params,
+            headers)
         return resp
 
     """
@@ -858,16 +1192,36 @@ class ScopeAPIs(CapellaAPIRequests):
     :param clusterId (str) Cluster ID of the cluster under which the bucket is present.
     :param bucketId (str) The ID of the bucket. It is the URL-compatible base64 encoding of the bucket name.
     :param scopeName (str) The name of the scope which has to be deleted.
+    :param headers (dict) Headers to be sent with the API call.
     :param kwargs (dict) Do not use this under normal circumstances. This is only to test negative scenarios.
     """
-    def delete_scope(self, organizationId, projectId, clusterId, bucketId, scopeName, **kwargs):
-        self._log.info("Deleting scope {} in bucket {} in cluster {}".format(scopeName, bucketId, clusterId))
+
+    def delete_scope(
+            self,
+            organizationId,
+            projectId,
+            clusterId,
+            bucketId,
+            scopeName,
+            headers=None,
+            **kwargs):
+        self._log.info(
+            "Deleting scope {} in bucket {} in cluster {}".format(
+                scopeName, bucketId, clusterId))
         if kwargs:
             params = kwargs
         else:
             params = None
-        resp = self.capella_api_del("{}/{}".format(self.scope_endpoint.format(
-            organizationId, projectId, clusterId, bucketId), scopeName), params)
+        resp = self.capella_api_del(
+            "{}/{}".format(
+                self.scope_endpoint.format(
+                    organizationId,
+                    projectId,
+                    clusterId,
+                    bucketId),
+                scopeName),
+            params,
+            headers)
         return resp
 
 
@@ -889,11 +1243,15 @@ class CollectionAPIs(CapellaAPIRequests):
     :param bucketId (str) The ID of the bucket. It is the URL-compatible base64 encoding of the bucket name.
     :param scopeName (str) The name of the scope under which the collection has to be created.
     :param name (str) The name of the scope.
+    :param headers (dict) Headers to be sent with the API call.
     :param kwargs (dict) Do not use this under normal circumstances. This is only to test negative scenarios.
     """
-    def create_collection(self, organizationId, projectId, clusterId, bucketId, scopeName, name, maxTTL=-1, **kwargs):
-        self._log.info("Creating collection {} in scope {} in bucket {} in cluster {}".format(
-            name, scopeName, bucketId, clusterId))
+
+    def create_collection(self, organizationId, projectId, clusterId, bucketId,
+                          scopeName, name, maxTTL=-1, headers=None, **kwargs):
+        self._log.info(
+            "Creating collection {} in scope {} in bucket {} in cluster {}".format(
+                name, scopeName, bucketId, clusterId))
         params = {
             "name": name
         }
@@ -901,8 +1259,15 @@ class CollectionAPIs(CapellaAPIRequests):
             params["maxTTL"] = maxTTL
         for k, v in kwargs.items():
             params[k] = v
-        resp = self.capella_api_post(self.collection_endpoint.format(
-            organizationId, projectId, clusterId, bucketId, scopeName), params)
+        resp = self.capella_api_post(
+            self.collection_endpoint.format(
+                organizationId,
+                projectId,
+                clusterId,
+                bucketId,
+                scopeName),
+            params,
+            headers)
         return resp
 
     """
@@ -915,17 +1280,35 @@ class CollectionAPIs(CapellaAPIRequests):
     :param clusterId (str) Cluster ID of the cluster under which the bucket is present.
     :param bucketId (str) The ID of the bucket. It is the URL-compatible base64 encoding of the bucket name.
     :param scopeName (str) The name of the scope for which the collection has to be listed.
+    :param headers (dict) Headers to be sent with the API call.
     :param kwargs (dict) Do not use this under normal circumstances. This is only to test negative scenarios.
     """
-    def list_collections(self, organizationId, projectId, clusterId, bucketId, scopeName, **kwargs):
-        self._log.info("List all the collections in the scope {} in bucket {} in cluster {}".format(
-            scopeName, bucketId, clusterId))
+
+    def list_collections(
+            self,
+            organizationId,
+            projectId,
+            clusterId,
+            bucketId,
+            scopeName,
+            headers=None,
+            **kwargs):
+        self._log.info(
+            "List all the collections in the scope {} in bucket {} in cluster {}".format(
+                scopeName, bucketId, clusterId))
         if kwargs:
             params = kwargs
         else:
             params = None
-        resp = self.capella_api_get(self.collection_endpoint.format(
-            organizationId, projectId, clusterId, bucketId, scopeName), params)
+        resp = self.capella_api_get(
+            self.collection_endpoint.format(
+                organizationId,
+                projectId,
+                clusterId,
+                bucketId,
+                scopeName),
+            params,
+            headers)
         return resp
 
     """
@@ -939,18 +1322,38 @@ class CollectionAPIs(CapellaAPIRequests):
     :param bucketId (str) The ID of the bucket. It is the URL-compatible base64 encoding of the bucket name.
     :param scopeName (str) The name of the scope under which the collection is present.
     :param collectionName (str) Name of the collection whose info has to be fetched.
+    :param headers (dict) Headers to be sent with the API call.
     :param kwargs (dict) Do not use this under normal circumstances. This is only to test negative scenarios.
     """
-    def fetch_collection_info(self, organizationId, projectId, clusterId, bucketId, scopeName,
-                              collectionName, **kwargs):
-        self._log.info("Fetching info for the collection {} in scope {} in bucket {} in cluster {}".format(
-            collectionName, scopeName, bucketId, clusterId))
+
+    def fetch_collection_info(
+            self,
+            organizationId,
+            projectId,
+            clusterId,
+            bucketId,
+            scopeName,
+            collectionName,
+            headers=None,
+            **kwargs):
+        self._log.info(
+            "Fetching info for the collection {} in scope {} in bucket {} in cluster {}".format(
+                collectionName, scopeName, bucketId, clusterId))
         if kwargs:
             params = kwargs
         else:
             params = None
-        resp = self.capella_api_get("{}/{}".format(self.collection_endpoint.format(
-            organizationId, projectId, clusterId, bucketId, scopeName), collectionName), params)
+        resp = self.capella_api_get(
+            "{}/{}".format(
+                self.collection_endpoint.format(
+                    organizationId,
+                    projectId,
+                    clusterId,
+                    bucketId,
+                    scopeName),
+                collectionName),
+            params,
+            headers)
         return resp
 
     """
@@ -964,25 +1367,44 @@ class CollectionAPIs(CapellaAPIRequests):
     :param bucketId (str) The ID of the bucket. It is the URL-compatible base64 encoding of the bucket name.
     :param scopeName (str) The name of the scope under which the collection is present.
     :param collectionName (str) Name of the collection which is to be deleted.
+    :param headers (dict) Headers to be sent with the API call.
     :param kwargs (dict) Do not use this under normal circumstances. This is only to test negative scenarios.
     """
-    def delete_collection(self, organizationId, projectId, clusterId, bucketId, scopeName, collectionName, **kwargs):
-        self._log.info("Deleting the collection {} in scope {} in bucket {} in cluster {}".format(
-            collectionName, scopeName, bucketId, clusterId))
-        url = "{}{}/{}".format(self.internal_url, self.collection_endpoint.format(
-            organizationId, projectId, clusterId, bucketId, scopeName), collectionName)
+
+    def delete_collection(self, organizationId, projectId, clusterId, bucketId,
+                          scopeName, collectionName, headers=None, **kwargs):
+        self._log.info(
+            "Deleting the collection {} in scope {} in bucket {} in cluster {}".format(
+                collectionName, scopeName, bucketId, clusterId))
         if kwargs:
             params = kwargs
         else:
             params = None
-        resp = self.capella_api_del("{}/{}".format(self.collection_endpoint.format(
-            organizationId, projectId, clusterId, bucketId, scopeName), collectionName), params)
+        resp = self.capella_api_del(
+            "{}/{}".format(
+                self.collection_endpoint.format(
+                    organizationId,
+                    projectId,
+                    clusterId,
+                    bucketId,
+                    scopeName),
+                collectionName),
+            params,
+            headers)
         return resp
 
 
-class CapellaAPI(CollectionAPIs, ScopeAPIs, BucketAPIs, DatabaseUsersAPIs, AllowedCIDRAPIs, ClusterAPIs, CommonCapellaAPI):
+class CapellaAPI(
+        CollectionAPIs,
+        ScopeAPIs,
+        BucketAPIs,
+        DatabaseUsersAPIs,
+        AllowedCIDRAPIs,
+        ClusterAPIs,
+        CommonCapellaAPI):
 
-    def __init__(self, url, secret, access, user, pwd, TOKEN_FOR_INTERNAL_SUPPORT=None):
+    def __init__(self, url, secret, access, user, pwd,
+                 TOKEN_FOR_INTERNAL_SUPPORT=None):
         """
         Making explicit call to init function of inherited classes because the init params differ.
         """
@@ -992,7 +1414,14 @@ class CapellaAPI(CollectionAPIs, ScopeAPIs, BucketAPIs, DatabaseUsersAPIs, Allow
         DatabaseUsersAPIs.__init__(self, url, secret, access)
         AllowedCIDRAPIs.__init__(self, url, secret, access)
         ClusterAPIs.__init__(self, url, secret, access)
-        CommonCapellaAPI.__init__(self, url, secret, access, user, pwd, TOKEN_FOR_INTERNAL_SUPPORT)
+        CommonCapellaAPI.__init__(
+            self,
+            url,
+            secret,
+            access,
+            user,
+            pwd,
+            TOKEN_FOR_INTERNAL_SUPPORT)
 
     def set_logging_level(self, level):
         self._log.setLevel(level)
@@ -1018,7 +1447,8 @@ class CapellaAPI(CollectionAPIs, ScopeAPIs, BucketAPIs, DatabaseUsersAPIs, Allow
     """
 
     def get_cluster_status(self, cluster_id):
-        capella_api_response = self.capella_api_get('/v3/clusters/' + cluster_id + '/status')
+        capella_api_response = self.capella_api_get(
+            '/v3/clusters/' + cluster_id + '/status')
 
         return (capella_api_response)
 
@@ -1087,8 +1517,8 @@ class CapellaAPI(CollectionAPIs, ScopeAPIs, BucketAPIs, DatabaseUsersAPIs, Allow
 
     # Cluster certificate
     def get_cluster_certificate(self, cluster_id):
-        capella_api_response = self.capella_api_get('/v3/clusters' + '/' + cluster_id +
-                                                    '/certificate')
+        capella_api_response = self.capella_api_get(
+            '/v3/clusters' + '/' + cluster_id + '/certificate')
         return (capella_api_response)
 
     # Cluster buckets
@@ -1156,9 +1586,13 @@ class CapellaAPI(CollectionAPIs, ScopeAPIs, BucketAPIs, DatabaseUsersAPIs, Allow
         return (capella_api_response)
     """
 
-    def update_cluster_allowlist(self, cluster_id, new_allowlist_configuration):
-        capella_api_response = self.capella_api_put('/v2/clusters' + '/' + cluster_id +
-                                                    '/allowlist', new_allowlist_configuration)
+    def update_cluster_allowlist(
+            self,
+            cluster_id,
+            new_allowlist_configuration):
+        capella_api_response = self.capella_api_put(
+            '/v2/clusters' + '/' + cluster_id + '/allowlist',
+            new_allowlist_configuration)
         return (capella_api_response)
 
     # Cluster user
@@ -1387,8 +1821,14 @@ class CapellaAPI(CollectionAPIs, ScopeAPIs, BucketAPIs, DatabaseUsersAPIs, Allow
         resp = self.do_internal_request(url, method="GET")
         return resp
 
-    def create_eventing_function(self, cluster_id, name, body, function_scope=None):
-        url = '{}/v2/databases/{}/proxy/_p/event/api/v1/functions/{}'.format(self.internal_url, cluster_id, name)
+    def create_eventing_function(
+            self,
+            cluster_id,
+            name,
+            body,
+            function_scope=None):
+        url = '{}/v2/databases/{}/proxy/_p/event/api/v1/functions/{}'.format(
+            self.internal_url, cluster_id, name)
 
         if function_scope is not None:
             url += "?bucket={0}&scope={1}".format(function_scope["bucket"],
@@ -1398,9 +1838,10 @@ class CapellaAPI(CollectionAPIs, ScopeAPIs, BucketAPIs, DatabaseUsersAPIs, Allow
                                         params=json.dumps(body))
         return resp
 
-    def __set_eventing_function_settings(self, cluster_id, name, body, function_scope=None):
-        url = '{}/v2/databases/{}/proxy/_p/event/api/v1/functions/{}/settings'.format(self.internal_url, cluster_id,
-                                                                                      name)
+    def __set_eventing_function_settings(
+            self, cluster_id, name, body, function_scope=None):
+        url = '{}/v2/databases/{}/proxy/_p/event/api/v1/functions/{}/settings'.format(
+            self.internal_url, cluster_id, name)
 
         if function_scope is not None:
             url += "?bucket={0}&scope={1}".format(function_scope["bucket"],
@@ -1415,37 +1856,47 @@ class CapellaAPI(CollectionAPIs, ScopeAPIs, BucketAPIs, DatabaseUsersAPIs, Allow
             "processing_status": False,
             "deployment_status": True,
         }
-        return self.__set_eventing_function_settings(cluster_id, name, body, function_scope)
+        return self.__set_eventing_function_settings(
+            cluster_id, name, body, function_scope)
 
     def resume_eventing_function(self, cluster_id, name, function_scope=None):
         body = {
             "processing_status": True,
             "deployment_status": True,
         }
-        return self.__set_eventing_function_settings(cluster_id, name, body, function_scope)
+        return self.__set_eventing_function_settings(
+            cluster_id, name, body, function_scope)
 
     def deploy_eventing_function(self, cluster_id, name, function_scope=None):
         body = {
             "deployment_status": True,
             "processing_status": True,
         }
-        return self.__set_eventing_function_settings(cluster_id, name, body, function_scope)
+        return self.__set_eventing_function_settings(
+            cluster_id, name, body, function_scope)
 
-    def undeploy_eventing_function(self, cluster_id, name, function_scope=None):
+    def undeploy_eventing_function(
+            self,
+            cluster_id,
+            name,
+            function_scope=None):
         body = {
             "deployment_status": False,
             "processing_status": False
         }
-        return self.__set_eventing_function_settings(cluster_id, name, body, function_scope)
+        return self.__set_eventing_function_settings(
+            cluster_id, name, body, function_scope)
 
     def get_composite_eventing_status(self, cluster_id):
-        url = '{}/v2/databases/{}/proxy/_p/event/api/v1/status'.format(self.internal_url, cluster_id)
+        url = '{}/v2/databases/{}/proxy/_p/event/api/v1/status'.format(
+            self.internal_url, cluster_id)
 
         resp = self.do_internal_request(url, method="GET")
         return resp
 
     def get_all_eventing_stats(self, cluster_id, seqs_processed=False):
-        url = '{}/v2/databases/{}/proxy/_p/event/api/v1/stats'.format(self.internal_url, cluster_id)
+        url = '{}/v2/databases/{}/proxy/_p/event/api/v1/stats'.format(
+            self.internal_url, cluster_id)
 
         if seqs_processed:
             url += "?type=full"
@@ -1454,8 +1905,8 @@ class CapellaAPI(CollectionAPIs, ScopeAPIs, BucketAPIs, DatabaseUsersAPIs, Allow
         return resp
 
     def delete_eventing_function(self, cluster_id, name, function_scope=None):
-        url = '{}/v2/databases/{}/proxy/_p/event/deleteAppTempStore/?name={}'.format(self.internal_url, cluster_id,
-                                                                                     name)
+        url = '{}/v2/databases/{}/proxy/_p/event/deleteAppTempStore/?name={}'.format(
+            self.internal_url, cluster_id, name)
 
         if function_scope is not None:
             url += "&bucket={0}&scope={1}".format(function_scope["bucket"],
@@ -1467,14 +1918,14 @@ class CapellaAPI(CollectionAPIs, ScopeAPIs, BucketAPIs, DatabaseUsersAPIs, Allow
                                private_network_params):
         url = "{}/v2/organizations/{}/projects/{}/clusters/{}/virtualnetworks" \
             .format(self.internal_url, tenant_id, project_id, cluster_id)
-        resp = self.do_internal_request(url, method="POST",
-                                        params=json.dumps(private_network_params))
+        resp = self.do_internal_request(
+            url, method="POST", params=json.dumps(private_network_params))
         return resp
 
     def get_private_network(self, tenant_id, project_id, cluster_id,
                             private_network_id):
-        url = "{}/v2/organizations/{}/projects/{}/clusters/{}/virtualnetworks/{}" \
-            .format(self.internal_url, tenant_id, project_id, cluster_id, private_network_id)
+        url = "{}/v2/organizations/{}/projects/{}/clusters/{}/virtualnetworks/{}" .format(
+            self.internal_url, tenant_id, project_id, cluster_id, private_network_id)
         resp = self.do_internal_request(url, method="GET")
         return resp
 
@@ -1485,7 +1936,12 @@ class CapellaAPI(CollectionAPIs, ScopeAPIs, BucketAPIs, DatabaseUsersAPIs, Allow
                                         params=json.dumps(specs))
         return resp
 
-    def restore_from_backup(self, tenant_id, project_id, cluster_id, bucket_name):
+    def restore_from_backup(
+            self,
+            tenant_id,
+            project_id,
+            cluster_id,
+            bucket_name):
         """
         method used to restore from the backup
         :param tenant_id:
@@ -1494,16 +1950,32 @@ class CapellaAPI(CollectionAPIs, ScopeAPIs, BucketAPIs, DatabaseUsersAPIs, Allow
         :param bucket_name:
         :return: response object
         """
-        payload = {"sourceClusterId": cluster_id,
-                   "targetClusterId": cluster_id,
-                   "options": {"services": ["data", "query", "index", "search"], "filterKeys": "", "filterValues": "",
-                               "mapData": "", "includeData": "", "excludeData": "", "autoCreateBuckets": True,
-                               "autoRemoveCollections": True, "forceUpdates": True}}
-        bucket_id = self.get_backups_bucket_id(tenant_id=tenant_id, project_id=project_id, cluster_id=cluster_id,
-                                               bucket_name=bucket_name)
+        payload = {
+            "sourceClusterId": cluster_id,
+            "targetClusterId": cluster_id,
+            "options": {
+                "services": [
+                    "data",
+                    "query",
+                    "index",
+                    "search"],
+                "filterKeys": "",
+                "filterValues": "",
+                "mapData": "",
+                "includeData": "",
+                "excludeData": "",
+                "autoCreateBuckets": True,
+                "autoRemoveCollections": True,
+                "forceUpdates": True}}
+        bucket_id = self.get_backups_bucket_id(
+            tenant_id=tenant_id,
+            project_id=project_id,
+            cluster_id=cluster_id,
+            bucket_name=bucket_name)
         url = r"{}/v2/organizations/{}/projects/{}/clusters/{}/buckets/{}/restore" \
             .format(self.internal_url, tenant_id, project_id, cluster_id, bucket_id)
-        resp = self.do_internal_request(url, method="POST", params=json.dumps(payload))
+        resp = self.do_internal_request(
+            url, method="POST", params=json.dumps(payload))
         return resp
 
     def get_cluster_id(self, cluster_name):
@@ -1544,9 +2016,8 @@ class CapellaAPI(CollectionAPIs, ScopeAPIs, BucketAPIs, DatabaseUsersAPIs, Allow
 
         bucket_id = base64.urlsafe_b64encode(bucket_name.encode()).decode()
 
-        url = "{}/v2/organizations/{}/projects/{}/clusters/{}/buckets/{}/restore".format(self.internal_url,
-                                                                                         tenant_id, project_id,
-                                                                                         cluster_id, bucket_id)
+        url = "{}/v2/organizations/{}/projects/{}/clusters/{}/buckets/{}/restore".format(
+            self.internal_url, tenant_id, project_id, cluster_id, bucket_id)
 
         resp = self.do_internal_request(url, method="GET")
         return resp
@@ -1559,12 +2030,17 @@ class CapellaAPI(CollectionAPIs, ScopeAPIs, BucketAPIs, DatabaseUsersAPIs, Allow
         :param cluster_id:
         :return: response object
         """
-        url = "{}/v2/organizations/{}/projects/{}/clusters/{}/backups".format(self.internal_url, tenant_id,
-                                                                              project_id, cluster_id)
+        url = "{}/v2/organizations/{}/projects/{}/clusters/{}/backups".format(
+            self.internal_url, tenant_id, project_id, cluster_id)
         resp = self.do_internal_request(url, method="GET")
         return resp
 
-    def get_backups_bucket_id(self, tenant_id, project_id, cluster_id, bucket_name):
+    def get_backups_bucket_id(
+            self,
+            tenant_id,
+            project_id,
+            cluster_id,
+            bucket_name):
         """
         method to obtain a list of the current backups from backups tab
         :param tenant_id:
@@ -1573,8 +2049,8 @@ class CapellaAPI(CollectionAPIs, ScopeAPIs, BucketAPIs, DatabaseUsersAPIs, Allow
         :param bucket_name:
         :return: response object
         """
-        url = "{}/v2/organizations/{}/projects/{}/clusters/{}/backups".format(self.internal_url, tenant_id,
-                                                                              project_id, cluster_id)
+        url = "{}/v2/organizations/{}/projects/{}/clusters/{}/backups".format(
+            self.internal_url, tenant_id, project_id, cluster_id)
         resp = self.do_internal_request(url, method="GET").content
         for bucket in json.loads(resp)['data']:
             if bucket['data']['bucket'] == bucket_name:
@@ -1589,13 +2065,19 @@ class CapellaAPI(CollectionAPIs, ScopeAPIs, BucketAPIs, DatabaseUsersAPIs, Allow
         :param bucket_name:
         :return: response object
         """
-        url = "{}/v2/organizations/{}/projects/{}/clusters/{}/backup".format(self.internal_url, tenant_id,
-                                                                             project_id, cluster_id)
+        url = "{}/v2/organizations/{}/projects/{}/clusters/{}/backup".format(
+            self.internal_url, tenant_id, project_id, cluster_id)
         payload = {"bucket": bucket_name}
-        resp = self.do_internal_request(url, method="POST", params=json.dumps(payload))
+        resp = self.do_internal_request(
+            url, method="POST", params=json.dumps(payload))
         return resp
 
-    def list_all_bucket_backups(self, tenant_id, project_id, cluster_id, bucket_id):
+    def list_all_bucket_backups(
+            self,
+            tenant_id,
+            project_id,
+            cluster_id,
+            bucket_id):
         """
         method to obtain the list of backups of a bucket
         :param tenant_id:
@@ -1637,7 +2119,12 @@ class CapellaAPI(CollectionAPIs, ScopeAPIs, BucketAPIs, DatabaseUsersAPIs, Allow
         resp = self.do_internal_request(url, method="GET")
         return resp
 
-    def generate_export_link(self, tenant_id, project_id, cluster_id, export_id):
+    def generate_export_link(
+            self,
+            tenant_id,
+            project_id,
+            cluster_id,
+            export_id):
         """
         method to generate a pre-signed link for the given export
         :param tenant_id:
@@ -1704,7 +2191,12 @@ class CapellaAPI(CollectionAPIs, ScopeAPIs, BucketAPIs, DatabaseUsersAPIs, Allow
         return resp
     """
 
-    def create_xdcr_replication(self, tenant_id, project_id, cluster_id, payload):
+    def create_xdcr_replication(
+            self,
+            tenant_id,
+            project_id,
+            cluster_id,
+            payload):
         """
         Create a new XDCR replication
 
@@ -1750,39 +2242,59 @@ class CapellaAPI(CollectionAPIs, ScopeAPIs, BucketAPIs, DatabaseUsersAPIs, Allow
         resp = self.do_internal_request(url, method="GET")
         return resp
 
-    def get_replication(self, tenant_id, project_id, cluster_id, replication_id):
+    def get_replication(
+            self,
+            tenant_id,
+            project_id,
+            cluster_id,
+            replication_id):
         """
         Get a specific XDCR replication for a cluster
         """
-        url = "{}/v2/organizations/{}/projects/{}/clusters/{}/xdcr/{}" \
-            .format(self.internal_url, tenant_id, project_id, cluster_id, replication_id)
+        url = "{}/v2/organizations/{}/projects/{}/clusters/{}/xdcr/{}" .format(
+            self.internal_url, tenant_id, project_id, cluster_id, replication_id)
         resp = self.do_internal_request(url, method="GET")
         return resp
 
-    def delete_replication(self, tenant_id, project_id, cluster_id, replication_id):
+    def delete_replication(
+            self,
+            tenant_id,
+            project_id,
+            cluster_id,
+            replication_id):
         """
         Delete an XDCR replication
         """
-        url = "{}/v2/organizations/{}/projects/{}/clusters/{}/xdcr/{}" \
-            .format(self.internal_url, tenant_id, project_id, cluster_id, replication_id)
+        url = "{}/v2/organizations/{}/projects/{}/clusters/{}/xdcr/{}" .format(
+            self.internal_url, tenant_id, project_id, cluster_id, replication_id)
         resp = self.do_internal_request(url, method="DELETE")
         return resp
 
-    def pause_replication(self, tenant_id, project_id, cluster_id, replication_id):
+    def pause_replication(
+            self,
+            tenant_id,
+            project_id,
+            cluster_id,
+            replication_id):
         """
         Pause an XDCR replication
         """
-        url = "{}/v2/organizations/{}/projects/{}/clusters/{}/xdcr/{}/pause" \
-            .format(self.internal_url, tenant_id, project_id, cluster_id, replication_id)
+        url = "{}/v2/organizations/{}/projects/{}/clusters/{}/xdcr/{}/pause" .format(
+            self.internal_url, tenant_id, project_id, cluster_id, replication_id)
         resp = self.do_internal_request(url, method="POST")
         return resp
 
-    def start_replication(self, tenant_id, project_id, cluster_id, replication_id):
+    def start_replication(
+            self,
+            tenant_id,
+            project_id,
+            cluster_id,
+            replication_id):
         """
         Start an XDCR replication
         """
-        url = "{}/v2/organizations/{}/projects/{}/clusters/{}/xdcr/{}/start" \
-            .format(self.internal_url, tenant_id, project_id, cluster_id, replication_id)
+        url = "{}/v2/organizations/{}/projects/{}/clusters/{}/xdcr/{}/start" .format(
+            self.internal_url, tenant_id, project_id, cluster_id, replication_id)
         resp = self.do_internal_request(url, method="POST")
         return resp
 
@@ -1805,7 +2317,8 @@ class CapellaAPI(CollectionAPIs, ScopeAPIs, BucketAPIs, DatabaseUsersAPIs, Allow
             }
         }
         """
-        url = '{}/v2/organizations/{}/backends'.format(self.internal_url, tenant_id)
+        url = '{}/v2/organizations/{}/backends'.format(
+            self.internal_url, tenant_id)
         resp = self.do_internal_request(url, method="POST",
                                         params=json.dumps(config))
         return resp
@@ -1814,21 +2327,32 @@ class CapellaAPI(CollectionAPIs, ScopeAPIs, BucketAPIs, DatabaseUsersAPIs, Allow
         """
         Get details about a SyncGateway backend for a cluster
         """
-        url = '{}/v2/organizations/{}/projects/{}/clusters/{}/backends/{}' \
-            .format(self.internal_url, tenant_id, project_id, cluster_id, backend_id)
+        url = '{}/v2/organizations/{}/projects/{}/clusters/{}/backends/{}' .format(
+            self.internal_url, tenant_id, project_id, cluster_id, backend_id)
         resp = self.do_internal_request(url, method="GET")
         return resp
 
-    def delete_sgw_backend(self, tenant_id, project_id, cluster_id, backend_id):
+    def delete_sgw_backend(
+            self,
+            tenant_id,
+            project_id,
+            cluster_id,
+            backend_id):
         """
         Delete a SyncGateway backend
         """
-        url = '{}/v2/organizations/{}/projects/{}/clusters/{}/backends/{}' \
-            .format(self.internal_url, tenant_id, project_id, cluster_id, backend_id)
+        url = '{}/v2/organizations/{}/projects/{}/clusters/{}/backends/{}' .format(
+            self.internal_url, tenant_id, project_id, cluster_id, backend_id)
         resp = self.do_internal_request(url, method="DELETE")
         return resp
 
-    def create_sgw_database(self, tenant_id, project_id, cluster_id, backend_id, config):
+    def create_sgw_database(
+            self,
+            tenant_id,
+            project_id,
+            cluster_id,
+            backend_id,
+            config):
         """
         Create a SyncGateway database (app endpoint)
 
@@ -1854,14 +2378,26 @@ class CapellaAPI(CollectionAPIs, ScopeAPIs, BucketAPIs, DatabaseUsersAPIs, Allow
         resp = self.do_internal_request(url, method="GET")
         return resp
 
-    def resume_sgw_database(self, tenant_id, project_id, cluster_id, backend_id, db_name):
+    def resume_sgw_database(
+            self,
+            tenant_id,
+            project_id,
+            cluster_id,
+            backend_id,
+            db_name):
         "Resume the sgw database (app endpoint)"
         url = '{}/v2/organizations/{}/projects/{}/clusters/{}/backends/{}/databases/{}/online' \
             .format(self.internal_url, tenant_id, project_id, cluster_id, backend_id, db_name)
         resp = self.do_internal_request(url, method="POST")
         return resp
 
-    def pause_sgw_database(self, tenant_id, project_id, cluster_id, backend_id, db_name):
+    def pause_sgw_database(
+            self,
+            tenant_id,
+            project_id,
+            cluster_id,
+            backend_id,
+            db_name):
         "Resume the sgw database (app endpoint)"
         url = '{}/v2/organizations/{}/projects/{}/clusters/{}/backends/{}/databases/{}/offline' \
             .format(self.internal_url, tenant_id, project_id, cluster_id, backend_id, db_name)
@@ -1879,7 +2415,13 @@ class CapellaAPI(CollectionAPIs, ScopeAPIs, BucketAPIs, DatabaseUsersAPIs, Allow
                                         params=json.dumps(body))
         return resp
 
-    def add_allowed_ip_sgw(self, tenant_id, project_id, cluster_id, backend_id, ip):
+    def add_allowed_ip_sgw(
+            self,
+            tenant_id,
+            project_id,
+            cluster_id,
+            backend_id,
+            ip):
         url = '{}/v2/organizations/{}/projects/{}/clusters/{}/backends/{}/allowip' \
             .format(self.internal_url, tenant_id, project_id, backend_id, cluster_id)
         body = {"cidr": "{}/32".format(ip), "comment": ""}
@@ -1887,53 +2429,101 @@ class CapellaAPI(CollectionAPIs, ScopeAPIs, BucketAPIs, DatabaseUsersAPIs, Allow
                                         params=json.dumps(body))
         return resp
 
-    def update_sync_function_sgw(self, tenant_id, project_id, cluster_id, backend_id, db_name, config):
+    def update_sync_function_sgw(
+            self,
+            tenant_id,
+            project_id,
+            cluster_id,
+            backend_id,
+            db_name,
+            config):
         url = '{}/v2/organizations/{}/projects/{}/clusters/{}/backends/{}/databases/{}/sync' \
             .format(self.internal_url, tenant_id, project_id, cluster_id, backend_id, db_name)
         resp = self.do_internal_request(url, method="POST",
                                         params=json.dumps(config))
         return resp
 
-    def add_app_role_sgw(self, tenant_id, project_id, cluster_id, backend_id, db_name, config):
+    def add_app_role_sgw(
+            self,
+            tenant_id,
+            project_id,
+            cluster_id,
+            backend_id,
+            db_name,
+            config):
         url = '{}/v2/organizations/{}/projects/{}/clusters/{}/backends/{}/databases/{}/roles' \
             .format(self.internal_url, tenant_id, project_id, cluster_id, backend_id, db_name)
         resp = self.do_internal_request(url, method="POST",
                                         params=json.dumps(config))
         return resp
 
-    def add_user_sgw(self, tenant_id, project_id, cluster_id, backend_id, db_name, config):
+    def add_user_sgw(
+            self,
+            tenant_id,
+            project_id,
+            cluster_id,
+            backend_id,
+            db_name,
+            config):
         url = '{}/v2/organizations/{}/projects/{}/clusters/{}/backends/{}/databases/{}/users' \
             .format(self.internal_url, tenant_id, project_id, cluster_id, backend_id, db_name)
         resp = self.do_internal_request(url, method="POST",
                                         params=json.dumps(config))
         return resp
 
-    def add_admin_user_sgw(self, tenant_id, project_id, cluster_id, backend_id, db_name, config):
+    def add_admin_user_sgw(
+            self,
+            tenant_id,
+            project_id,
+            cluster_id,
+            backend_id,
+            db_name,
+            config):
         url = '{}/v2/organizations/{}/projects/{}/clusters/{}/backends/{}/databases/{}/adminusers' \
             .format(self.internal_url, tenant_id, project_id, cluster_id, backend_id, db_name)
         resp = self.do_internal_request(url, method="POST",
                                         params=json.dumps(config))
         return resp
 
-    def get_sgw_links(self, tenant_id, project_id, cluster_id, backend_id, db_name):
+    def get_sgw_links(
+            self,
+            tenant_id,
+            project_id,
+            cluster_id,
+            backend_id,
+            db_name):
         url = '{}/v2/organizations/{}/projects/{}/clusters/{}/backends/{}/databases/{}/connect' \
             .format(self.internal_url, tenant_id, project_id, cluster_id, backend_id, db_name)
         resp = self.do_internal_request(url, method="GET", params='')
         return resp
 
     def get_sgw_info(self, tenant_id, project_id, cluster_id, backend_id):
-        url = '{}/v2/organizations/{}/projects/{}/clusters/{}/backends/{}' \
-            .format(self.internal_url, tenant_id, project_id, cluster_id, backend_id)
+        url = '{}/v2/organizations/{}/projects/{}/clusters/{}/backends/{}' .format(
+            self.internal_url, tenant_id, project_id, cluster_id, backend_id)
         resp = self.do_internal_request(url, method="GET", params='')
         return resp
 
-    def get_sgw_certificate(self, tenant_id, project_id, cluster_id, backend_id, db_name):
+    def get_sgw_certificate(
+            self,
+            tenant_id,
+            project_id,
+            cluster_id,
+            backend_id,
+            db_name):
         url = '{}/v2/organizations/{}/projects/{}/clusters/{}/backends/{}/databases/{}/publiccert' \
             .format(self.internal_url, tenant_id, project_id, cluster_id, backend_id, db_name)
         resp = self.do_internal_request(url, method="GET", params='')
         return resp
 
-    def get_node_metrics(self, tenant_id, project_id, cluster_id, metrics, step, start, end):
+    def get_node_metrics(
+            self,
+            tenant_id,
+            project_id,
+            cluster_id,
+            metrics,
+            step,
+            start,
+            end):
         url = '{}/v2/organizations/{}/projects/{}/clusters/{}/metrics/{}/query_range' \
             .format(self.internal_url, tenant_id, project_id, cluster_id, metrics)
         payload = {'step': step, 'start': start, 'end': end}
@@ -1973,5 +2563,6 @@ class CapellaAPI(CollectionAPIs, ScopeAPIs, BucketAPIs, DatabaseUsersAPIs, Allow
         url = '{}/v2/organizations/{}/projects/{}/clusters/{}/on' \
             .format(self.internal_url, tenant_id, project_id, cluster_id)
         payload = "{\"turnOnAppService\":true}"
-        resp = self.do_internal_request(url, method="POST", params=json.dumps(payload))
+        resp = self.do_internal_request(
+            url, method="POST", params=json.dumps(payload))
         return resp
