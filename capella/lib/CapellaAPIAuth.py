@@ -25,7 +25,7 @@ class CapellaAPIAuth(AuthBase):
 
     def __call__(self, r):
         if "v4" in r.url:
-            bearer_token =  base64.StdEncoding.EncodeToString([]byte(
+            bearer_token = base64.b64encode(bytes(
                 self.ACCESS_KEY + ":" + self.SECRET_KEY))
             # Values for the header
             cbc_api_request_headers = {
