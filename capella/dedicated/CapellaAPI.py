@@ -256,6 +256,68 @@ class CapellaAPI(CommonCapellaAPI):
                                     params=json.dumps(param))
         return resp
 
+    def create_cluster_CPUI(self, tenant_id, config):
+        '''
+        #Sample Config
+        {
+            "server": "7.2.0",
+            "timezone": "PT",
+            "description": "Amazing Cloud",
+            "singleAZ": False,
+            "specs":
+            [
+                {
+                    "count": 3,
+                    "services":
+                    [
+                        "kv",
+                        "n1ql"
+                    ],
+                    "compute": "n2-standard-8",
+                    "disk":
+                    {
+                        "type": "pd-ssd",
+                        "sizeInGb": 500
+                    },
+                    "provider": "hostedGCP",
+                    "diskAutoScaling":
+                    {
+                        "enabled": True
+                    }
+                },
+                {
+                    "count": 3,
+                    "services":
+                    [
+                        "index"
+                    ],
+                    "compute": "n2-standard-8",
+                    "disk":
+                    {
+                        "type": "pd-ssd",
+                        "sizeInGb": 500
+                    },
+                    "provider": "hostedGCP",
+                    "diskAutoScaling":
+                    {
+                        "enabled": True
+                    }
+                }
+            ],
+            "provider": "hostedGCP",
+            "name": "riteshagarwal007_gcp_C1",
+            "cidr": NONE,
+            "region": "us-east1",
+            "plan": "Enterprise",
+            "projectId": ""
+        }
+        '''
+        url = '{}/v2/organizations/{}/clusters'.format(
+            self.internal_url, tenant_id)
+        resp = self.do_internal_request(url, method="POST",
+                                        params=json.dumps(config))
+        return resp
+
     def create_cluster_customAMI(self, tenant_id, config):
         '''
         #Sample Config
@@ -876,3 +938,4 @@ class CapellaAPI(CommonCapellaAPI):
         payload = "{\"turnOnAppService\":true}"
         resp = self.do_internal_request(url, method="POST", params=json.dumps(payload))
         return resp
+
