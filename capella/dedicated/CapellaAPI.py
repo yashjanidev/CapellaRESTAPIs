@@ -939,3 +939,58 @@ class CapellaAPI(CommonCapellaAPI):
         resp = self.do_internal_request(url, method="POST", params=json.dumps(payload))
         return resp
 
+    def enable_gcp_private_endpoint(self, tenant_id, project_id, cluster_id):
+        url = '{}/v2/organizations/{}/projects/{}/clusters/{}/privateendpoint'\
+            .format(self.internal_url, tenant_id, project_id, cluster_id)
+        resp = self.do_internal_request(url, method="POST", params='')
+        return resp
+
+    def get_gcp_private_endpoint_status(self, tenant_id, project_id, cluster_id):
+        url = '{}/v2/organizations/{}/projects/{}/clusters/{}/privateendpoint' \
+            .format(self.internal_url, tenant_id, project_id, cluster_id)
+        resp = self.do_internal_request(url, method="GET", params='')
+        return resp
+
+    def delete_gcp_private_endpoint(self, tenant_id, project_id, cluster_id):
+        url = '{}/v2/organizations/{}/projects/{}/clusters/{}/privateendpoint' \
+            .format(self.internal_url, tenant_id, project_id, cluster_id)
+        resp = self.do_internal_request(url, method="DELETE", params='')
+        return resp
+
+    def get_private_endpoint_connection_link(self, tenant_id, project_id, cluster_id, body):
+        """
+            body =
+            {
+                "vpcId": "{customers-VPC}",
+                "subnetIds": "{customers-subnet}"
+            }
+        """
+        url = '{}/v2/organizations/{}/projects/{}/clusters/{}/privateendpoint/linkcommand' \
+            .format(self.internal_url, tenant_id, project_id, cluster_id)
+        resp = self.do_internal_request(url, method="POST", params=json.dumps(body))
+        return resp
+
+    def accept_gcp_private_endpoint_connection(self, tenant_id, project_id, cluster_id, body):
+        """
+            body =
+            {
+                "endpointId": "{customers-GCP-Project-Id}"
+            }
+        """
+        url = '{}/v2/organizations/{}/projects/{}/clusters/{}/privateendpoint/connection' \
+            .format(self.internal_url, tenant_id, project_id, cluster_id)
+        resp = self.do_internal_request(url, method="POST", params=json.dumps(body))
+        return resp
+
+    def list_gcp_private_endpoint_connections(self, tenant_id, project_id, cluster_id):
+        url = '{}/v2/organizations/{}/projects/{}/clusters/{}/privateendpoint/connection' \
+            .format(self.internal_url, tenant_id, project_id, cluster_id)
+        resp = self.do_internal_request(url, method="GET", params='')
+        return resp
+
+    def reject_gcp_private_endpoint_connection(self, tenant_id, project_id, cluster_id,
+                                              gcp_project_id):
+        url = '{}/v2/organizations/{}/projects/{}/clusters/{}/privateendpoint/connection/{}' \
+            .format(self.internal_url, tenant_id, project_id, cluster_id, gcp_project_id)
+        resp = self.do_internal_request(url, method="DELETE", params='')
+        return resp
