@@ -820,7 +820,7 @@ class CapellaAPI(CommonCapellaAPI):
 
     def get_sgw_databases(self, tenant_id, project_id, cluster_id, backend_id):
         "Get a list of all available sgw databases (app endpoints)"
-        url = '{}/v2/organizations/{}/projects/{}/clusters/{}/backends/{}/databases' \
+        url = '{}/v2/organizations/{}/projects/{}/clusters/{}/backends/{}/databases?page=1&perPage=250' \
               .format(self.internal_url, tenant_id, project_id, cluster_id, backend_id)
         resp = self.do_internal_request(url, method="GET")
         return resp
