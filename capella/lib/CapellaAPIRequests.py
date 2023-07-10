@@ -76,11 +76,17 @@ class CapellaAPIRequests(object):
         self._log.info(api_endpoint)
 
         try:
-            cbc_api_response = self.network_session.get(
-                self.API_BASE_URL + api_endpoint,
-                auth=CapellaAPIAuth(self.SECRET, self.ACCESS),
-                params=params,
-                verify=False, headers=headers)
+            if headers and "Authorization" in headers:
+                cbc_api_response = self.network_session.get(
+                    self.API_BASE_URL + api_endpoint,
+                    params=params,
+                    verify=False, headers=headers)
+            else:
+                cbc_api_response = self.network_session.get(
+                    self.API_BASE_URL + api_endpoint,
+                    auth=CapellaAPIAuth(self.SECRET, self.ACCESS),
+                    params=params,
+                    verify=False, headers=headers)
             self._log.info(cbc_api_response.content)
 
         except requests.exceptions.HTTPError:
@@ -109,11 +115,17 @@ class CapellaAPIRequests(object):
         self._log.debug("Request body: " + str(request_body))
 
         try:
-            cbc_api_response = self.network_session.post(
-                self.API_BASE_URL + api_endpoint,
-                json=request_body,
-                auth=CapellaAPIAuth(self.SECRET, self.ACCESS),
-                verify=False, headers=headers)
+            if headers and "Authorization" in headers:
+                cbc_api_response = self.network_session.post(
+                    self.API_BASE_URL + api_endpoint,
+                    json=request_body,
+                    verify=False, headers=headers)
+            else:
+                cbc_api_response = self.network_session.post(
+                    self.API_BASE_URL + api_endpoint,
+                    json=request_body,
+                    auth=CapellaAPIAuth(self.SECRET, self.ACCESS),
+                    verify=False, headers=headers)
             self._log.debug(cbc_api_response.content)
 
         except requests.exceptions.HTTPError:
@@ -140,11 +152,17 @@ class CapellaAPIRequests(object):
         self._log.debug("Request body: " + str(request_body))
 
         try:
-            cbc_api_response = self.network_session.put(
-                self.API_BASE_URL + api_endpoint,
-                json=request_body,
-                auth=CapellaAPIAuth(self.SECRET, self.ACCESS),
-                verify=False, headers=headers)
+            if headers and "Authorization" in headers:
+                cbc_api_response = self.network_session.put(
+                    self.API_BASE_URL + api_endpoint,
+                    json=request_body,
+                    verify=False, headers=headers)
+            else:
+                cbc_api_response = self.network_session.put(
+                    self.API_BASE_URL + api_endpoint,
+                    json=request_body,
+                    auth=CapellaAPIAuth(self.SECRET, self.ACCESS),
+                    verify=False, headers=headers)
             self._log.debug(cbc_api_response.content)
 
         except requests.exceptions.HTTPError:
@@ -166,11 +184,17 @@ class CapellaAPIRequests(object):
         self._log.debug("Request body: " + str(request_body))
 
         try:
-            cbc_api_response = self.network_session.patch(
-                self.API_BASE_URL + api_endpoint,
-                json=request_body,
-                auth=CapellaAPIAuth(self.SECRET, self.ACCESS),
-                verify=False, headers=headers)
+            if headers and "Authorization" in headers:
+                cbc_api_response = self.network_session.patch(
+                    self.API_BASE_URL + api_endpoint,
+                    json=request_body,
+                    verify=False, headers=headers)
+            else:
+                cbc_api_response = self.network_session.patch(
+                    self.API_BASE_URL + api_endpoint,
+                    json=request_body,
+                    auth=CapellaAPIAuth(self.SECRET, self.ACCESS),
+                    verify=False, headers=headers)
             self._log.debug(cbc_api_response.content)
 
         except requests.exceptions.HTTPError:
@@ -192,17 +216,28 @@ class CapellaAPIRequests(object):
         self._log.debug("Request body: " + str(request_body))
 
         try:
-            if request_body is None:
-                cbc_api_response = self.network_session.delete(
-                    self.API_BASE_URL + api_endpoint,
-                    auth=CapellaAPIAuth(self.SECRET, self.ACCESS),
-                    verify=False, headers=headers)
+            if headers and "Authorization" in headers:
+                if request_body is None:
+                    cbc_api_response = self.network_session.delete(
+                        self.API_BASE_URL + api_endpoint,
+                        verify=False, headers=headers)
+                else:
+                    cbc_api_response = self.network_session.delete(
+                        self.API_BASE_URL + api_endpoint,
+                        json=request_body,
+                        verify=False, headers=headers)
             else:
-                cbc_api_response = self.network_session.delete(
-                    self.API_BASE_URL + api_endpoint,
-                    json=request_body,
-                    auth=CapellaAPIAuth(self.SECRET, self.ACCESS),
-                    verify=False, headers=headers)
+                if request_body is None:
+                    cbc_api_response = self.network_session.delete(
+                        self.API_BASE_URL + api_endpoint,
+                        auth=CapellaAPIAuth(self.SECRET, self.ACCESS),
+                        verify=False, headers=headers)
+                else:
+                    cbc_api_response = self.network_session.delete(
+                        self.API_BASE_URL + api_endpoint,
+                        json=request_body,
+                        auth=CapellaAPIAuth(self.SECRET, self.ACCESS),
+                        verify=False, headers=headers)
 
             self._log.debug(cbc_api_response.content)
 
