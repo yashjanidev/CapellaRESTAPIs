@@ -240,3 +240,55 @@ class CapellaAPI(CommonCapellaAPI):
             .format(self.internal_url, dataplane_id)
         resp = self.request(url, "GET")
         return resp
+
+    def create_sgw_database(self, tenant_id, project_id, database_id, config):
+        url = "{}/v2/organizations/{}/projects/{}/databases/{}/app-services" \
+            .format(self.internal_url, tenant_id, project_id, database_id)
+        resp = self.do_internal_request(url, method="POST",
+                                        params=json.dumps(config))
+        return resp
+
+    def list_sgw_databases(self, tenant_id, project_id, database_id, page=1, perPage=100):
+        url = "{}/v2/organizations/{}/projects/{}/databases/{}/app-services?page={}&perPage={}" \
+            .format(self.internal_url, tenant_id, project_id, database_id, page, perPage)
+        resp = self.do_internal_request(url, method="GET")
+        return resp
+
+    def delete_sgw_database(self, tenant_id, project_id, database_id):
+        url = "{}/v2/organizations/{}/projects/{}/databases/{}/app-services" \
+            .format(self.internal_url, tenant_id, project_id, database_id)
+        resp = self.do_internal_request(url, method="DELETE")
+        return resp
+
+    def add_allowed_ip_sgw(self, tenant_id, project_id, database_id, app_service_id, ip):
+        url = '{}/v2/organizations/{}/projects/{}/databases/{}/app-services/{}/allowip'\
+            .format(self.internal_url, tenant_id, project_id, database_id, app_service_id)
+        body = {"cidr": "{}/32".format(ip), "comment": ""}
+        resp = self.do_internal_request(url, method="POST",
+                                        params=json.dumps(body))
+        return resp
+
+    def delete_allowed_ip_sgw(self, tenant_id, project_id, database_id, app_service_id, ip):
+        url = '{}/v2/organizations/{}/projects/{}/databases/{}/app-services/{}/allowip/{}'\
+            .format(self.internal_url, tenant_id, project_id, database_id, app_service_id, ip)
+        resp = self.do_internal_request(url, method="DELETE")
+        return resp
+
+    def add_admin_user_sgw(self, tenant_id, project_id, database_id, app_service_id, config):
+        url = '{}/v2/organizations/{}/projects/{}/databases/{}/app-services/{}/adminusers' \
+              .format(self.self.internal_url, tenant_id, project_id, database_id, app_service_id)
+        resp = self.do_internal_request(url, method="POST",
+                                        params=json.dumps(config))
+        return resp
+
+    def list_admin_users_sgw(self, tenant_id, project_id, database_id, app_service_id):
+        url = '{}/v2/organizations/{}/projects/{}/databases/{}/app-services/{}/adminusers' \
+              .format(self.self.internal_url, tenant_id, project_id, database_id, app_service_id)
+        resp = self.do_internal_request(url, method="GET")
+        return resp
+
+    def delete_admin_user_sgw(self, tenant_id, project_id, database_id, app_service_id, admin_user):
+        url = '{}/v2/organizations/{}/projects/{}/databases/{}/app-services/{}/adminusers/{}' \
+              .format(self.self.internal_url, tenant_id, project_id, database_id, app_service_id, admin_user)
+        resp = self.do_internal_request(url, method="DELETE")
+        return resp
