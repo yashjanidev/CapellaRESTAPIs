@@ -342,7 +342,23 @@ class CapellaAPI(CommonCapellaAPI):
         url = '{}/v2/organizations/{}/clusters/deploy'.format(
             self.internal_url, tenant_id)
         resp = self.do_internal_request(url, method="POST",
-                                    params=json.dumps(config))
+                                        params=json.dumps(config))
+        return resp
+
+    def upgrade_cluster(self, tenant_id, project_id, cluster_id, config):
+        '''
+        Sample Config
+        {
+            "token": "",
+            "image": "couchbase-cloud-server-7.1.4-3639-v1.0.17",
+            "server": "7.1.4",
+            "releaseID": "1.0.17"
+        }
+        '''
+        url = '{}/v2/organizations/{}/projects/{}/clusters/{}/version'.format(
+            self.internal_url, tenant_id, project_id, cluster_id)
+        resp = self.do_internal_request(url, method="POST",
+                                        params=json.dumps(config))
         return resp
 
     def get_deployment_options(self, tenant_id):
@@ -423,7 +439,7 @@ class CapellaAPI(CommonCapellaAPI):
 
         if seqs_processed:
             url += "?type=full"
-        
+
         resp = self.do_internal_request(url, method="GET")
         return resp
 
@@ -441,7 +457,7 @@ class CapellaAPI(CommonCapellaAPI):
         url = "{}/v2/organizations/{}/projects/{}/clusters/{}/virtualnetworks"\
               .format(self.internal_url, tenant_id, project_id, cluster_id)
         resp = self.do_internal_request(url, method="POST",
-                                    params=json.dumps(private_network_params))
+                                        params=json.dumps(private_network_params))
         return resp
 
     def get_private_network(self, tenant_id, project_id, cluster_id,
@@ -472,8 +488,10 @@ class CapellaAPI(CommonCapellaAPI):
                    "options": {"services": ["data", "query", "index", "search"], "filterKeys": "", "filterValues": "",
                                "mapData": "", "includeData": "", "excludeData": "", "autoCreateBuckets": True,
                                "autoRemoveCollections": True, "forceUpdates": True}}
-        bucket_id = self.get_backups_bucket_id(tenant_id=tenant_id, project_id=project_id, cluster_id=cluster_id,
-                                     bucket_name=bucket_name)
+        bucket_id = self.get_backups_bucket_id(tenant_id=tenant_id,
+                                               project_id=project_id,
+                                               cluster_id=cluster_id,
+                                               bucket_name=bucket_name)
         url = r"{}/v2/organizations/{}/projects/{}/clusters/{}/buckets/{}/restore" \
             .format(self.internal_url, tenant_id, project_id, cluster_id, bucket_id)
         resp = self.do_internal_request(url, method="POST", params=json.dumps(payload))
@@ -504,7 +522,7 @@ class CapellaAPI(CommonCapellaAPI):
         for cluster in all_clusters['items']:
             if cluster['name'] == cluster_name:
                 return cluster
-    
+
     def get_restores(self, tenant_id, project_id, cluster_id, bucket_name):
         """
         method used to obtain list of restores of a given bucket.
@@ -517,12 +535,12 @@ class CapellaAPI(CommonCapellaAPI):
 
         bucket_id = base64.urlsafe_b64encode(bucket_name.encode()).decode()
 
-        url = "{}/v2/organizations/{}/projects/{}/clusters/{}/buckets/{}/restore".format(self.internal_url, 
-        tenant_id, project_id, cluster_id, bucket_id)
+        url = "{}/v2/organizations/{}/projects/{}/clusters/{}/buckets/{}/restore".format(
+            self.internal_url, tenant_id, project_id, cluster_id, bucket_id)
 
         resp = self.do_internal_request(url, method="GET")
         return resp
-        
+
     def get_backups(self, tenant_id, project_id, cluster_id):
         """
         method to obtain a list of the current backups from backups tab
@@ -531,8 +549,8 @@ class CapellaAPI(CommonCapellaAPI):
         :param cluster_id:
         :return: response object
         """
-        url = "{}/v2/organizations/{}/projects/{}/clusters/{}/backups".format(self.internal_url, tenant_id,
-                                                                              project_id, cluster_id)
+        url = "{}/v2/organizations/{}/projects/{}/clusters/{}/backups".format(
+            self.internal_url, tenant_id, project_id, cluster_id)
         resp = self.do_internal_request(url, method="GET")
         return resp
 
@@ -545,8 +563,8 @@ class CapellaAPI(CommonCapellaAPI):
         :param bucket_name:
         :return: response object
         """
-        url = "{}/v2/organizations/{}/projects/{}/clusters/{}/backups".format(self.internal_url, tenant_id,
-                                                                              project_id, cluster_id)
+        url = "{}/v2/organizations/{}/projects/{}/clusters/{}/backups".format(
+            self.internal_url, tenant_id, project_id, cluster_id)
         resp = self.do_internal_request(url, method="GET").content
         for bucket in json.loads(resp)['data']:
             if bucket['data']['bucket'] == bucket_name:
@@ -561,8 +579,8 @@ class CapellaAPI(CommonCapellaAPI):
         :param bucket_name:
         :return: response object
         """
-        url = "{}/v2/organizations/{}/projects/{}/clusters/{}/backup".format(self.internal_url, tenant_id,
-                                                                             project_id, cluster_id)
+        url = "{}/v2/organizations/{}/projects/{}/clusters/{}/backup".format(
+            self.internal_url, tenant_id, project_id, cluster_id)
         payload = {"bucket": bucket_name}
         resp = self.do_internal_request(url, method="POST", params=json.dumps(payload))
         return resp
