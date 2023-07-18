@@ -880,7 +880,7 @@ class CommonCapellaAPI(
             self.internal_url, organizationID)
         params = {
             "name": name,
-            "roles": roles,
+            "organizationRoles": roles,
             "keyType": keyType,
             "description": description
         }
