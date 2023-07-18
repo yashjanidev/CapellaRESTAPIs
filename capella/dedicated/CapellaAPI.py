@@ -1012,3 +1012,9 @@ class CapellaAPI(CommonCapellaAPI):
             .format(self.internal_url, tenant_id, project_id, cluster_id, gcp_project_id)
         resp = self.do_internal_request(url, method="DELETE", params='')
         return resp
+
+    def update_cluster_sepcs(self, tenant_id, project_id, cluster_id, specs):
+        url = '{}/v2/organizations/{}/projects/{}/clusters/{}/specs' \
+            .format(self.internal_url, tenant_id, project_id, cluster_id)
+        resp = self.do_internal_request(url, method="POST", params=json.dumps(specs))
+        return resp
