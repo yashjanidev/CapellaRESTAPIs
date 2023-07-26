@@ -28,7 +28,7 @@ class CommonCapellaAPI(CapellaAPIRequests):
         return resp
 
     def get_observability_system_metric(self, cluster_id, metric_name):
-        url = self.internal_url + "/internal/support/clusters/{}/metrics{}/dp-ingestor/query".format(cluster_id, metric_name)
+        url = self.internal_url + "/internal/support/clusters/{}/metrics/{}/dp-ingestor/query".format(cluster_id, metric_name)
         resp = self._urllib_request(url, "GET",
                                     headers=self.cbc_api_request_headers)
         return resp
