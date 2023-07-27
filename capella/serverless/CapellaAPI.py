@@ -241,20 +241,20 @@ class CapellaAPI(CommonCapellaAPI):
         resp = self.request(url, "GET")
         return resp
 
-    def create_sgw_database(self, tenant_id, project_id, database_id, config):
+    def create_sgw_backend(self, tenant_id, project_id, database_id, config):
         url = "{}/v2/organizations/{}/projects/{}/databases/{}/app-services" \
             .format(self.internal_url, tenant_id, project_id, database_id)
         resp = self.do_internal_request(url, method="POST",
                                         params=json.dumps(config))
         return resp
 
-    def list_sgw_databases(self, tenant_id, project_id, database_id, page=1, perPage=100):
+    def list_sgw_backends(self, tenant_id, project_id, database_id, page=1, perPage=100):
         url = "{}/v2/organizations/{}/projects/{}/databases/{}/app-services?page={}&perPage={}" \
             .format(self.internal_url, tenant_id, project_id, database_id, page, perPage)
         resp = self.do_internal_request(url, method="GET")
         return resp
 
-    def delete_sgw_database(self, tenant_id, project_id, database_id):
+    def delete_sgw_backend(self, tenant_id, project_id, database_id):
         url = "{}/v2/organizations/{}/projects/{}/databases/{}/app-services" \
             .format(self.internal_url, tenant_id, project_id, database_id)
         resp = self.do_internal_request(url, method="DELETE")
@@ -266,6 +266,17 @@ class CapellaAPI(CommonCapellaAPI):
         body = {"cidr": "{}/32".format(ip), "comment": ""}
         resp = self.do_internal_request(url, method="POST",
                                         params=json.dumps(body))
+        return resp
+
+    def allow_my_ip_sgw(self, tenant_id, project_id, database_id, app_service_id):
+        url = '{}/v2/organizations/{}/projects/{}/databases/{}/app-services/{}/allowip'\
+            .format(self.internal_url, tenant_id, project_id, database_id, app_service_id)
+        resp = self._urllib_request("https://ifconfig.me", method="GET")
+        if resp.status_code != 200:
+            raise Exception("Fetch public IP failed!")
+        body = {"cidr": "{}/32".format(resp.content.decode()), "comment": ""}
+        resp = self.do_internal_request(url, method="POST",
+                                    params=json.dumps(body))
         return resp
 
     def delete_allowed_ip_sgw(self, tenant_id, project_id, database_id, app_service_id, ip):
@@ -291,4 +302,76 @@ class CapellaAPI(CommonCapellaAPI):
         url = '{}/v2/organizations/{}/projects/{}/databases/{}/app-services/{}/adminusers/{}' \
               .format(self.self.internal_url, tenant_id, project_id, database_id, app_service_id, admin_user)
         resp = self.do_internal_request(url, method="DELETE")
+        return resp
+
+    def create_sgw_database(self, tenant_id, project_id, database_id, app_service_id, config):
+        url = '{}/v2/organizations/{}/projects/{}/databases/{}/app_services/{}/databases' \
+              .format(self.internal_url, tenant_id, project_id, database_id, app_service_id)
+        resp = self.do_internal_request(url, method="POST",
+                                        params=json.dumps(config))
+        return resp
+
+    def list_sgw_databases(self, tenant_id, project_id, database_id, app_service_id, page=1, perPage=100):
+        url = '{}/v2/organizations/{}/projects/{}/databases/{}/app_services/{}/databases?page={}&perPage={}' \
+              .format(self.internal_url, tenant_id, project_id, database_id, app_service_id, page, perPage)
+        resp = self.do_internal_request(url, method="GET")
+        return resp
+
+    def delete_sgw_database(self, tenant_id, project_id, database_id, app_service_id, db_name):
+        url = "{}/v2/organizations/{}/projects/{}/databases/{}/app-services/{}/databases/{}" \
+            .format(self.internal_url, tenant_id, project_id, database_id, app_service_id, db_name)
+        resp = self.do_internal_request(url, method="DELETE")
+        return resp
+
+    def resume_sgw_database(self, tenant_id, project_id, database_id, app_service_id, db_name):
+        "Resume the sgw database (app endpoint)"
+        url = '{}/v2/organizations/{}/projects/{}/databases/{}/app-services/{}/databases/{}/online' \
+              .format(self.internal_url, tenant_id, project_id, database_id, app_service_id, db_name)
+        resp = self.do_internal_request(url, method="POST")
+        return resp
+
+    def pause_sgw_database(self, tenant_id, project_id, database_id, app_service_id, db_name):
+        "Pause the sgw database (app endpoint)"
+        url = '{}/v2/organizations/{}/projects/{}/databases/{}/app-services/{}/databases/{}/offline' \
+              .format(self.internal_url, tenant_id, project_id, database_id, app_service_id, db_name)
+        resp = self.do_internal_request(url, method="POST")
+        return resp
+
+    def update_sync_function_sgw(self, tenant_id, project_id, database_id, app_service_id, db_name, config):
+        url = '{}/v2/organizations/{}/projects/{}/databases/{}/app-services/{}/databases/{}/sync' \
+              .format(self.internal_url, tenant_id, project_id, database_id, app_service_id, db_name)
+        resp = self.do_internal_request(url, method="POST",
+                                        params=json.dumps(config))
+        return resp
+
+    def add_app_role_sgw(self, tenant_id, project_id, database_id, app_service_id, db_name, config):
+        url = '{}/v2/organizations/{}/projects/{}/databases/{}/app-services/{}/databases/{}/roles' \
+              .format(self.internal_url, tenant_id, project_id, database_id, app_service_id, db_name)
+        resp = self.do_internal_request(url, method="POST",
+                                        params=json.dumps(config))
+        return resp
+
+    def add_user_sgw(self, tenant_id, project_id, database_id, app_service_id, db_name, config):
+        url = '{}/v2/organizations/{}/projects/{}/databases/{}/app-services/{}/databases/{}/users' \
+              .format(self.internal_url, tenant_id, project_id, database_id, app_service_id, db_name)
+        resp = self.do_internal_request(url, method="POST",
+                                        params=json.dumps(config))
+        return resp
+
+    def get_sgw_links(self, tenant_id, project_id, database_id, app_service_id, db_name):
+        url = '{}/v2/organizations/{}/projects/{}/databases/{}/app-services/{}/databases/{}/connect' \
+              .format(self.internal_url, tenant_id, project_id, database_id, app_service_id, db_name)
+        resp = self.do_internal_request(url, method="GET", params='')
+        return resp
+
+    def get_sgw_info(self, tenant_id, project_id, database_id, app_service_id):
+        url = '{}/v2/organizations/{}/projects/{}/databases/{}/app-services/{}' \
+              .format(self.internal_url, tenant_id, project_id, database_id, app_service_id)
+        resp = self.do_internal_request(url, method="GET", params='')
+        return resp
+
+    def get_sgw_version(self, tenant_id, project_id, database_id, app_service_id):
+        url = '{}/v2/organizations/{}/projects/{}/databases/{}/app-services/{}/version' \
+              .format(self.internal_url, tenant_id, project_id, database_id, app_service_id)
+        resp = self.do_internal_request(url, method="GET", params='')
         return resp
