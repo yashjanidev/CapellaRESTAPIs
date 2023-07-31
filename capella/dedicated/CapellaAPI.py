@@ -361,7 +361,7 @@ class CapellaAPI(CommonCapellaAPI):
                                         params=json.dumps(config))
         return resp
 
-    def get_deployment_options(self, tenant_id):
+    def get_deployment_options(self, tenant_id, provider='aws'):
         """
         Get deployment options, including a suggested CIDR for deploying a
         cluster.
@@ -369,12 +369,12 @@ class CapellaAPI(CommonCapellaAPI):
         Example use:
 
         ```
-        resp = client.get_deployment_options(tenant_id)
+        resp = client.get_deployment_options(tenant_id, provider='aws')
         suggestedCidr = resp.json().get('suggestedCidr')
         ```
         """
-        url = '{}/v2/organizations/{}/clusters/deployment-options' \
-              .format(self.internal_url, tenant_id)
+        url = '{}/v2/organizations/{}/clusters/deployment-options?provider={}' \
+              .format(self.internal_url, tenant_id, provider)
         resp = self.do_internal_request(url, method="GET")
         return resp
 
