@@ -49,6 +49,24 @@ class CommonCapellaAPI(CapellaAPIRequests):
                                     headers=self.cbc_api_request_headers)
         return resp
 
+    def get_all_distribution_endpoints(self):
+        url = self.internal_url + "/internal/support/distribution-points"
+        resp = self._urllib_request(url, "GET",
+                                    headers=self.cbc_api_request_headers)
+        return resp
+
+    def get_distribution_endpoint(self, id):
+        url = self.internal_url + "/internal/support/distribution-points/{}".format(id)
+        resp = self._urllib_request(url, "GET",
+                                    headers=self.cbc_api_request_headers)
+        return resp
+
+    def delete_distribution_point(self, id):
+        url = self.internal_url + "/internal/support/distribution-points/{}".format(id)
+        resp = self.do_internal_request(url, "DELETE",
+                                        headers=self.cbc_api_request_headers)
+        return resp
+
     def signup_user(self, full_name, email, password, tenant_name, token=None):
         """
         Invite a new user to the tenant
