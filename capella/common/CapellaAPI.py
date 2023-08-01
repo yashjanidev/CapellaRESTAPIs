@@ -33,6 +33,16 @@ class CommonCapellaAPI(CapellaAPIRequests):
                                     headers=self.cbc_api_request_headers)
         return resp
 
+    def deploy_distribution_point(self, provider, region):
+        body = {
+            'provider': provider,
+            'region': region
+        }
+        url = self.internal_url + '/internal/support/distribution-points'
+        resp = self._urllib_request(url, "POST", params=json.dumps(body),
+                                    headers=self.cbc_api_request_headers)
+        return resp
+
     def get_cluster_tasks(self, cluster_id):
         url = self.internal_url + "/internal/support/clusters/{}/pools/default/tasks".format(cluster_id)
         resp = self._urllib_request(url, "GET",
