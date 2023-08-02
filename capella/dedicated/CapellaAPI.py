@@ -172,6 +172,11 @@ class CapellaAPI(CommonCapellaAPI):
         resp = self.do_internal_request(url, method="PUT", params=json.dumps(bucket_params))
         return resp
 
+    def get_cluster_specs(self, tenant_id, project_id, cluster_id):
+        url = f'{self.internal_url}/v2/organizations/{tenant_id}/projects/{project_id}/clusters/{cluster_id}/specs'
+        resp = self.do_internal_request(url, method="GET", params='')
+        return resp
+
     def jobs(self, project_id, tenant_id, cluster_id):
         url = '{}/v2/organizations/{}/projects/{}/clusters/{}'\
             .format(self.internal_url, tenant_id, project_id, cluster_id)
