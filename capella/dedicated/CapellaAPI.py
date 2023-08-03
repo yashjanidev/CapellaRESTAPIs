@@ -173,7 +173,8 @@ class CapellaAPI(CommonCapellaAPI):
         return resp
 
     def get_cluster_specs(self, tenant_id, project_id, cluster_id):
-        url = f'{self.internal_url}/v2/organizations/{tenant_id}/projects/{project_id}/clusters/{cluster_id}/specs'
+        url = "{}/v2/organizations/{}/projects/{}/clusters/{}/specs" \
+            .format(self.internal_url, tenant_id, project_id, cluster_id)
         resp = self.do_internal_request(url, method="GET", params='')
         return resp
 

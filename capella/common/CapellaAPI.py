@@ -34,7 +34,8 @@ class CommonCapellaAPI(CapellaAPIRequests):
         return resp
 
     def deployement_jobs(self, cluster_id):
-        url = self.internal_url + f"/internal/support/clusters/{cluster_id}/deployment-jobs"
+        url = "{}/internal/support/clusters/{}/deployment-jobs".format(
+            self.internal_url, cluster_id)
         resp = self._urllib_request(url, "GET",
                                     headers=self.cbc_api_request_headers)
         return resp
