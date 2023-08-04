@@ -11,12 +11,15 @@ APIs are segregated according to class for better code management.
 """
 
 
-class OrganizationAPIs(CapellaAPIRequests):
+class OrganizationOperationsAPIs(CapellaAPIRequests):
 
     def __init__(self, url, secret, access):
-        super(OrganizationAPIs, self).__init__(url, secret, access)
-        self._log = logging.getLogger(__name__)
+        super(OrganizationOperationsAPIs, self).__init__(url, secret, access)
+        self.org_ops_API_log = logging.getLogger(__name__)
         self.organization_endpoint = "/v4/organizations"
+        self.apikeys_endpoint = self.organization_endpoint + "/{}/apikeys"
+        self.users_endpoint = self.organization_endpoint + "/{}/users"
+        self.project_endpoint = self.organization_endpoint + "/{}/projects"
 
     """
     Method fetches the info of the organization mentioned.
@@ -30,7 +33,7 @@ class OrganizationAPIs(CapellaAPIRequests):
     """
 
     def fetch_organization_info(self, organizationId, headers=None, **kwargs):
-        self._log.info(
+        self.org_ops_API_log.info(
             "Fetching info for organization {}".format(organizationId))
         if kwargs:
             params = kwargs
@@ -51,7 +54,7 @@ class OrganizationAPIs(CapellaAPIRequests):
     """
 
     def list_organizations(self, headers=None, **kwargs):
-        self._log.info("Listing all the organizations")
+        self.org_ops_API_log.info("Listing all the organizations")
         if kwargs:
             params = kwargs
         else:
@@ -59,14 +62,6 @@ class OrganizationAPIs(CapellaAPIRequests):
         resp = self.capella_api_get(
             self.organization_endpoint, params, headers)
         return resp
-
-
-class APIKeysAPIs(CapellaAPIRequests):
-
-    def __init__(self, url, secret, access):
-        super(APIKeysAPIs, self).__init__(url, secret, access)
-        self.apikeys_endpoint = "/v4/organizations/{}/apikeys"
-        self._log = logging.getLogger(__name__)
 
     """
     Method to creates a new API key under an organization.
@@ -110,7 +105,7 @@ class APIKeysAPIs(CapellaAPIRequests):
             resources=[],
             headers=None,
             **kwargs):
-        self._log.info("Creating a new API key - {}".format(name))
+        self.org_ops_API_log.info("Creating a new API key - {}".format(name))
         params = {
             "name": name,
             "organizationRoles": organizationRoles,
@@ -149,7 +144,7 @@ class APIKeysAPIs(CapellaAPIRequests):
             sortDirection=None,
             headers=None,
             **kwargs):
-        self._log.info(
+        self.org_ops_API_log.info(
             "List all the API key for Organization {}".format(organizationId))
         params = {}
         if page:
@@ -185,7 +180,7 @@ class APIKeysAPIs(CapellaAPIRequests):
             accessKey,
             headers=None,
             **kwargs):
-        self._log.info(
+        self.org_ops_API_log.info(
             "Fetching API key info for {} in organization {}".format(
                 accessKey, organizationId))
         if kwargs:
@@ -213,7 +208,7 @@ class APIKeysAPIs(CapellaAPIRequests):
             accessKey,
             headers=None,
             **kwargs):
-        self._log.info(
+        self.org_ops_API_log.info(
             "Deleting API key {} in organization {}".format(
                 accessKey, organizationId))
         if kwargs:
@@ -223,14 +218,6 @@ class APIKeysAPIs(CapellaAPIRequests):
         resp = self.capella_api_del("{}/{}".format(self.apikeys_endpoint.format(
             organizationId), accessKey), params, headers)
         return resp
-
-
-class UsersAPIs(CapellaAPIRequests):
-
-    def __init__(self, url, secret, access):
-        super(UsersAPIs, self).__init__(url, secret, access)
-        self._log = logging.getLogger(__name__)
-        self.users_endpoint = "/v4/organizations/{}/users"
 
     """
     Method send invites to the user under organization mentioned.
@@ -263,7 +250,7 @@ class UsersAPIs(CapellaAPIRequests):
             resources=[],
             headers=None,
             **kwargs):
-        self._log.info(
+        self.org_ops_API_log.info(
             "Inviting user {} to organization {} with role {}".foramt(
                 email, organizationId, organizationRole))
         params = {
@@ -309,7 +296,7 @@ class UsersAPIs(CapellaAPIRequests):
             projectId=None,
             headers=None,
             **kwargs):
-        self._log.info(
+        self.org_ops_API_log.info(
             "List all the users for Organization {}".format(organizationId))
 
         params = {}
@@ -344,7 +331,7 @@ class UsersAPIs(CapellaAPIRequests):
     """
 
     def fetch_user_info(self, organizationId, userId, headers=None, **kwargs):
-        self._log.info(
+        self.org_ops_API_log.info(
             "Fetching user info for {} in organization {}".format(
                 userId, organizationId))
 
@@ -419,7 +406,7 @@ class UsersAPIs(CapellaAPIRequests):
             update_info,
             headers=None,
             **kwargs):
-        self._log.info(
+        self.org_ops_API_log.info(
             "Updating user {} in organization {}".format(
                 userId, organizationId))
 
@@ -440,7 +427,7 @@ class UsersAPIs(CapellaAPIRequests):
     """
 
     def delete_user(self, organizationId, userId, headers=None, **kwargs):
-        self._log.info(
+        self.org_ops_API_log.info(
             "Deleting user {} in organization {}".format(
                 userId, organizationId))
         if kwargs:
@@ -450,14 +437,6 @@ class UsersAPIs(CapellaAPIRequests):
         resp = self.capella_api_del("{}/{}".format(self.users_endpoint.format(
             organizationId), userId), params, headers)
         return resp
-
-
-class ProjectAPIs(CapellaAPIRequests):
-
-    def __init__(self, url, secret, access):
-        super(ProjectAPIs, self).__init__(url, secret, access)
-        self._log = logging.getLogger(__name__)
-        self.project_endpoint = "/v4/organizations/{}/projects"
 
     """
     Method creates a project under organization mentioned.
@@ -478,7 +457,7 @@ class ProjectAPIs(CapellaAPIRequests):
             description="",
             headers=None,
             **kwargs):
-        self._log.info(
+        self.org_ops_API_log.info(
             "Creating Project {} in organization {}".format(
                 name, organizationId))
         params = {
@@ -520,7 +499,7 @@ class ProjectAPIs(CapellaAPIRequests):
             sortDirection=None,
             headers=None,
             **kwargs):
-        self._log.info(
+        self.org_ops_API_log.info(
             "List all the project for Organization {}".format(organizationId))
 
         params = {}
@@ -560,7 +539,7 @@ class ProjectAPIs(CapellaAPIRequests):
             projectId,
             headers=None,
             **kwargs):
-        self._log.info(
+        self.org_ops_API_log.info(
             "Fetching project info for {} in organization {}".format(
                 projectId, organizationId))
         if kwargs:
@@ -594,7 +573,7 @@ class ProjectAPIs(CapellaAPIRequests):
             ifmatch,
             headers=None,
             **kwargs):
-        self._log.info(
+        self.org_ops_API_log.info(
             "Updating project {} in organization {}".format(
                 projectId, organizationId))
         params = {
@@ -633,7 +612,7 @@ class ProjectAPIs(CapellaAPIRequests):
             projectId,
             headers=None,
             **kwargs):
-        self._log.info(
+        self.org_ops_API_log.info(
             "Deleting project {} in organization {}".format(
                 projectId, organizationId))
         if kwargs:
@@ -645,12 +624,7 @@ class ProjectAPIs(CapellaAPIRequests):
         return resp
 
 
-class CommonCapellaAPI(
-        ProjectAPIs,
-        UsersAPIs,
-        APIKeysAPIs,
-        OrganizationAPIs,
-        CapellaAPIRequests):
+class CommonCapellaAPI(CapellaAPIRequests):
 
     def __init__(self, url, secret, access, user, pwd,
                  TOKEN_FOR_INTERNAL_SUPPORT=None):
@@ -658,13 +632,14 @@ class CommonCapellaAPI(
         self.user = user
         self.pwd = pwd
         self.internal_url = url.replace("https://cloud", "https://", 1)
-        self._log = logging.getLogger(__name__)
+        self.commonCapellaAPI_log = logging.getLogger(__name__)
         self.perPage = 100
         self.TOKEN_FOR_INTERNAL_SUPPORT = TOKEN_FOR_INTERNAL_SUPPORT
         self.cbc_api_request_headers = {
             'Authorization': 'Bearer %s' % self.TOKEN_FOR_INTERNAL_SUPPORT,
             'Content-Type': 'application/json'
         }
+        self.org_ops_apis = OrganizationOperationsAPIs(url, secret, access)
 
     def trigger_log_collection(self, cluster_id, log_id={}):
         url = self.internal_url + \
@@ -757,7 +732,6 @@ class CommonCapellaAPI(
         resp = self.do_internal_request(url, method="DELETE")
         return resp
     """
-
     def create_circuit_breaker(self, cluster_id, duration_seconds=-1):
         """
         Create a deployment circuit breaker for a cluster, which prevents
@@ -876,6 +850,8 @@ class CommonCapellaAPI(
             roles=["organizationOwner"],
             keyType="machine",
             description=""):
+        self.commonCapellaAPI_log.info("Creating V2 control plane API key {"
+                                       "0} with role {1}".format(name, roles))
         url = "{}/v2/organizations/{}/apikeys".format(
             self.internal_url, organizationID)
         params = {
@@ -886,4 +862,12 @@ class CommonCapellaAPI(
         }
         resp = self.do_internal_request(
             url, method="POST", params=json.dumps(params))
+        return resp
+
+    def delete_control_plane_api_key(self, organizationID, accesskey):
+        self.commonCapellaAPI_log.info("Deleting V2 control plane API key {"
+                                       "0}".format(accesskey))
+        url = "{}/v2/organizations/{}/apikeys/{}".format(
+            self.internal_url, organizationID, accesskey)
+        resp = self.do_internal_request(url, method="DELETE")
         return resp

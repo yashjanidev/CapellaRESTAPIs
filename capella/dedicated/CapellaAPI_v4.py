@@ -9,12 +9,25 @@ from ..lib.CapellaAPIRequests import CapellaAPIRequests
 from ..common.CapellaAPI_v4 import CommonCapellaAPI
 
 
-class ClusterAPIs(CapellaAPIRequests):
+class ClusterOperationsAPIs(CapellaAPIRequests):
 
     def __init__(self, url, secret, access):
-        super(ClusterAPIs, self).__init__(url, secret, access)
-        self._log = logging.getLogger(__name__)
-        self.cluster_endpoint = "/v4/organizations/{}/projects/{}/clusters"
+        super(ClusterOperationsAPIs, self).__init__(url, secret, access)
+        self.cluster_ops_API_log = logging.getLogger(__name__)
+        organization_endpoint = "/v4/organizations"
+        self.cluster_endpoint = organization_endpoint + \
+                                "/{}/projects/{}/clusters"
+        self.allowedCIDR_endpoint = organization_endpoint + \
+                                    "/{}/projects/{}/clusters/{}/allowedcidrs"
+        self.db_user_endpoint = organization_endpoint + \
+                                "/{}/projects/{}/clusters/{}/users"
+        self.bucket_endpoint = organization_endpoint + \
+                               "/{}/projects/{}/clusters/{}/buckets"
+        self.scope_endpoint = organization_endpoint + \
+                              "/{}/projects/{}/clusters/{}/buckets/{}/scopes"
+        self.collection_endpoint = organization_endpoint + \
+                                   "/{}/projects/{}/clusters/{}/buckets/{" \
+                                   "}/scopes/{}/collections"
 
     """
     Method creates a cluster under project and organization mentioned.
@@ -91,7 +104,7 @@ class ClusterAPIs(CapellaAPIRequests):
             description="",
             headers=None,
             **kwargs):
-        self._log.info(
+        self.cluster_ops_API_log.info(
             "Creating Cluster {} in project {} in organization {}".format(
                 name, projectId, organizationId))
         params = {
@@ -143,7 +156,7 @@ class ClusterAPIs(CapellaAPIRequests):
             sortDirection=None,
             headers=None,
             **kwargs):
-        self._log.info(
+        self.cluster_ops_API_log.info(
             "List all the cluster for project {} in organization {}".format(
                 projectId, organizationId))
         params = {}
@@ -187,7 +200,7 @@ class ClusterAPIs(CapellaAPIRequests):
             clusterId,
             headers=None,
             **kwargs):
-        self._log.info(
+        self.cluster_ops_API_log.info(
             "Fetching cluster info for {} in project {} in organization {}".format(
                 clusterId, projectId, organizationId))
         if kwargs:
@@ -264,7 +277,7 @@ class ClusterAPIs(CapellaAPIRequests):
             ifmatch,
             headers=None,
             **kwargs):
-        self._log.info(
+        self.cluster_ops_API_log.info(
             "Updating cluster {} in project {} in organization {}".format(
                 clusterId, projectId, organizationId))
         params = {
@@ -314,7 +327,7 @@ class ClusterAPIs(CapellaAPIRequests):
             clusterId,
             headers=None,
             **kwargs):
-        self._log.info(
+        self.cluster_ops_API_log.info(
             "Deleting cluster {} in project {} in organization {}".format(
                 clusterId, projectId, organizationId))
         if kwargs:
@@ -330,14 +343,6 @@ class ClusterAPIs(CapellaAPIRequests):
             params,
             headers)
         return resp
-
-
-class AllowedCIDRAPIs(CapellaAPIRequests):
-
-    def __init__(self, url, secret, access):
-        super(AllowedCIDRAPIs, self).__init__(url, secret, access)
-        self._log = logging.getLogger(__name__)
-        self.allowedCIDR_endpoint = "/v4/organizations/{}/projects/{}/clusters/{}/allowedcidrs"
 
     """
     Method adds a CIDR to allowed CIDRs list of the specified cluster.
@@ -366,7 +371,7 @@ class AllowedCIDRAPIs(CapellaAPIRequests):
             expiresAt="",
             headers=None,
             **kwargs):
-        self._log.info(
+        self.cluster_ops_API_log.info(
             "Adding {} CIDR block to {} cluster allowed CIDR list".format(
                 cidr, clusterId))
         params = {
@@ -412,7 +417,7 @@ class AllowedCIDRAPIs(CapellaAPIRequests):
             sortDirection=None,
             headers=None,
             **kwargs):
-        self._log.info(
+        self.cluster_ops_API_log.info(
             "List all the allowed CIDRs for cluster {}".format(clusterId))
         params = {}
         if page:
@@ -454,7 +459,7 @@ class AllowedCIDRAPIs(CapellaAPIRequests):
             allowedCidrId,
             headers=None,
             **kwargs):
-        self._log.info(
+        self.cluster_ops_API_log.info(
             "Fetching allowed CIDR info for {} in cluster {}".format(
                 allowedCidrId, clusterId))
         if kwargs:
@@ -494,7 +499,7 @@ class AllowedCIDRAPIs(CapellaAPIRequests):
             allowedCidrId,
             headers=None,
             **kwargs):
-        self._log.info(
+        self.cluster_ops_API_log.info(
             "Deleting allowed CIDR {} from cluster {}".format(
                 allowedCidrId, clusterId))
         if kwargs:
@@ -511,14 +516,6 @@ class AllowedCIDRAPIs(CapellaAPIRequests):
             params,
             headers)
         return resp
-
-
-class DatabaseUsersAPIs(CapellaAPIRequests):
-
-    def __init__(self, url, secret, access):
-        super(DatabaseUsersAPIs, self).__init__(url, secret, access)
-        self._log = logging.getLogger(__name__)
-        self.db_user_endpoint = "/v4/organizations/{}/projects/{}/clusters/{}/users"
 
     """
     Method creates a new database user for a cluster.
@@ -561,7 +558,7 @@ class DatabaseUsersAPIs(CapellaAPIRequests):
             password="",
             headers=None,
             **kwargs):
-        self._log.info(
+        self.cluster_ops_API_log.info(
             "Creating Database User {} in cluster {}".format(
                 name, clusterId))
         params = {
@@ -606,7 +603,7 @@ class DatabaseUsersAPIs(CapellaAPIRequests):
             sortDirection=None,
             headers=None,
             **kwargs):
-        self._log.info(
+        self.cluster_ops_API_log.info(
             "List all the database users for cluster {}".format(clusterId))
         params = {}
         if page:
@@ -648,7 +645,7 @@ class DatabaseUsersAPIs(CapellaAPIRequests):
             userId,
             headers=None,
             **kwargs):
-        self._log.info(
+        self.cluster_ops_API_log.info(
             "Fetching Database user info for {} present in cluster {}".format(
                 userId, clusterId))
         if kwargs:
@@ -706,7 +703,7 @@ class DatabaseUsersAPIs(CapellaAPIRequests):
             ifmatch,
             headers=None,
             **kwargs):
-        self._log.info(
+        self.cluster_ops_API_log.info(
             "Updating database user {} in cluster {}".format(
                 userId, clusterId))
         params = {
@@ -755,7 +752,7 @@ class DatabaseUsersAPIs(CapellaAPIRequests):
             userId,
             headers=None,
             **kwargs):
-        self._log.info(
+        self.cluster_ops_API_log.info(
             "Deleting database user {} from cluster {}".format(
                 userId, clusterId))
         if kwargs:
@@ -771,15 +768,7 @@ class DatabaseUsersAPIs(CapellaAPIRequests):
                 userId),
             params,
             headers)
-        return resp
-
-
-class BucketAPIs(CapellaAPIRequests):
-
-    def __init__(self, url, secret, access):
-        super(BucketAPIs, self).__init__(url, secret, access)
-        self._log = logging.getLogger(__name__)
-        self.bucket_endpoint = "/v4/organizations/{}/projects/{}/clusters/{}/buckets"
+        return resp        
 
     """
     Method creates a new bucket in a cluster.
@@ -862,7 +851,7 @@ class BucketAPIs(CapellaAPIRequests):
             evictionPolicy="",
             headers=None,
             **kwargs):
-        self._log.info(
+        self.cluster_ops_API_log.info(
             "Creating bucket {} in cluster {}".format(
                 name, clusterId))
         params = {
@@ -912,7 +901,7 @@ class BucketAPIs(CapellaAPIRequests):
             clusterId,
             headers=None,
             **kwargs):
-        self._log.info(
+        self.cluster_ops_API_log.info(
             "List all the buckets in the cluster {}".format(clusterId))
         if kwargs:
             params = kwargs
@@ -947,7 +936,7 @@ class BucketAPIs(CapellaAPIRequests):
             bucketId,
             headers=None,
             **kwargs):
-        self._log.info(
+        self.cluster_ops_API_log.info(
             "Fetching bucket info for {} present in cluster {}".format(
                 bucketId, clusterId))
         if kwargs:
@@ -1007,7 +996,7 @@ class BucketAPIs(CapellaAPIRequests):
             ifmatch,
             headers=None,
             **kwargs):
-        self._log.info(
+        self.cluster_ops_API_log.info(
             "Updating bucket {} in cluster {}".format(
                 bucketId, clusterId))
         params = {
@@ -1054,7 +1043,7 @@ class BucketAPIs(CapellaAPIRequests):
             bucketId,
             headers=None,
             **kwargs):
-        self._log.info(
+        self.cluster_ops_API_log.info(
             "Deleting bucket {} in cluster {}".format(
                 bucketId, clusterId))
         if kwargs:
@@ -1064,14 +1053,6 @@ class BucketAPIs(CapellaAPIRequests):
         resp = self.capella_api_del("{}/{}".format(self.bucket_endpoint.format(
             organizationId, projectId, clusterId), bucketId), params, headers)
         return resp
-
-
-class ScopeAPIs(CapellaAPIRequests):
-
-    def __init__(self, url, secret, access):
-        super(ScopeAPIs, self).__init__(url, secret, access)
-        self._log = logging.getLogger(__name__)
-        self.scope_endpoint = "/v4/organizations/{}/projects/{}/clusters/{}/buckets/{}/scopes"
 
     """
     Method create's a scope in the specified bucket in the cluster.
@@ -1096,7 +1077,7 @@ class ScopeAPIs(CapellaAPIRequests):
             name,
             headers=None,
             **kwargs):
-        self._log.info(
+        self.cluster_ops_API_log.info(
             "Creating scope {} in bucket {} in cluster {}".format(
                 name, bucketId, clusterId))
         params = {
@@ -1129,7 +1110,7 @@ class ScopeAPIs(CapellaAPIRequests):
             bucketId,
             headers=None,
             **kwargs):
-        self._log.info(
+        self.cluster_ops_API_log.info(
             "List all the scopes for bucket {} in cluster {}".format(
                 bucketId, clusterId))
         if kwargs:
@@ -1163,7 +1144,7 @@ class ScopeAPIs(CapellaAPIRequests):
             scopeName,
             headers=None,
             **kwargs):
-        self._log.info(
+        self.cluster_ops_API_log.info(
             "Fetching scope info for {} in bucket {} in cluster {}".format(
                 scopeName, bucketId, clusterId))
         if kwargs:
@@ -1205,7 +1186,7 @@ class ScopeAPIs(CapellaAPIRequests):
             scopeName,
             headers=None,
             **kwargs):
-        self._log.info(
+        self.cluster_ops_API_log.info(
             "Deleting scope {} in bucket {} in cluster {}".format(
                 scopeName, bucketId, clusterId))
         if kwargs:
@@ -1224,14 +1205,6 @@ class ScopeAPIs(CapellaAPIRequests):
             headers)
         return resp
 
-
-class CollectionAPIs(CapellaAPIRequests):
-
-    def __init__(self, url, secret, access):
-        super(CollectionAPIs, self).__init__(url, secret, access)
-        self._log = logging.getLogger(__name__)
-        self.collection_endpoint = "/v4/organizations/{}/projects/{}/clusters/{}/buckets/{}/scopes/{}/collections"
-
     """
     Method create's a collection in the specified scope of a bucket in the cluster.
     In order to access this endpoint, the provided API key must have at least one of the roles referenced below:
@@ -1249,7 +1222,7 @@ class CollectionAPIs(CapellaAPIRequests):
 
     def create_collection(self, organizationId, projectId, clusterId, bucketId,
                           scopeName, name, maxTTL=-1, headers=None, **kwargs):
-        self._log.info(
+        self.cluster_ops_API_log.info(
             "Creating collection {} in scope {} in bucket {} in cluster {}".format(
                 name, scopeName, bucketId, clusterId))
         params = {
@@ -1293,7 +1266,7 @@ class CollectionAPIs(CapellaAPIRequests):
             scopeName,
             headers=None,
             **kwargs):
-        self._log.info(
+        self.cluster_ops_API_log.info(
             "List all the collections in the scope {} in bucket {} in cluster {}".format(
                 scopeName, bucketId, clusterId))
         if kwargs:
@@ -1336,7 +1309,7 @@ class CollectionAPIs(CapellaAPIRequests):
             collectionName,
             headers=None,
             **kwargs):
-        self._log.info(
+        self.cluster_ops_API_log.info(
             "Fetching info for the collection {} in scope {} in bucket {} in cluster {}".format(
                 collectionName, scopeName, bucketId, clusterId))
         if kwargs:
@@ -1373,7 +1346,7 @@ class CollectionAPIs(CapellaAPIRequests):
 
     def delete_collection(self, organizationId, projectId, clusterId, bucketId,
                           scopeName, collectionName, headers=None, **kwargs):
-        self._log.info(
+        self.cluster_ops_API_log.info(
             "Deleting the collection {} in scope {} in bucket {} in cluster {}".format(
                 collectionName, scopeName, bucketId, clusterId))
         if kwargs:
@@ -1394,37 +1367,20 @@ class CollectionAPIs(CapellaAPIRequests):
         return resp
 
 
-class CapellaAPI(
-        CollectionAPIs,
-        ScopeAPIs,
-        BucketAPIs,
-        DatabaseUsersAPIs,
-        AllowedCIDRAPIs,
-        ClusterAPIs,
-        CommonCapellaAPI):
+class CapellaAPI(CommonCapellaAPI):
 
     def __init__(self, url, secret, access, user, pwd,
                  TOKEN_FOR_INTERNAL_SUPPORT=None):
         """
         Making explicit call to init function of inherited classes because the init params differ.
         """
-        CollectionAPIs.__init__(self, url, secret, access)
-        ScopeAPIs.__init__(self, url, secret, access)
-        BucketAPIs.__init__(self, url, secret, access)
-        DatabaseUsersAPIs.__init__(self, url, secret, access)
-        AllowedCIDRAPIs.__init__(self, url, secret, access)
-        ClusterAPIs.__init__(self, url, secret, access)
-        CommonCapellaAPI.__init__(
-            self,
-            url,
-            secret,
-            access,
-            user,
-            pwd,
-            TOKEN_FOR_INTERNAL_SUPPORT)
+        super(CapellaAPI, self).__init__(url, user, pwd, secret, access,
+                                         TOKEN_FOR_INTERNAL_SUPPORT)
+        self.cluster_ops_apis = ClusterOperationsAPIs(url, secret, access)
+        self.capellaAPI_log = logging.getLogger(__name__)
 
     def set_logging_level(self, level):
-        self._log.setLevel(level)
+        self.capellaAPI_log.setLevel(level)
 
     # Cluster methods
     """
