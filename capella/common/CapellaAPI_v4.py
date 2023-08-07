@@ -220,6 +220,31 @@ class OrganizationOperationsAPIs(CapellaAPIRequests):
         return resp
 
     """
+    Method rotates secret key of apikeys under organization mentioned.
+    Organization Owners can rotate all the APIKeys inside the Organization.
+    Organization Members and Project Creators can rotate all the Project scoped APIKey for which they are Project Owner.
+
+    :param organizationId (str) Organization ID for which the api keys have to be rotated.
+    :param headers (dict) Headers to be sent with the API call.
+    :param kwargs (dict) Do not use this under normal circumstances. This is only to test negative scenarios.
+    """
+
+    def rotate_api_key(
+            self,
+            organizationId,
+            accessKey,
+            headers=None,
+            **kwargs):
+        self.org_ops_API_log.info("Rotating secret key for API key - {}".format(accessKey))
+        params = {}
+        for k, v in kwargs.items():
+            params[k] = v
+        resp = self.capella_api_post(
+            "{}/{}/rotate".format(self.apikeys_endpoint.format(
+                organizationId), accessKey), params, headers)
+        return resp
+
+    """
     Method send invites to the user under organization mentioned.
     In order to access this endpoint, the provided API key must have at least one of the roles referenced below:
     - organizationOwner
