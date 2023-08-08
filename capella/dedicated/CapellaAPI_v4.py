@@ -1374,8 +1374,8 @@ class CapellaAPI(CommonCapellaAPI):
         """
         Making explicit call to init function of inherited classes because the init params differ.
         """
-        super(CapellaAPI, self).__init__(url, user, pwd, secret, access,
-                                         TOKEN_FOR_INTERNAL_SUPPORT)
+        super(CapellaAPI, self).__init__(url=url, secret=secret, access=access, user=user, pwd=pwd,
+                                         TOKEN_FOR_INTERNAL_SUPPORT=TOKEN_FOR_INTERNAL_SUPPORT)
         self.cluster_ops_apis = ClusterOperationsAPIs(url, secret, access)
         self.capellaAPI_log = logging.getLogger(__name__)
 
