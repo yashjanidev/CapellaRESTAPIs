@@ -270,17 +270,17 @@ class OrganizationOperationsAPIs(CapellaAPIRequests):
             self,
             organizationId,
             email,
-            organizationRole,
+            organizationRoles,
             name="",
             resources=[],
             headers=None,
             **kwargs):
         self.org_ops_API_log.info(
-            "Inviting user {} to organization {} with role {}".foramt(
-                email, organizationId, organizationRole))
+            "Inviting user {} to organization {} with role {}".format(
+                email, organizationId, organizationRoles))
         params = {
             "email": email,
-            "organizationRole": organizationRole
+            "organizationRoles": organizationRoles
         }
         if name:
             params["name"] = name
