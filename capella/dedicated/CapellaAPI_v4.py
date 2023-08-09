@@ -99,7 +99,6 @@ class ClusterOperationsAPIs(CapellaAPIRequests):
             couchbaseServer,
             serviceGroups,
             availability,
-            trial,
             support,
             description="",
             headers=None,
@@ -113,7 +112,6 @@ class ClusterOperationsAPIs(CapellaAPIRequests):
             "couchbaseServer": couchbaseServer,
             "serviceGroups": serviceGroups,
             "availability": availability,
-            "trial": trial,
             "support": support
         }
         if description:
@@ -343,6 +341,38 @@ class ClusterOperationsAPIs(CapellaAPIRequests):
             params,
             headers)
         return resp
+
+    """
+    Method downloads the cluster certificate
+    In order to access this endpoint, the provided API key must have at least one of the following
+    roles:
+         Organization Owner
+         Project Owner
+    Couchbase Capella supports the use of x.509 certificates, for clients and servers. This
+    ensures that only approved users, applications, machines, and endpoints have access to system
+    resources.
+    Consequently, the mechanism can be used by Couchbase SDK clients to access Couchbase Services,
+    and by source clusters that use XDCR to replicate data to target clusters. Clients can verify
+    the identity of Couchbase Capella, thereby ensuring that they are not exchanging data with a
+    rogue entity.
+    Get Certificate
+    :param organizationId (str) Organization ID under which the cluster is present.
+    :param projectId (str) Project ID under which the cluster is present.
+    :param clusterId (str) Cluster ID of the cluster which has to be deleted.
+    """
+    def get_cluster_certificate(self, organization_id, project_id, cluster_id, headers=None,
+                                **kwargs):
+        self.cluster_ops_API_log.info(
+            "Downloading certificate for cluster {} in project {} in organization {}".format(
+                cluster_id, project_id, organization_id))
+        if kwargs:
+            params = kwargs
+        else:
+            params = None
+        capella_api_response = self.capella_api_get('{}/{}/certificates'.format(
+            self.cluster_endpoint.format(organization_id, project_id), cluster_id),
+            params=params, headers=headers)
+        return capella_api_response
 
     """
     Method adds a CIDR to allowed CIDRs list of the specified cluster.
@@ -768,7 +798,7 @@ class ClusterOperationsAPIs(CapellaAPIRequests):
                 userId),
             params,
             headers)
-        return resp        
+        return resp
 
     """
     Method creates a new bucket in a cluster.
@@ -1385,7 +1415,7 @@ class CapellaAPI(CommonCapellaAPI):
     # Cluster methods
     """
     Method Deprecated.
-    New Method - ClusterAPIs.list_clusters
+    New Method - ClusterOperationsAPIs.list_clusters
 
     def get_clusters(self, params=None):
         capella_api_response = self.capella_api_get('/v3/clusters', params)
@@ -1394,7 +1424,7 @@ class CapellaAPI(CommonCapellaAPI):
 
     """
     Method Deprecated.
-    New Method - ClusterAPIs.fetch_cluster_info
+    New Method - ClusterOperationsAPIs.fetch_cluster_info
 
     def get_cluster_info(self, cluster_id):
         capella_api_response = self.capella_api_get('/v3/clusters/' + cluster_id)
@@ -1410,7 +1440,7 @@ class CapellaAPI(CommonCapellaAPI):
 
     """
     Method Deprecated.
-    New Method - ClusterAPIs.create_cluster
+    New Method - ClusterOperationsAPIs.create_cluster
 
     def create_cluster(self, cluster_configuration):
         capella_api_response = self.capella_api_post('/v3/clusters', cluster_configuration)
@@ -1420,7 +1450,7 @@ class CapellaAPI(CommonCapellaAPI):
 
     """
     Method Deprecated.
-    New Method - ClusterAPIs.update_cluster
+    New Method - ClusterOperationsAPIs.update_cluster
     def update_cluster_servers(self, cluster_id, new_cluster_server_configuration):
         capella_api_response = self.capella_api_put('/v3/clusters' + '/' + cluster_id + '/servers',
                                                     new_cluster_server_configuration)
@@ -1447,7 +1477,7 @@ class CapellaAPI(CommonCapellaAPI):
 
     """
     Method Deprecated.
-    New Method - ClusterAPIs.delete_cluster
+    New Method - ClusterOperationsAPIs.delete_cluster
     def delete_cluster(self, cluster_id):
         capella_api_response = self.capella_api_del('/v3/clusters' + '/' + cluster_id)
         return (capella_api_response)
@@ -1455,7 +1485,7 @@ class CapellaAPI(CommonCapellaAPI):
 
     """
     Method Deprecated.
-    New Method - DatabaseUsersAPIs.list_database_users
+    New Method - ClusterOperationsAPIs.list_database_users
     def get_cluster_users(self, cluster_id):
         capella_api_response = self.capella_api_get('/v3/clusters' + '/' + cluster_id +
                                                     '/users')
@@ -1464,23 +1494,27 @@ class CapellaAPI(CommonCapellaAPI):
 
     """
     Method Deprecated.
-    New Method - DatabaseUsersAPIs.delete_database_user
+    New Method - ClusterOperationsAPIs.delete_database_user
     def delete_cluster_user(self, cluster_id, cluster_user):
         capella_api_response = self.capella_api_del('/v3/clusters' + '/' + cluster_id +
                                                     '/users/' + cluster_user)
         return (capella_api_response)
     """
 
-    # Cluster certificate
+    """
+    Cluster Certificate
+    Method Deprecated
+    New Method - CLusterOperationsAPIs.get_cluster_certificate
     def get_cluster_certificate(self, cluster_id):
         capella_api_response = self.capella_api_get(
             '/v3/clusters' + '/' + cluster_id + '/certificate')
         return (capella_api_response)
+    """
 
     # Cluster buckets
     """
     Method Deprecated.
-    New Method - BucketAPIs.list_buckets
+    New Method - ClusterOperationsAPIs.list_buckets
     def get_cluster_buckets(self, cluster_id):
         capella_api_response = self.capella_api_get('/v2/clusters' + '/' + cluster_id +
                                                     '/buckets')
@@ -1489,7 +1523,7 @@ class CapellaAPI(CommonCapellaAPI):
 
     """
     Method Deprecated.
-    New Method - BucketAPIs.create_bucket
+    New Method - ClusterOperationsAPIs.create_bucket
     def create_cluster_bucket(self, cluster_id, bucket_configuration):
         capella_api_response = self.capella_api_post('/v2/clusters' + '/' + cluster_id +
                                                      '/buckets', bucket_configuration)
@@ -1498,7 +1532,7 @@ class CapellaAPI(CommonCapellaAPI):
 
     """
     Method Deprecated.
-    New Method - BucketAPIs.update_bucket_config
+    New Method - ClusterOperationsAPIs.update_bucket_config
     def update_cluster_bucket(self, cluster_id, bucket_id, new_bucket_configuration):
         capella_api_response = self.capella_api_put('/v2/clusters' + '/' + cluster_id +
                                                     '/buckets/' + bucket_id, new_bucket_configuration)
@@ -1507,7 +1541,7 @@ class CapellaAPI(CommonCapellaAPI):
 
     """
     Method Deprecated.
-    New Method - BucketAPIs.delete_bucket
+    New Method - ClusterOperationsAPIs.delete_bucket
     def delete_cluster_bucket(self, cluster_id, bucket_configuration):
         capella_api_response = self.capella_api_del('/v2/clusters' + '/' + cluster_id +
                                                     '/buckets', bucket_configuration)
@@ -1517,7 +1551,7 @@ class CapellaAPI(CommonCapellaAPI):
     # Cluster Allow lists
     """
     Method Deprecated.
-    New Method - AllowedCIDRAPIs.list_allowed_CIDRs
+    New Method - ClusterOperationsAPIs.list_allowed_CIDRs
     def get_cluster_allowlist(self, cluster_id):
         capella_api_response = self.capella_api_get('/v2/clusters' + '/' + cluster_id +
                                                     '/allowlist')
@@ -1526,7 +1560,7 @@ class CapellaAPI(CommonCapellaAPI):
 
     """
     Method Deprecated.
-    New Method - AllowedCIDRAPIs.delete_allowed_CIDR
+    New Method - ClusterOperationsAPIs.delete_allowed_CIDR
     def delete_cluster_allowlist(self, cluster_id, allowlist_configuration):
         capella_api_response = self.capella_api_del('/v2/clusters' + '/' + cluster_id +
                                                     '/allowlist', allowlist_configuration)
@@ -1535,7 +1569,7 @@ class CapellaAPI(CommonCapellaAPI):
 
     """
     Method Deprecated.
-    New Method - AllowedCIDRAPIs.add_CIDR_to_allowed_CIDRs_list
+    New Method - ClusterOperationsAPIs.add_CIDR_to_allowed_CIDRs_list
     def create_cluster_allowlist(self, cluster_id, allowlist_configuration):
         capella_api_response = self.capella_api_post('/v2/clusters' + '/' + cluster_id +
                                                      '/allowlist', allowlist_configuration)
@@ -1554,7 +1588,7 @@ class CapellaAPI(CommonCapellaAPI):
     # Cluster user
     """
     Method Deprecated.
-    New Method - DatabaseUsersAPIs.create_database_user
+    New Method - ClusterOperationsAPIs.create_database_user
     def create_cluster_user(self, cluster_id, cluster_user_configuration):
         capella_api_response = self.capella_api_post('/v3/clusters' + '/' + cluster_id +
                                                      '/users', cluster_user_configuration)
@@ -1564,7 +1598,7 @@ class CapellaAPI(CommonCapellaAPI):
     # Capella Users
     """
     Method Deprecated.
-    New Method - DatabaseUsersAPIs.list_database_users
+    New Method - ClusterOperationsAPIs.list_database_users
     def get_users(self):
         capella_api_response = self.capella_api_get('/v2/users?perPage=' + str(self.perPage))
         return (capella_api_response)
@@ -1572,7 +1606,7 @@ class CapellaAPI(CommonCapellaAPI):
 
     """
     Method Deprecated.
-    New Method - BucketAPIs.create_bucket
+    New Method - ClusterOperationsAPIs.create_bucket
     def create_bucket(self, tenant_id, project_id, cluster_id,
                       bucket_params):
         url = '{}/v2/organizations/{}/projects/{}/clusters/{}' \
@@ -1589,7 +1623,7 @@ class CapellaAPI(CommonCapellaAPI):
 
     """
     Method Deprecated.
-    New Method - BucketAPIs.list_buckets
+    New Method - ClusterOperationsAPIs.list_buckets
     def get_buckets(self, tenant_id, project_id, cluster_id):
         url = '{}/v2/organizations/{}/projects/{}/clusters/{}' \
             .format(self.internal_url, tenant_id, project_id, cluster_id)
@@ -1607,7 +1641,7 @@ class CapellaAPI(CommonCapellaAPI):
 
     """
     Method Deprecated.
-    New Method - BucketAPIs.delete_bucket
+    New Method - ClusterOperationsAPIs.delete_bucket
     def delete_bucket(self, tenant_id, project_id, cluster_id,
                       bucket_id):
         url = '{}/v2/organizations/{}/projects/{}/clusters/{}' \
@@ -1619,7 +1653,7 @@ class CapellaAPI(CommonCapellaAPI):
 
     """
     Method Deprecated.
-    New Method - BucketAPIs.update_bucket_config
+    New Method - ClusterOperationsAPIs.update_bucket_config
     def update_bucket_settings(self, tenant_id, project_id, cluster_id,
                                bucket_id, bucket_params):
         url = "{}/v2/organizations/{}/projects/{}/clusters/{}/buckets/{}" \
@@ -1638,7 +1672,7 @@ class CapellaAPI(CommonCapellaAPI):
 
     """
     Method Deprecated.
-    New Method - ClusterAPIs.fetch_cluster_info
+    New Method - ClusterOperationsAPIs.fetch_cluster_info
     def get_cluster_internal(self, tenant_id, project_id, cluster_id):
         url = '{}/v2/organizations/{}/projects/{}/clusters/{}' \
             .format(self.internal_url, tenant_id, project_id, cluster_id)
@@ -1657,7 +1691,7 @@ class CapellaAPI(CommonCapellaAPI):
 
     """
     Method Deprecated.
-    New Method - DatabaseUsersAPIs.list_database_users
+    New Method - ClusterOperationsAPIs.list_database_users
     def get_db_users(self, tenant_id, project_id, cluster_id,
                      page=1, limit=100):
         url = '{}/v2/organizations/{}/projects/{}/clusters/{}' \
@@ -1669,7 +1703,7 @@ class CapellaAPI(CommonCapellaAPI):
 
     """
     Method Deprecated.
-    New Method - DatabaseUsersAPIs.delete_database_user
+    New Method - ClusterOperationsAPIs.delete_database_user
     def delete_db_user(self, tenant_id, project_id, cluster_id, user_id):
         url = "{}/v2/organizations/{}/projects/{}/clusters/{}/users/{}" \
             .format(self.internal_url, tenant_id, project_id, cluster_id,
@@ -1681,7 +1715,7 @@ class CapellaAPI(CommonCapellaAPI):
 
     """
     Method Deprecated.
-    New Method - DatabaseUsersAPIs.create_database_user
+    New Method - ClusterOperationsAPIs.create_database_user
     def create_db_user(self, tenant_id, project_id, cluster_id,
                        user, pwd):
         url = '{}/v2/organizations/{}/projects/{}/clusters/{}' \
@@ -1709,7 +1743,7 @@ class CapellaAPI(CommonCapellaAPI):
 
     """
     Method Deprecated.
-    New Method - AllowedCIDRAPIs.add_CIDR_to_allowed_CIDRs_list
+    New Method - ClusterOperationsAPIs.add_CIDR_to_allowed_CIDRs_list
     def add_allowed_ips(self, tenant_id, project_id, cluster_id, ips):
         url = '{}/v2/organizations/{}/projects/{}/clusters/{}' \
             .format(self.internal_url, tenant_id, project_id, cluster_id)
@@ -2140,7 +2174,7 @@ class CapellaAPI(CommonCapellaAPI):
 
     """
     Method Deprecated.
-    New Method - UsersAPIs.delete_user
+    New Method - ClusterOperationsAPIs.delete_user
     def remove_user(self, tenant_id, user_id):
         url = "{}/tenants/{}/users/{}".format(self.internal_url, tenant_id, user_id)
         resp = self.do_internal_request(url, method="DELETE")
@@ -2488,7 +2522,7 @@ class CapellaAPI(CommonCapellaAPI):
 
     """
     Method Deprecated.
-    New Method - ProjectAPIs.create_project
+    New Method - ClusterOperationsAPIs.create_project
     def create_project(self, tenant_id, name):
         project_details = {"name": name, "tenantId": tenant_id}
 
@@ -2500,7 +2534,7 @@ class CapellaAPI(CommonCapellaAPI):
 
     """
     Method Deprecated.
-    New Method - ProjectAPIs.delete_project
+    New Method - ClusterOperationsAPIs.delete_project
     def delete_project(self, tenant_id, project_id):
         url = '{}/v2/organizations/{}/projects/{}'.format(self.internal_url, tenant_id,
                                                           project_id)
