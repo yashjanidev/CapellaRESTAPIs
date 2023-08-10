@@ -458,7 +458,7 @@ class CapellaAPI(CommonCapellaAPI):
         resp = self.do_internal_request(url, method="GET")
         return resp
 
-    def create_private_network(self, tenant_id, project_id, cluster_id, 
+    def create_private_network(self, tenant_id, project_id, cluster_id,
                                private_network_params):
         url = "{}/v2/organizations/{}/projects/{}/clusters/{}/virtualnetworks"\
               .format(self.internal_url, tenant_id, project_id, cluster_id)
@@ -959,7 +959,7 @@ class CapellaAPI(CommonCapellaAPI):
     def turn_on_cluster(self, tenant_id, project_id, cluster_id):
         url = '{}/v2/organizations/{}/projects/{}/clusters/{}/on' \
             .format(self.internal_url, tenant_id, project_id, cluster_id)
-        payload = "{\"turnOnAppService\":true}"
+        payload = {"turnOnAppService" : True}
         resp = self.do_internal_request(url, method="POST", params=json.dumps(payload))
         return resp
 
