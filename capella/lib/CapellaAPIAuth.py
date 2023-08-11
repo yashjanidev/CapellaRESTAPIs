@@ -15,21 +15,20 @@ class CapellaAPIAuth(AuthBase):
     # Extends requests AuthBase for
     # Couchbase Cloud API Authentication Handler.
 
-    def __init__(self, secret, access):
+    def __init__(self, secret, access, token):
         # Create an authentication handler for Couchbase Cloud APIs
         # :param str access_key: access key for Couchbase Cloud
         # :param str secret_key: secret key for Couchbase Cloud
 
         self.ACCESS_KEY = access
         self.SECRET_KEY = secret
+        self.bearer_token = token
 
     def __call__(self, r):
         if "v4" in r.url:
-            bearer_token = base64.b64encode(bytes(
-                self.ACCESS_KEY + ":" + self.SECRET_KEY))
             # Values for the header
             cbc_api_request_headers = {
-                'Authorization': 'Bearer ' + bearer_token,
+                'Authorization': 'Bearer ' + self.bearer_token,
                 'Content-Type': 'application/json'
             }
         else:

@@ -11,8 +11,9 @@ from ..common.CapellaAPI_v4 import CommonCapellaAPI
 
 class ClusterOperationsAPIs(CapellaAPIRequests):
 
-    def __init__(self, url, secret, access):
-        super(ClusterOperationsAPIs, self).__init__(url, secret, access)
+    def __init__(self, url, secret, access, bearer_token):
+        super(ClusterOperationsAPIs, self).__init__(
+            url, secret, access, bearer_token)
         self.cluster_ops_API_log = logging.getLogger(__name__)
         organization_endpoint = "/v4/organizations"
         self.cluster_endpoint = organization_endpoint + \
@@ -1399,14 +1400,17 @@ class ClusterOperationsAPIs(CapellaAPIRequests):
 
 class CapellaAPI(CommonCapellaAPI):
 
-    def __init__(self, url, secret, access, user, pwd,
+    def __init__(self, url, secret, access, user, pwd, bearer_token,
                  TOKEN_FOR_INTERNAL_SUPPORT=None):
         """
         Making explicit call to init function of inherited classes because the init params differ.
         """
-        super(CapellaAPI, self).__init__(url=url, secret=secret, access=access, user=user, pwd=pwd,
-                                         TOKEN_FOR_INTERNAL_SUPPORT=TOKEN_FOR_INTERNAL_SUPPORT)
-        self.cluster_ops_apis = ClusterOperationsAPIs(url, secret, access)
+        super(CapellaAPI, self).__init__(
+            url=url, secret=secret, access=access, user=user, pwd=pwd,
+            bearer_token=bearer_token,
+            TOKEN_FOR_INTERNAL_SUPPORT=TOKEN_FOR_INTERNAL_SUPPORT)
+        self.cluster_ops_apis = ClusterOperationsAPIs(
+            url, secret, access, bearer_token)
         self.capellaAPI_log = logging.getLogger(__name__)
 
     def set_logging_level(self, level):

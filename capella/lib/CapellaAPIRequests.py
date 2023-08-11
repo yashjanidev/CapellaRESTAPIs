@@ -20,13 +20,14 @@ import json
 
 class CapellaAPIRequests(object):
 
-    def __init__(self, url, secret=None, access=None):
+    def __init__(self, url, secret=None, access=None, token=None):
         # handles http requests - GET , PUT, POST, DELETE
         # to the Couchbase Cloud APIs
         # Read the values from the environmental variables
         self.API_BASE_URL = url
         self.SECRET = secret
         self.ACCESS = access
+        self.bearer_token = token
 
         self._log = logging.getLogger(__name__)
 
@@ -84,7 +85,8 @@ class CapellaAPIRequests(object):
             else:
                 cbc_api_response = self.network_session.get(
                     self.API_BASE_URL + api_endpoint,
-                    auth=CapellaAPIAuth(self.SECRET, self.ACCESS),
+                    auth=CapellaAPIAuth(
+                        self.SECRET, self.ACCESS, self.bearer_token),
                     params=params,
                     verify=False, headers=headers)
             self._log.info(cbc_api_response.content)
@@ -124,7 +126,8 @@ class CapellaAPIRequests(object):
                 cbc_api_response = self.network_session.post(
                     self.API_BASE_URL + api_endpoint,
                     json=request_body,
-                    auth=CapellaAPIAuth(self.SECRET, self.ACCESS),
+                    auth=CapellaAPIAuth(
+                        self.SECRET, self.ACCESS, self.bearer_token),
                     verify=False, headers=headers)
             self._log.debug(cbc_api_response.content)
 
@@ -161,7 +164,8 @@ class CapellaAPIRequests(object):
                 cbc_api_response = self.network_session.put(
                     self.API_BASE_URL + api_endpoint,
                     json=request_body,
-                    auth=CapellaAPIAuth(self.SECRET, self.ACCESS),
+                    auth=CapellaAPIAuth(
+                        self.SECRET, self.ACCESS, self.bearer_token),
                     verify=False, headers=headers)
             self._log.debug(cbc_api_response.content)
 
@@ -193,7 +197,8 @@ class CapellaAPIRequests(object):
                 cbc_api_response = self.network_session.patch(
                     self.API_BASE_URL + api_endpoint,
                     json=request_body,
-                    auth=CapellaAPIAuth(self.SECRET, self.ACCESS),
+                    auth=CapellaAPIAuth(
+                        self.SECRET, self.ACCESS, self.bearer_token),
                     verify=False, headers=headers)
             self._log.debug(cbc_api_response.content)
 
@@ -230,13 +235,15 @@ class CapellaAPIRequests(object):
                 if request_body is None:
                     cbc_api_response = self.network_session.delete(
                         self.API_BASE_URL + api_endpoint,
-                        auth=CapellaAPIAuth(self.SECRET, self.ACCESS),
+                        auth=CapellaAPIAuth(
+                            self.SECRET, self.ACCESS, self.bearer_token),
                         verify=False, headers=headers)
                 else:
                     cbc_api_response = self.network_session.delete(
                         self.API_BASE_URL + api_endpoint,
                         json=request_body,
-                        auth=CapellaAPIAuth(self.SECRET, self.ACCESS),
+                        auth=CapellaAPIAuth(
+                            self.SECRET, self.ACCESS, self.bearer_token),
                         verify=False, headers=headers)
 
             self._log.debug(cbc_api_response.content)

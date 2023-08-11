@@ -13,8 +13,9 @@ APIs are segregated according to class for better code management.
 
 class OrganizationOperationsAPIs(CapellaAPIRequests):
 
-    def __init__(self, url, secret, access):
-        super(OrganizationOperationsAPIs, self).__init__(url, secret, access)
+    def __init__(self, url, secret, access, bearer_token):
+        super(OrganizationOperationsAPIs, self).__init__(
+            url, secret, access, bearer_token)
         self.org_ops_API_log = logging.getLogger(__name__)
         self.organization_endpoint = "/v4/organizations"
         self.apikeys_endpoint = self.organization_endpoint + "/{}/apikeys"
@@ -651,9 +652,10 @@ class OrganizationOperationsAPIs(CapellaAPIRequests):
 
 class CommonCapellaAPI(CapellaAPIRequests):
 
-    def __init__(self, url, secret, access, user, pwd,
+    def __init__(self, url, secret, access, user, pwd, bearer_token,
                  TOKEN_FOR_INTERNAL_SUPPORT=None):
-        super(CommonCapellaAPI, self).__init__(url, secret, access)
+        super(CommonCapellaAPI, self).__init__(
+            url, secret, access, bearer_token)
         self.user = user
         self.pwd = pwd
         self.internal_url = url.replace("https://cloud", "https://", 1)
@@ -664,7 +666,8 @@ class CommonCapellaAPI(CapellaAPIRequests):
             'Authorization': 'Bearer %s' % self.TOKEN_FOR_INTERNAL_SUPPORT,
             'Content-Type': 'application/json'
         }
-        self.org_ops_apis = OrganizationOperationsAPIs(url, secret, access)
+        self.org_ops_apis = OrganizationOperationsAPIs(
+            url, secret, access, bearer_token)
 
     def trigger_log_collection(self, cluster_id, log_id={}):
         url = self.internal_url + \
