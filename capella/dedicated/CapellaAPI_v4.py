@@ -29,6 +29,134 @@ class ClusterOperationsAPIs(CapellaAPIRequests):
         self.collection_endpoint = organization_endpoint + \
                                    "/{}/projects/{}/clusters/{}/buckets/{" \
                                    "}/scopes/{}/collections"
+        self.backups_endpoint = organization_endpoint + \
+                                "/{}/projects/{}/clusters/{}/backups"
+
+    """
+    Method to delete the backup with backupId under cluster, project and organization mentioned.
+    In order to access this endpoint, the provided API key must have at least one of the roles referenced below:
+    - Organization Owner
+    - Project Owner
+    :param organizationId (str) Organization ID under which the backup has to be created.
+    :param projectId (str) Project ID under which the backup has to be created.
+    :param clusterId (str) Cluster ID under which the backup has to be created.
+    :param backupId (str) Backup ID which the backup has to be fetched.
+    :param headers (dict) Headers to be sent with the API call.
+    :param kwargs (dict) Do not use this under normal circumstances. This is only to test negative scenarios.
+    """
+
+    def delete_backup(
+            self,
+            organizationId,
+            projectId,
+            clusterId,
+            backupId,
+            headers=None,
+            **kwargs):
+        self.cluster_ops_API_log.info(
+            "Delete Backup in project {} in organization {}".format(
+                projectId, organizationId))
+        params = {}
+        for k, v in kwargs.items():
+            params[k] = v
+        resp = self.capella_api_del(
+            self.backups_endpoint.format(
+                organizationId, projectId, clusterId) + '/' + backupId, params, headers)
+        return resp
+
+    """
+    Method to get the backup under cluster, project and organization mentioned.
+    In order to access this endpoint, the provided API key must have at least one of the roles referenced below:
+    - Organization Owner
+    - Project Owner
+    :param organizationId (str) Organization ID under which the backup has to be created.
+    :param projectId (str) Project ID under which the backup has to be created.
+    :param clusterId (str) Cluster ID under which the backup has to be created.
+    :param backupId (str) Backup ID which the backup has to be fetched.
+    :param headers (dict) Headers to be sent with the API call.
+    :param kwargs (dict) Do not use this under normal circumstances. This is only to test negative scenarios.
+    """
+
+    def get_backup(
+            self,
+            organizationId,
+            projectId,
+            clusterId,
+            backupId,
+            headers=None,
+            **kwargs):
+        self.cluster_ops_API_log.info(
+            "Get Backup in project {} in organization {}".format(
+                projectId, organizationId))
+        params = {}
+        for k, v in kwargs.items():
+            params[k] = v
+        resp = self.capella_api_get(
+            self.backups_endpoint.format(
+                organizationId, projectId, clusterId) + '/' + backupId, params, headers)
+        return resp
+
+    """
+    Method to get list all the backups under cluster, project and organization mentioned.
+    In order to access this endpoint, the provided API key must have at least one of the roles referenced below:
+    - Organization Owner
+    - Project Owner
+    :param organizationId (str) Organization ID under which the backup has to be created.
+    :param projectId (str) Project ID under which the backup has to be created.
+    :param clusterId (str) Cluster ID under which the backup has to be created.
+    :param headers (dict) Headers to be sent with the API call.
+    :param kwargs (dict) Do not use this under normal circumstances. This is only to test negative scenarios.
+    """
+
+    def list_backups(
+            self,
+            organizationId,
+            projectId,
+            clusterId,
+            headers=None,
+            **kwargs):
+        self.cluster_ops_API_log.info(
+            "List Backup in project {} in organization {}".format(
+                projectId, organizationId))
+        params = {}
+        for k, v in kwargs.items():
+            params[k] = v
+        resp = self.capella_api_get(
+            self.backups_endpoint.format(
+                organizationId, projectId, clusterId), params, headers)
+        return resp
+
+    """
+    Method creates a backup under bucket, cluster, project and organization mentioned.
+    In order to access this endpoint, the provided API key must have at least one of the roles referenced below:
+    - Organization Owner
+    - Project Owner
+    :param organizationId (str) Organization ID under which the backup has to be created.
+    :param projectId (str) Project ID under which the backup has to be created.
+    :param clusterId (str) Cluster ID under which the backup has to be created.
+    :param bucketId (str) Bucket ID under which the backup has to be created.
+    :param headers (dict) Headers to be sent with the API call.
+    :param kwargs (dict) Do not use this under normal circumstances. This is only to test negative scenarios.
+    """
+
+    def create_backup(
+            self,
+            organizationId,
+            projectId,
+            clusterId,
+            bucketId,
+            headers=None,
+            **kwargs):
+        self.cluster_ops_API_log.info(
+            "Creating Backup in project {} in organization {}".format(
+                projectId, organizationId))
+        params = {}
+        for k, v in kwargs.items():
+            params[k] = v
+        resp = self.capella_api_post(
+            self.backups_endpoint.format(
+                organizationId, projectId, "{}/buckets/{}".format(clusterId, bucketId)), params, headers)
+        return resp
 
     """
     Method creates a cluster under project and organization mentioned.
