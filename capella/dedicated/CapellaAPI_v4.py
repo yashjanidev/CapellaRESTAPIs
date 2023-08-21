@@ -1525,6 +1525,161 @@ class ClusterOperationsAPIs(CapellaAPIRequests):
             headers)
         return resp
 
+    """
+    Creates a scheduled backup for a bucket.
+    In order to access this endpoint, the provided API key must have at least one of the following roles:
+        Organization Owner
+        Project Own
+    :param organizationId (str) Organization ID under which the cluster is present.
+    :param projectId (str) Project ID under which the cluster is present.
+    :param clusterId (str) Cluster ID of the cluster under which the bucket is present.
+    :param bucketId (str) The ID of the bucket. It is the URL-compatible base64 encoding of the bucket name.
+    :param dayOfWeek (str) Day of the week for the backup.
+    :param startAt  (int) Start at hour (in 24-Hour format).
+    :param incrementalEvery  (int) Interval in hours for incremental backup.
+    :param retentionTime  (str) Retention time in days.
+    :param costOptimizedRetention  (bool) Optimize backup retention to reduce total cost of ownership (TCO). This gives the option to keep all but the last backup cycle of the month for thirty days; the last cycle will be kept for the defined retention period
+    :param headers (dict) Headers to be sent with the API call.
+    :param kwargs (dict) Do not use this under normal circumstances. This is only to test negative scenarios.
+    """
+
+    def create_backup_schedule(self, organizationId, projectId, clusterId, bucketId,
+                               type, dayOfWeek, startAt, incrementalEvery,
+                               retentionTime, costOptimizedRetention, headers=None,
+                               **kwargs):
+
+        params = {
+            "type":  type,
+            "weeklySchedule": {
+            "dayOfWeek": dayOfWeek,
+            "startAt": startAt,
+            "incrementalEvery": incrementalEvery,
+            "retentionTime": retentionTime,
+            "costOptimizedRetention": costOptimizedRetention
+            }
+        }
+
+        for k, v in kwargs.items():
+            params[k] = v
+        resp = self.capella_api_post(
+            self.backup_schedule_endpoint.format(
+                organizationId,
+                projectId,
+                clusterId,
+                bucketId),
+            params,
+            headers)
+        return resp
+
+    """
+    Fetched the backup schedule for a bucket in a cluster.
+    In order to access this endpoint, the provided API key must have at least one of the following roles:
+        Organization Owner
+        Project Own
+    :param organizationId (str) Organization ID under which the cluster is present.
+    :param projectId (str) Project ID under which the cluster is present.
+    :param clusterId (str) Cluster ID of the cluster under which the bucket is present.
+    :param bucketId (str) The ID of the bucket. It is the URL-compatible base64 encoding of the bucket name.
+    :param headers (dict) Headers to be sent with the API call.
+    :param kwargs (dict) Do not use this under normal circumstances. This is only to test negative scenarios.
+    """
+
+    def get_backup_schedule(self, organizationId, projectId, clusterId, bucketId,
+                            headers=None, **kwargs):
+        if kwargs:
+            params = kwargs
+        else:
+            params = None
+
+        resp = self.capella_api_get(
+            self.backup_schedule_endpoint.format(
+                organizationId,
+                projectId,
+                clusterId,
+                bucketId),
+            params,
+            headers
+        )
+
+        return resp
+
+    """
+    Updates an existing backup schedule.
+    In order to access this endpoint, the provided API key must have at least one of the following roles:
+        Organization Owner
+        Project Own
+    :param organizationId (str) Organization ID under which the cluster is present.
+    :param projectId (str) Project ID under which the cluster is present.
+    :param clusterId (str) Cluster ID of the cluster under which the bucket is present.
+    :param bucketId (str) The ID of the bucket. It is the URL-compatible base64 encoding of the bucket name.
+    :param dayOfWeek (str) Day of the week for the backup.
+    :param startAt  (int) Start at hour (in 24-Hour format).
+    :param incrementalEvery  (int) Interval in hours for incremental backup.
+    :param retentionTime  (str) Retention time in days.
+    :param costOptimizedRetention  (bool) Optimize backup retention to reduce total cost of ownership (TCO). This gives the option to keep all but the last backup cycle of the month for thirty days; the last cycle will be kept for the defined retention period
+    :param headers (dict) Headers to be sent with the API call.
+    :param kwargs (dict) Do not use this under normal circumstances. This is only to test negative scenarios.
+    """
+
+    def update_backup_schedule(self, organizationId, projectId, clusterId, bucketId,
+                               type, dayOfWeek, startAt, incrementalEvery,
+                               retentionTime, costOptimizedRetention, headers=None,
+                               **kwargs):
+        params = {
+            "type":  type,
+            "weeklySchedule": {
+            "dayOfWeek": dayOfWeek,
+            "startAt": startAt,
+            "incrementalEvery": incrementalEvery,
+            "retentionTime": retentionTime,
+            "costOptimizedRetention": costOptimizedRetention
+            }
+        }
+
+        for k, v in kwargs.items():
+            params[k] = v
+        resp = self.capella_api_put(
+            self.backup_schedule_endpoint.format(
+                organizationId,
+                projectId,
+                clusterId,
+                bucketId),
+            params,
+            headers)
+        return resp
+
+    """
+    Deletes an existing backup schedule
+    In order to access this endpoint, the provided API key must have at least one of the following roles:
+        Organization Owner
+        Project Own
+    :param organizationId (str) Organization ID under which the cluster is present.
+    :param projectId (str) Project ID under which the cluster is present.
+    :param clusterId (str) Cluster ID of the cluster under which the bucket is present.
+    :param bucketId (str) The ID of the bucket. It is the URL-compatible base64 encoding of the bucket name.
+    :param headers (dict) Headers to be sent with the API call.
+    :param kwargs (dict) Do not use this under normal circumstances. This is only to test negative scenarios.
+    """
+
+    def delete_backup_schedule(self, organizationId, projectId, clusterId, bucketId,
+                               headers=None, **kwargs):
+        if kwargs:
+            params = kwargs
+        else:
+            params = None
+
+        resp = self.capella_api_del(
+            self.backup_schedule_endpoint.format(
+                organizationId,
+                projectId,
+                clusterId,
+                bucketId),
+            params,
+            headers
+        )
+
+        return resp
+
 
 class CapellaAPI(CommonCapellaAPI):
 
