@@ -33,6 +33,52 @@ class ClusterOperationsAPIs(CapellaAPIRequests):
                                 "/{}/projects/{}/clusters/{}/backups"
 
     """
+    Method to restore the backup with backupId under cluster, project and organization mentioned.
+    In order to access this endpoint, the provided API key must have at least one of the roles referenced below:
+    - Organization Owner
+    - Project Owner
+    - Project Manager
+    - Project Viewer
+    - Database Data Reader/Writer
+    - Database Data Reader
+    :param organizationId (str) Organization ID under which the backup has to be created.
+    :param projectId (str) Project ID under which the backup has to be created.
+    :param targetClusterID (str) The ID of the target cluster to restore to.
+    :param sourceClusterID (str) The ID of the source cluster the restore is based on.
+    :param backupID (str) The backup record ID that contains the backup to restore from.
+    :param services (str) Items Enum: "data" "query"
+    :param headers (dict) Headers to be sent with the API call.
+    :param kwargs (dict) Do not use this under normal circumstances. This is only to test negative scenarios.
+    """
+
+    def restore_backup(
+            self,
+            organizationId,
+            projectId,
+            targetClusterID,
+            sourceClusterID,
+            backupID,
+            services,
+            headers=None,
+            **kwargs):
+        self.cluster_ops_API_log.info(
+            "Restore Backup in project {} in organization {}".format(
+                projectId, organizationId))
+        params = {
+            "targetClusterID": targetClusterID,
+            "sourceClusterID": sourceClusterID,
+            "backupID": backupID,
+            "services": services,
+        }
+        for k, v in kwargs.items():
+            params[k] = v
+
+        resp = self.capella_api_post(
+            self.backups_endpoint.format(
+                organizationId, projectId, sourceClusterID) + '/' + backupID + '/restore', params, headers)
+        return resp
+
+    """
     Method to delete the backup with backupId under cluster, project and organization mentioned.
     In order to access this endpoint, the provided API key must have at least one of the roles referenced below:
     - Organization Owner
