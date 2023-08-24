@@ -576,6 +576,21 @@ class CapellaAPI(CommonCapellaAPI):
             if bucket['data']['bucket'] == bucket_name:
                 return bucket['data']['bucketId']
 
+    def set_backup_ami(self, tenant_id, project_id, cluster_id, backup_ami):
+        """
+        method to override backup client ami
+        :param tenant_id:
+        :param project_id:
+        :param cluster_id:
+        :param backup_ami:
+        :return: response object
+        """
+        url = "{}/v2/organizations/{}/projects/{}/clusters/backup-image".format(
+            self.internal_url, tenant_id, project_id, cluster_id)
+        payload = {"image": backup_ami}
+        resp = self.do_internal_request(url, method="POST", params=json.dumps(payload))
+        return resp
+
     def backup_now(self, tenant_id, project_id, cluster_id, bucket_name):
         """
         method to trigger an on-demand backup
