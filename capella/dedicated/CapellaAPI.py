@@ -928,6 +928,71 @@ class CapellaAPI(CommonCapellaAPI):
         resp = self.do_internal_request(url, method="GET", params='')
         return resp
 
+    def enable_sgw_logstreaming(self, tenant_id, project_id, cluster_id, backend_id):
+        "Enable log streaming for the sgw"
+        url = '{}/v2/organizations/{}/projects/{}/clusters/{}/backends/{}/logstreaming/enable' \
+              .format(self.internal_url, tenant_id, project_id, cluster_id, backend_id)
+        resp = self.do_internal_request(url, method="POST")
+        return resp
+
+    def disable_sgw_logstreaming(self, tenant_id, project_id, cluster_id, backend_id):
+        "Disable log streaming for the sgw"
+        url = '{}/v2/organizations/{}/projects/{}/clusters/{}/backends/{}/logstreaming/disable' \
+              .format(self.internal_url, tenant_id, project_id, cluster_id, backend_id)
+        resp = self.do_internal_request(url, method="POST")
+        return resp
+
+    def create_sgw_logstreaming_config(self, tenant_id, project_id, cluster_id, backend_id, config):
+        "Create log streaming configuration"
+        url = '{}/v2/organizations/{}/projects/{}/clusters/{}/backends/{}/logstreaming/config' \
+              .format(self.internal_url, tenant_id, project_id, cluster_id, backend_id)
+        resp = self.do_internal_request(url, method="POST",
+                                        params=json.dumps(config))
+        return resp
+
+    def get_sgw_logstreaming_config(self, tenant_id, project_id, cluster_id, backend_id):
+        "Get log streaming configuration"
+        url = '{}/v2/organizations/{}/projects/{}/clusters/{}/backends/{}/logstreaming/config' \
+              .format(self.internal_url, tenant_id, project_id, cluster_id, backend_id)
+        resp = self.do_internal_request(url, method="GET", params='')
+        return resp
+
+    def get_sgw_logstreaming_collector_options(self, tenant_id, project_id, cluster_id, backend_id):
+        "Get log streaming bit collector configuration"
+        url = '{}/v2/organizations/{}/projects/{}/clusters/{}/backends/{}/logstreaming/collector-options' \
+              .format(self.internal_url, tenant_id, project_id, cluster_id, backend_id)
+        resp = self.do_internal_request(url, method="GET", params='')
+        return resp
+
+    def get_sgw_logstreaming_collector_option_selected(self, tenant_id, project_id, cluster_id, backend_id):
+        "Get log streaming bit collector option selected"
+        url = '{}/v2/organizations/{}/projects/{}/clusters/{}/backends/{}/logstreaming/collector-option-selected' \
+              .format(self.internal_url, tenant_id, project_id, cluster_id, backend_id)
+        resp = self.do_internal_request(url, method="GET", params='')
+        return resp
+
+    def get_logging_options(self, tenant_id, project_id, cluster_id, backend_id):
+        "Get allowed logging options and selections"
+        url = '{}/v2/organizations/{}/projects/{}/clusters/{}/backends/{}/logging-options' \
+              .format(self.internal_url, tenant_id, project_id, cluster_id, backend_id)
+        resp = self.do_internal_request(url, method="GET", params='')
+        return resp
+
+    def get_logging_config(self, tenant_id, project_id, cluster_id, backend_id, db_name):
+        "Get current logging options for the app endpoint"
+        url = '{}/v2/organizations/{}/projects/{}/clusters/{}/backends/{}/databases/{}/logging' \
+              .format(self.internal_url, tenant_id, project_id, cluster_id, backend_id, db_name)
+        resp = self.do_internal_request(url, method="GET", params='')
+        return resp
+
+    def update_logging_config(self, tenant_id, project_id, cluster_id, backend_id, db_name, config):
+        "Update current logging options for the app endpoint"
+        url = '{}/v2/organizations/{}/projects/{}/clusters/{}/backends/{}/databases/{}/logging' \
+              .format(self.internal_url, tenant_id, project_id, cluster_id, backend_id, db_name)
+        resp = self.do_internal_request(url, method="POST",
+                                        params=json.dumps(config))
+        return resp
+
     def get_node_metrics(self, tenant_id, project_id, cluster_id, metrics, step, start, end):
         url = '{}/v2/organizations/{}/projects/{}/clusters/{}/metrics/{}/query_range' \
               .format(self.internal_url, tenant_id, project_id, cluster_id, metrics)
