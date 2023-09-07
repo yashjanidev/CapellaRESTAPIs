@@ -24,8 +24,8 @@ class CapellaAPIAuth(AuthBase):
         self.SECRET_KEY = secret
         self.bearer_token = token
 
-    def __call__(self, r):
-        if "v4" in r.url:
+    def __call__(self, request):
+        if "v4" in request.url:
             # Values for the header
             cbc_api_request_headers = {
                 'Authorization': 'Bearer ' + self.bearer_token,
@@ -34,10 +34,10 @@ class CapellaAPIAuth(AuthBase):
         else:
             # This is the endpoint being called
             # Split out from the entire URL
-            endpoint = r.url.split(".com", 1)[-1]
+            endpoint = request.url.split(".com", 1)[-1]
 
             # The method being used
-            method = r.method
+            method = request.method
 
             # Epoch time in milliseconds
             cbc_api_now = int(time.time() * 1000)
@@ -61,5 +61,5 @@ class CapellaAPIAuth(AuthBase):
         r.headers.update(cbc_api_request_headers)
 
         # Return the request back
-        return r
+        return request
 
